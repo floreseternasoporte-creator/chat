@@ -7616,3 +7616,122 @@ This CSS snippet adds styles for image upload progress indication.
         font-size: 1.2rem;
     }
 }
+/* ===== Country selector refresh (Uber-like sheet) ===== */
+body.modal-open {
+    overflow: hidden;
+}
+
+.country-modal {
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(8px);
+}
+
+.country-modal-content {
+    width: min(520px, 100%);
+    margin: 0 auto;
+    border-radius: 28px 28px 0 0;
+    max-height: 82vh;
+    min-height: 55vh;
+}
+
+.country-modal-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    row-gap: 0.65rem;
+    padding: 0.9rem 1.2rem 0.8rem;
+}
+
+.country-modal-header::before {
+    display: none;
+}
+
+.modal-grabber {
+    grid-column: 1 / -1;
+    width: 46px;
+    height: 5px;
+    border-radius: 999px;
+    background: #d0d7e2;
+    margin: 0 auto;
+}
+
+.country-modal-title-group h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    text-align: left;
+}
+
+.country-modal-title-group p {
+    margin: 0.25rem 0 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.country-search-container {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: var(--background);
+    padding: 0.8rem 1.2rem 1rem;
+}
+
+#country-search {
+    border-radius: 14px;
+    border: 1px solid #d6dce5;
+    background: #f7f9fc;
+}
+
+.countries-list {
+    padding: 0;
+}
+
+.countries-section-header {
+    position: sticky;
+    top: 74px;
+    z-index: 2;
+    padding: 0.5rem 1.2rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
+    background: linear-gradient(to bottom, #ffffff, #f8fafc);
+    border-top: 1px solid #edf1f7;
+    border-bottom: 1px solid #edf1f7;
+}
+
+.country-item {
+    padding: 0.95rem 1.2rem;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.country-item:hover {
+    transform: none;
+    background: #f8fafc;
+}
+
+.country-item-code {
+    background: #eef2f7;
+    border-radius: 999px;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.85rem;
+}
+
+.country-item-check {
+    color: var(--accent-color);
+    opacity: 0;
+    transform: scale(0.8);
+    transition: 0.2s ease;
+}
+
+.country-item.selected {
+    border-left: none;
+    background: #ecfdf3;
+}
+
+.country-item.selected .country-item-check {
+    opacity: 1;
+    transform: scale(1);
+}

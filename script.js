@@ -517,7 +517,8 @@ function openCountryModal() {
     modal.offsetHeight;
     
     modal.classList.add('show');
-    
+    document.body.classList.add('modal-open');
+
     // Enfocar en la búsqueda
     setTimeout(() => {
         const searchInput = document.getElementById('country-search');
@@ -535,6 +536,7 @@ function closeCountryModal() {
     
     modal.classList.remove('show');
     btn.classList.remove('active');
+    document.body.classList.remove('modal-open');
     
     // Ocultar modal después de la animación
     setTimeout(() => {
@@ -553,47 +555,35 @@ function closeCountryModal() {
 
 function loadCountriesList() {
     const countriesList = document.getElementById('countries-list');
-    
+
     // Limpiar lista actual
     countriesList.innerHTML = '';
-    
+
     // Separar países populares
     const popularCountries = countries.filter(country => country.popular);
-    const otherCountries = countries.filter(country => !country.popular);
-    
+    const otherCountries = countries
+        .filter(country => !country.popular)
+        .sort((a, b) => a.name.localeCompare(b.name));
+
     // Agregar sección de países populares
     if (popularCountries.length > 0) {
         const popularHeader = document.createElement('div');
         popularHeader.className = 'countries-section-header';
-        popularHeader.innerHTML = `
-            <div style="padding: 0.75rem 2rem; background: var(--surface); font-weight: 600; font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
-                Países populares
-            </div>
-        `;
+        popularHeader.textContent = 'Países populares';
         countriesList.appendChild(popularHeader);
-        
+
         popularCountries.forEach(country => {
             countriesList.appendChild(createCountryItem(country));
         });
-        
-        // Agregar separador
-        const separator = document.createElement('div');
-        separator.style.cssText = 'height: 8px; background: var(--surface); margin: 0.5rem 0;';
-        countriesList.appendChild(separator);
-        
+
         const otherHeader = document.createElement('div');
         otherHeader.className = 'countries-section-header';
-        otherHeader.innerHTML = `
-            <div style="padding: 0.75rem 2rem; background: var(--surface); font-weight: 600; font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
-                Todos los países
-            </div>
-        `;
+        otherHeader.textContent = 'Todos los países';
         countriesList.appendChild(otherHeader);
     }
-    
-    // Agregar todos los países ordenados alfabéticamente
-    const allCountriesSorted = [...countries].sort((a, b) => a.name.localeCompare(b.name));
-    allCountriesSorted.forEach(country => {
+
+    // Agregar países no populares ordenados alfabéticamente
+    otherCountries.forEach(country => {
         countriesList.appendChild(createCountryItem(country));
     });
 }
@@ -603,21 +593,23 @@ function createCountryItem(country) {
     item.className = 'country-item';
     item.dataset.countryName = country.name.toLowerCase();
     item.dataset.countryCode = country.code;
-    
-    if (selectedCountry.code === country.code && selectedCountry.name === country.name) {
+
+    const isSelected = selectedCountry.code === country.code && selectedCountry.name === country.name;
+    if (isSelected) {
         item.classList.add('selected');
     }
-    
+
     item.innerHTML = `
         <div class="country-item-flag">${country.flag}</div>
         <div class="country-item-info">
             <div class="country-item-name">${country.name}</div>
             <div class="country-item-code">${country.code}</div>
         </div>
+        <i class="fas fa-check country-item-check" aria-hidden="true"></i>
     `;
-    
+
     item.onclick = () => selectCountry(country);
-    
+
     return item;
 }
 
@@ -641,6 +633,14 @@ function selectCountry(country) {
     
     console.log('País seleccionado:', country);
 }
+
+function handleCountryModalEscape(event) {
+    if (event.key === 'Escape') {
+        closeCountryModal();
+    }
+}
+
+document.addEventListener('keydown', handleCountryModalEscape);
 
 function filterCountries() {
     const searchTerm = document.getElementById('country-search').value.toLowerCase();
@@ -4131,6 +4131,7 @@ function closeContactCountryModal() {
     
     modal.classList.remove('show');
     btn.classList.remove('active');
+    document.body.classList.remove('modal-open');
     
     setTimeout(() => {
         modal.style.display = 'none';
