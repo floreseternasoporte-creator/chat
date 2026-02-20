@@ -712,6 +712,14 @@ function filterCountries() {
     loadCountriesList(searchTerm);
 }
 
+document.addEventListener('keydown', handleCountryModalEscape);
+
+function filterCountries() {
+    const searchInput = document.getElementById('country-search');
+    const searchTerm = searchInput ? searchInput.value : '';
+    loadCountriesList(searchTerm);
+}
+
 function sendVerificationCode() {
     const countryCode = selectedCountry.code;
     const phoneNumber = document.getElementById('phone-input').value;
@@ -950,76 +958,20 @@ function generateRandomCode() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Sistema de notificación instantánea para solicitudes
+// Sistema de notificación desactivado (UI silenciosa)
 let notificationSystem = {
     activeNotifications: [],
-    soundEnabled: true
+    soundEnabled: false
 };
 
-// Función para mostrar notificación instantánea de solicitud
 function showInstantNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `instant-notification ${type}`;
-    notification.innerHTML = `
-        <div class="notification-icon">
-            <i class="fas fa-${type === 'friend-request' ? 'user-plus' : 'bell'}"></i>
-        </div>
-        <div class="notification-content">
-            <div class="notification-title">${type === 'friend-request' ? 'Nueva Solicitud' : 'Notificación'}</div>
-            <div class="notification-message">${message}</div>
-        </div>
-        <button class="notification-close" onclick="closeNotification(this)">
-            <i class="fas fa-times"></i>
-        </button>
-    `;
-
-    document.body.appendChild(notification);
-    notificationSystem.activeNotifications.push(notification);
-
-    // Reproducir sonido de notificación
-    if (notificationSystem.soundEnabled) {
-        playNotificationSound();
-    }
-
-    // Auto-cerrar después de 5 segundos
-    setTimeout(() => {
-        closeNotification(notification);
-    }, 5000);
+    console.log(`[notification:${type}] ${message}`);
 }
 
-function closeNotification(element) {
-    const notification = element.closest ? element.closest('.instant-notification') : element;
-    if (notification && notification.parentNode) {
-        notification.parentNode.removeChild(notification);
-        const index = notificationSystem.activeNotifications.indexOf(notification);
-        if (index > -1) {
-            notificationSystem.activeNotifications.splice(index, 1);
-        }
-    }
-}
+function closeNotification() {}
 
-function playNotificationSound() {
-    if (window.AudioContext || window.webkitAudioContext) {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
+function playNotificationSound() {}
 
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        // Sonido de notificación agradable
-        oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.1);
-        oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.2);
-        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.3);
-    }
-}
-
-// Función para obtener huella digital del dispositivo
 function getDeviceFingerprint() {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -1465,48 +1417,11 @@ function createContactItem(user) {
 }
 
 function showErrorMessage(message) {
-    // Crear y mostrar modal de error
-    const errorModal = document.createElement('div');
-    errorModal.className = 'error-modal';
-    errorModal.innerHTML = `
-        <div class="error-content">
-            <div class="error-icon">
-                <i class="fas fa-exclamation-circle"></i>
-            </div>
-            <h3>Error</h3>
-            <p>${message}</p>
-            <button class="primary-btn" onclick="closeErrorModal()">Entendido</button>
-        </div>
-    `;
-
-    document.body.appendChild(errorModal);
-
-    // Auto-cerrar después de 8 segundos
-    setTimeout(() => {
-        closeErrorModal();
-    }, 8000);
+    console.error(`[error] ${message}`);
 }
 
 function showSuccessMessage(message) {
-    // Crear y mostrar modal de éxito
-    const successModal = document.createElement('div');
-    successModal.className = 'success-modal';
-    successModal.innerHTML = `
-        <div class="success-content">
-            <div class="success-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <h3>¡Éxito!</h3>
-            <p>${message}</p>
-        </div>
-    `;
-
-    document.body.appendChild(successModal);
-
-    // Auto-cerrar después de 3 segundos
-    setTimeout(() => {
-        closeSuccessModal();
-    }, 3000);
+    console.log(`[success] ${message}`);
 }
 
 function closeErrorModal() {
@@ -3903,242 +3818,6 @@ function hideAddContact() {
     document.getElementById('add-contact-modal').classList.remove('show');
 }
 
-// Funciones para integración con redes sociales
-function connectWhatsApp() {
-    const btn = document.getElementById('whatsapp-btn');
-    const status = document.getElementById('whatsapp-status');
-    
-    if (socialConnections.whatsapp.connected) {
-        // Desconectar WhatsApp
-        socialConnections.whatsapp.connected = false;
-        socialConnections.whatsapp.contacts = [];
-        
-        btn.innerHTML = '<i class="fas fa-link"></i> Conectar';
-        btn.classList.remove('connected');
-        status.textContent = 'No conectado';
-        
-        showInstantNotification('WhatsApp desconectado', 'friend-request');
-        return;
-    }
-    
-    // Mostrar proceso de conexión
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...';
-    btn.disabled = true;
-    
-    // Simular proceso de autorización de WhatsApp
-    setTimeout(() => {
-        // Simular éxito en la conexión
-        socialConnections.whatsapp.connected = true;
-        
-        // Generar contactos simulados de WhatsApp
-        const mockWhatsAppContacts = [
-            { name: 'María García', phone: '+34612345678', platform: 'WhatsApp' },
-            { name: 'Carlos López', phone: '+34687654321', platform: 'WhatsApp' },
-            { name: 'Ana Martínez', phone: '+34655444333', platform: 'WhatsApp' },
-            { name: 'David Rodríguez', phone: '+34699888777', platform: 'WhatsApp' }
-        ];
-        
-        socialConnections.whatsapp.contacts = mockWhatsAppContacts;
-        
-        // Actualizar UI
-        btn.innerHTML = '<i class="fas fa-check"></i> Conectado';
-        btn.classList.add('connected');
-        btn.disabled = false;
-        status.textContent = `${mockWhatsAppContacts.length} contactos encontrados`;
-        
-        // Mostrar resultados
-        showSyncResults(mockWhatsAppContacts);
-        
-        showInstantNotification(`✅ WhatsApp conectado - ${mockWhatsAppContacts.length} contactos encontrados`, 'friend-request');
-        
-    }, 2000);
-}
-
-function connectFacebook() {
-    const btn = document.getElementById('facebook-btn');
-    const status = document.getElementById('facebook-status');
-    
-    if (socialConnections.facebook.connected) {
-        // Desconectar Facebook
-        socialConnections.facebook.connected = false;
-        socialConnections.facebook.contacts = [];
-        
-        btn.innerHTML = '<i class="fas fa-link"></i> Conectar';
-        btn.classList.remove('connected');
-        status.textContent = 'No conectado';
-        
-        showInstantNotification('Facebook desconectado', 'friend-request');
-        return;
-    }
-    
-    // Mostrar proceso de conexión
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...';
-    btn.disabled = true;
-    
-    // Simular proceso de autorización de Facebook
-    setTimeout(() => {
-        // Simular éxito en la conexión
-        socialConnections.facebook.connected = true;
-        
-        // Generar contactos simulados de Facebook
-        const mockFacebookContacts = [
-            { name: 'Laura Fernández', phone: '+34611222333', platform: 'Facebook' },
-            { name: 'Miguel Santos', phone: '+34622333444', platform: 'Facebook' },
-            { name: 'Elena Morales', phone: '+34633444555', platform: 'Facebook' },
-            { name: 'Javier Ruiz', phone: '+34644555666', platform: 'Facebook' },
-            { name: 'Isabel Jiménez', phone: '+34655666777', platform: 'Facebook' }
-        ];
-        
-        socialConnections.facebook.contacts = mockFacebookContacts;
-        
-        // Actualizar UI
-        btn.innerHTML = '<i class="fas fa-check"></i> Conectado';
-        btn.classList.add('connected');
-        btn.disabled = false;
-        status.textContent = `${mockFacebookContacts.length} contactos encontrados`;
-        
-        // Mostrar resultados
-        showSyncResults(mockFacebookContacts);
-        
-        showInstantNotification(`✅ Facebook conectado - ${mockFacebookContacts.length} contactos encontrados`, 'friend-request');
-        
-    }, 2500);
-}
-
-function syncPhoneContacts() {
-    const btn = document.getElementById('contacts-btn');
-    const status = document.getElementById('contacts-status');
-    
-    if (socialConnections.phoneContacts.synced) {
-        // Dessincronizar contactos
-        socialConnections.phoneContacts.synced = false;
-        socialConnections.phoneContacts.contacts = [];
-        
-        btn.innerHTML = '<i class="fas fa-sync"></i> Sincronizar';
-        btn.classList.remove('connected');
-        status.textContent = 'No sincronizado';
-        
-        showInstantNotification('Contactos del dispositivo dessincronizados', 'friend-request');
-        return;
-    }
-    
-    // Mostrar proceso de sincronización
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sincronizando...';
-    btn.disabled = true;
-    
-    // Simular acceso a contactos del dispositivo
-    setTimeout(() => {
-        // Simular éxito en la sincronización
-        socialConnections.phoneContacts.synced = true;
-        
-        // Generar contactos simulados del dispositivo
-        const mockPhoneContacts = [
-            { name: 'Roberto Díaz', phone: '+34666777888', platform: 'Contactos' },
-            { name: 'Carmen Vega', phone: '+34677888999', platform: 'Contactos' },
-            { name: 'Francisco Torres', phone: '+34688999000', platform: 'Contactos' },
-            { name: 'Lucía Herrera', phone: '+34699000111', platform: 'Contactos' },
-            { name: 'Andrés Molina', phone: '+34600111222', platform: 'Contactos' },
-            { name: 'Silvia Castro', phone: '+34611222333', platform: 'Contactos' }
-        ];
-        
-        socialConnections.phoneContacts.contacts = mockPhoneContacts;
-        
-        // Actualizar UI
-        btn.innerHTML = '<i class="fas fa-check"></i> Sincronizado';
-        btn.classList.add('connected');
-        btn.disabled = false;
-        status.textContent = `${mockPhoneContacts.length} contactos sincronizados`;
-        
-        // Mostrar resultados
-        showSyncResults(mockPhoneContacts);
-        
-        showInstantNotification(`✅ Contactos sincronizados - ${mockPhoneContacts.length} contactos encontrados`, 'friend-request');
-        
-    }, 1500);
-}
-
-function showSyncResults(contacts) {
-    const resultsContainer = document.getElementById('sync-results');
-    const foundContactsContainer = document.getElementById('found-contacts');
-    
-    // Limpiar resultados anteriores
-    foundContactsContainer.innerHTML = '';
-    
-    if (contacts.length > 0) {
-        contacts.forEach(contact => {
-            const contactItem = document.createElement('div');
-            contactItem.className = 'found-contact-item';
-            contactItem.innerHTML = `
-                <div class="found-contact-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="found-contact-info">
-                    <div class="found-contact-name">${contact.name}</div>
-                    <div class="found-contact-platform">
-                        ${contact.platform} • ${contact.phone}
-                    </div>
-                </div>
-                <button class="add-contact-btn" onclick="addSocialContact('${contact.phone}', '${contact.name}')">
-                    <i class="fas fa-plus"></i>
-                    Agregar
-                </button>
-            `;
-            foundContactsContainer.appendChild(contactItem);
-        });
-        
-        resultsContainer.style.display = 'block';
-        
-        // Hacer scroll hacia los resultados
-        setTimeout(() => {
-            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 100);
-    }
-}
-
-function addSocialContact(phone, name) {
-    console.log(`Agregando contacto social: ${name} (${phone})`);
-    
-    // Buscar usuario en Firebase por número de teléfono
-    const phoneKey = phone.replace(/\D/g, '');
-    database.ref('phoneNumbers/' + phoneKey).once('value')
-        .then(phoneSnapshot => {
-            if (phoneSnapshot.exists()) {
-                const phoneData = phoneSnapshot.val();
-                const userId = phoneData.userId;
-                
-                // Obtener datos completos del usuario
-                return database.ref('users/' + userId).once('value');
-            } else {
-                throw new Error('Usuario no encontrado en UberChat');
-            }
-        })
-        .then(snapshot => {
-            if (snapshot.val()) {
-                const userId = snapshot.key;
-                const user = snapshot.val();
-                user.uid = userId;
-                
-                // Verificar si ya son contactos
-                return database.ref(`contacts/${currentUser.uid}/${userId}`).once('value')
-                    .then(contactSnapshot => {
-                        if (contactSnapshot.exists()) {
-                            showInstantNotification(`${name} ya está en tu lista de contactos`, 'friend-request');
-                        } else {
-                            // Enviar solicitud de amistad
-                            sendFriendRequest(userId, user.phoneNumber);
-                            showInstantNotification(`Solicitud enviada a ${name}`, 'friend-request');
-                        }
-                    });
-            } else {
-                throw new Error('Datos de usuario no válidos');
-            }
-        })
-        .catch(error => {
-            console.error('Error agregando contacto social:', error);
-            showInstantNotification(`${name} no está registrado en UberChat`, 'friend-request');
-        });
-}
-
 // Funciones para el selector de país de contactos
 function openContactCountryModal() {
     const modal = document.getElementById('contact-country-modal');
@@ -4276,13 +3955,6 @@ function filterContactCountries() {
 let friendRequestsListener = null;
 let pendingRequests = new Map();
 
-// Variables para integración de redes sociales
-let socialConnections = {
-    whatsapp: { connected: false, contacts: [] },
-    facebook: { connected: false, contacts: [] },
-    phoneContacts: { synced: false, contacts: [] }
-};
-
 // Variable para selector de país de contactos
 let selectedContactCountry = { name: 'España', code: '+34', flag: '🇪🇸' };
 
@@ -4364,7 +4036,7 @@ function addContact() {
                         }
                     });
             } else {
-                showErrorMessage(`Usuario con número ${fullNumber} no encontrado en la plataforma. Debe registrarse primero.`);
+                showErrorMessage('Usuario no encontrado en la plataforma. Verifica el número e intenta de nuevo.');
             }
         })
         .catch(error => {

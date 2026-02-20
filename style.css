@@ -860,7 +860,8 @@ body {
     z-index: 1;
 }
 
-#country-search {
+#country-search,
+#contact-country-search {
     width: 100%;
     padding: 1rem 1rem 1rem 3rem;
     border: 2px solid var(--border-color);
@@ -870,7 +871,8 @@ body {
     transition: var(--transition);
 }
 
-#country-search:focus {
+#country-search:focus,
+#contact-country-search:focus {
     outline: none;
     border-color: var(--primary-color);
     background: var(--background);
@@ -7677,7 +7679,8 @@ body.modal-open {
     padding: 0.8rem 1.2rem 1rem;
 }
 
-#country-search {
+#country-search,
+#contact-country-search {
     border-radius: 14px;
     border: 1px solid #d6dce5;
     background: #f7f9fc;
@@ -7685,11 +7688,12 @@ body.modal-open {
 
 .countries-list {
     padding: 0;
+    position: relative;
 }
 
 .countries-section-header {
     position: sticky;
-    top: 74px;
+    top: 0;
     z-index: 2;
     padding: 0.5rem 1.2rem;
     font-size: 0.75rem;
@@ -7936,3 +7940,6 @@ body.modal-open {
         border-radius: 14px;
     }
 }
+
+
+#add-contact-modal .search-suggestions { margin-top: 0.75rem; }
