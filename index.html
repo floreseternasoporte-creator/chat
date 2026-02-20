@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zenvio - Mensajería Global</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%2722%27 fill=%27%23111827%27/%3E%3C/svg%3E">
     <link href="style.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -31,26 +32,33 @@
     <!-- Pantalla de Introducción -->
     <div id="intro-screen" class="screen">
         <div class="intro-container">
-            <div class="logo">
-                <i class="fas fa-paper-plane"></i>
-                <h1>Zenvio</h1>
+            <div class="intro-shell">
+                <div class="intro-top-badge">Movilidad + Mensajería Global</div>
+                <div class="logo intro-logo">
+                    <div class="intro-logo-icon"><i class="fas fa-paper-plane"></i></div>
+                    <h1>Zenvio</h1>
+                </div>
+                <p class="intro-text">Conecta con el mundo sin barreras de idioma</p>
+
+                <div class="language-selector intro-language-selector">
+                    <label for="language-select">Selecciona tu idioma:</label>
+                    <select id="language-select">
+                        <option value="es">Español</option>
+                        <option value="en">English</option>
+                        <option value="fr">Français</option>
+                        <option value="de">Deutsch</option>
+                        <option value="pt">Português</option>
+                        <option value="it">Italiano</option>
+                    </select>
+                </div>
+
+                <div class="intro-actions">
+                    <button class="primary-btn intro-primary-btn" onclick="goToRegister()">
+                        <span>Comenzar</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
             </div>
-            <p class="intro-text">Conecta con el mundo sin barreras de idioma</p>
-            <div class="language-selector">
-                <label>Selecciona tu idioma:</label>
-                <select id="language-select">
-                    <option value="es">Español</option>
-                    <option value="en">English</option>
-                    <option value="fr">Français</option>
-                    <option value="de">Deutsch</option>
-                    <option value="pt">Português</option>
-                    <option value="it">Italiano</option>
-                </select>
-            </div>
-            <button class="primary-btn" onclick="goToRegister()">
-                <span>Comenzar</span>
-                <i class="fas fa-arrow-right"></i>
-            </button>
         </div>
     </div>
 
@@ -68,7 +76,7 @@
                 <div class="country-phone-wrapper">
                     <button class="country-selector-btn" id="country-selector-btn" onclick="openCountryModal()">
                         <div class="selected-country">
-                            <span class="country-flag">🇪🇸</span>
+                            <span class="country-flag"></span>
                             <span class="country-code">+34</span>
                         </div>
                         <i class="fas fa-chevron-down"></i>
@@ -83,10 +91,14 @@
             <div id="country-modal" class="country-modal" onclick="closeCountryModal()">
                 <div class="country-modal-content" onclick="event.stopPropagation()">
                     <div class="country-modal-header">
-                        <button class="modal-close-btn" onclick="closeCountryModal()">
+                        <div class="modal-grabber" aria-hidden="true"></div>
+                        <div class="country-modal-title-group">
+                            <h3>Selecciona tu país</h3>
+                            <p>Elige el código para tu número</p>
+                        </div>
+                        <button class="modal-close-btn" onclick="closeCountryModal()" aria-label="Cerrar selector de país">
                             <i class="fas fa-times"></i>
                         </button>
-                        <h3>Selecciona tu país</h3>
                     </div>
 
                     <div class="country-search-container">
@@ -120,12 +132,12 @@
                 <p>Ingresa el código de 6 dígitos que enviamos a <span id="phone-display"></span></p>
             </div>
             <div class="code-input-container">
-                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 0)">
-                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 1)">
-                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 2)">
-                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 3)">
-                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 4)">
-                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 5)">
+                <input type="text" maxlength="1" class="code-digit" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" oninput="handleCodeInput(this, 0)">
+                <input type="text" maxlength="1" class="code-digit" inputmode="numeric" pattern="[0-9]*" oninput="handleCodeInput(this, 1)">
+                <input type="text" maxlength="1" class="code-digit" inputmode="numeric" pattern="[0-9]*" oninput="handleCodeInput(this, 2)">
+                <input type="text" maxlength="1" class="code-digit" inputmode="numeric" pattern="[0-9]*" oninput="handleCodeInput(this, 3)">
+                <input type="text" maxlength="1" class="code-digit" inputmode="numeric" pattern="[0-9]*" oninput="handleCodeInput(this, 4)">
+                <input type="text" maxlength="1" class="code-digit" inputmode="numeric" pattern="[0-9]*" oninput="handleCodeInput(this, 5)">
             </div>
             <div id="verification-status" class="verification-status"></div>
             <button class="text-btn" onclick="resendCode()">Reenviar código</button>
@@ -423,55 +435,16 @@
                 <h3>Agregar Contactos</h3>
             </div>
             <div class="modal-body">
-                <!-- Sección de integración con redes sociales -->
-                <div class="social-integration-section">
-                    <h4>🌐 Conectar Redes Sociales</h4>
-                    <p class="section-description">Vincula tus cuentas para encontrar automáticamente a tus amigos</p>
-
-                    <div class="social-platforms">
-                        <div class="social-platform facebook" onclick="connectFacebook()">
-                            <div class="platform-icon">
-                                <i class="fab fa-facebook"></i>
-                            </div>
-                            <div class="platform-info">
-                                <h5>Facebook</h5>
-                                <p id="facebook-status">No conectado</p>
-                            </div>
-                            <div class="platform-action">
-                                <button class="connect-btn" id="facebook-btn">
-                                    <i class="fas fa-link"></i>
-                                    Conectar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="sync-results" id="sync-results" style="display: none;">
-                        <div class="results-header">
-                            <i class="fas fa-users"></i>
-                            <h5>Contactos Encontrados</h5>
-                        </div>
-                        <div class="found-contacts" id="found-contacts"></div>
-                    </div>
-                </div>
-
-                <!-- Divider -->
-                <div class="section-divider">
-                    <hr>
-                    <span>O</span>
-                    <hr>
-                </div>
-
                 <!-- Sección de búsqueda manual -->
                 <div class="manual-search-section">
-                    <h4>🔍 Búsqueda Manual</h4>
+                    <h4>Busqueda Manual</h4>
                     <p class="section-description">Busca usuarios por su número de teléfono registrado</p>
 
                     <div class="search-input-container">
                         <div class="country-phone-wrapper">
                             <button class="country-selector-btn" id="contact-country-selector" onclick="openContactCountryModal()">
                                 <div class="selected-country">
-                                    <span class="country-flag">🇪🇸</span>
+                                    <span class="country-flag"></span>
                                     <span class="country-code">+34</span>
                                 </div>
                                 <i class="fas fa-chevron-down"></i>
@@ -486,10 +459,6 @@
                         <div class="suggestion-item">
                             <i class="fas fa-lightbulb"></i>
                             <span>El usuario debe estar registrado en Zenvio</span>
-                        </div>
-                        <div class="suggestion-item">
-                            <i class="fas fa-globe"></i>
-                            <span>Incluye el código de país completo</span>
                         </div>
                     </div>
                 </div>
@@ -511,10 +480,14 @@
     <div id="contact-country-modal" class="country-modal" onclick="closeContactCountryModal()">
         <div class="country-modal-content" onclick="event.stopPropagation()">
             <div class="country-modal-header">
-                <button class="modal-close-btn" onclick="closeContactCountryModal()">
+                <div class="modal-grabber" aria-hidden="true"></div>
+                <div class="country-modal-title-group">
+                    <h3>Selecciona el país</h3>
+                    <p>Busca por nombre o prefijo</p>
+                </div>
+                <button class="modal-close-btn" onclick="closeContactCountryModal()" aria-label="Cerrar selector de país">
                     <i class="fas fa-times"></i>
                 </button>
-                <h3>Selecciona el país</h3>
             </div>
 
             <div class="country-search-container">
@@ -932,7 +905,7 @@
                     <div class="profile-info">
                         <h3 id="profile-username">Usuario</h3>
                         <div class="profile-phone" id="profile-phone-display">+34 123 456 789</div>
-                        <div class="profile-status">🟢 En línea</div>
+                        <div class="profile-status"> En línea</div>
                         <button class="edit-profile-btn" onclick="showEditProfile()">
                             <i class="fas fa-edit"></i>
                             Editar Perfil

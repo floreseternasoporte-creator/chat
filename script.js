@@ -24,7 +24,7 @@ const database = firebase.database();
 
 // Estado global de la aplicación
 let currentScreen = 'intro';
-let userLanguage = detectDeviceLanguage();
+let userLanguage = 'es';
 let currentChatContact = null;
 let currentUser = null;
 
@@ -80,17 +80,15 @@ let sessionManager = {
 let deviceApprovalModal = null;
 let approvalTimeout = null;
 
-// Función para detectar idioma del dispositivo
-function detectDeviceLanguage() {
-    // Obtener idioma del navegador/dispositivo
-    const deviceLang = navigator.language || navigator.userLanguage || 'es';
-    const langCode = deviceLang.substring(0, 2).toLowerCase();
-    
-    // Idiomas soportados
+function getSavedLanguagePreference() {
+    const savedLanguage = localStorage.getItem('zenvio_language') || localStorage.getItem('uberchat_language');
     const supportedLanguages = ['es', 'en', 'fr', 'de', 'pt', 'it'];
-    
-    // Si el idioma está soportado, usarlo; sino usar español por defecto
-    return supportedLanguages.includes(langCode) ? langCode : 'es';
+
+    if (savedLanguage && supportedLanguages.includes(savedLanguage)) {
+        return savedLanguage;
+    }
+
+    return 'es';
 }
 
 // Google Translate API - Configuración
@@ -436,8 +434,6 @@ document.getElementById('language-select').addEventListener('change', async func
         // Actualizar interfaz en tiempo real
         await updateLanguage();
         
-        // Mostrar confirmación
-        showInstantNotification(`🌍 Idioma cambiado a: ${this.options[this.selectedIndex].text}`, 'friend-request');
     }
 });
 
@@ -451,46 +447,46 @@ function goToIntro() {
 
 // Lista completa de países con banderas y códigos
 const countries = [
-    { name: 'España', code: '+34', flag: '🇪🇸', popular: true },
-    { name: 'Estados Unidos', code: '+1', flag: '🇺🇸', popular: true },
-    { name: 'México', code: '+52', flag: '🇲🇽', popular: true },
-    { name: 'Argentina', code: '+54', flag: '🇦🇷', popular: true },
-    { name: 'Brasil', code: '+55', flag: '🇧🇷', popular: true },
-    { name: 'Colombia', code: '+57', flag: '🇨🇴', popular: true },
-    { name: 'Chile', code: '+56', flag: '🇨🇱', popular: true },
-    { name: 'Perú', code: '+51', flag: '🇵🇪', popular: true },
-    { name: 'Francia', code: '+33', flag: '🇫🇷' },
-    { name: 'Alemania', code: '+49', flag: '🇩🇪' },
-    { name: 'Italia', code: '+39', flag: '🇮🇹' },
-    { name: 'Reino Unido', code: '+44', flag: '🇬🇧' },
-    { name: 'Canadá', code: '+1', flag: '🇨🇦' },
-    { name: 'Australia', code: '+61', flag: '🇦🇺' },
-    { name: 'Japón', code: '+81', flag: '🇯🇵' },
-    { name: 'China', code: '+86', flag: '🇨🇳' },
-    { name: 'India', code: '+91', flag: '🇮🇳' },
-    { name: 'Rusia', code: '+7', flag: '🇷🇺' },
-    { name: 'Corea del Sur', code: '+82', flag: '🇰🇷' },
-    { name: 'Holanda', code: '+31', flag: '🇳🇱' },
-    { name: 'Bélgica', code: '+32', flag: '🇧🇪' },
-    { name: 'Suiza', code: '+41', flag: '🇨🇭' },
-    { name: 'Austria', code: '+43', flag: '🇦🇹' },
-    { name: 'Suecia', code: '+46', flag: '🇸🇪' },
-    { name: 'Noruega', code: '+47', flag: '🇳🇴' },
-    { name: 'Dinamarca', code: '+45', flag: '🇩🇰' },
-    { name: 'Finlandia', code: '+358', flag: '🇫🇮' },
-    { name: 'Portugal', code: '+351', flag: '🇵🇹' },
-    { name: 'Grecia', code: '+30', flag: '🇬🇷' },
-    { name: 'Turquía', code: '+90', flag: '🇹🇷' },
-    { name: 'Israel', code: '+972', flag: '🇮🇱' },
-    { name: 'Emiratos Árabes Unidos', code: '+971', flag: '🇦🇪' },
-    { name: 'Arabia Saudí', code: '+966', flag: '🇸🇦' },
-    { name: 'Egipto', code: '+20', flag: '🇪🇬' },
-    { name: 'Sudáfrica', code: '+27', flag: '🇿🇦' },
-    { name: 'Marruecos', code: '+212', flag: '🇲🇦' },
-    { name: 'Nigeria', code: '+234', flag: '🇳🇬' },
-    { name: 'Kenia', code: '+254', flag: '🇰🇪' },
-    { name: 'Ghana', code: '+233', flag: '🇬🇭' },
-    { name: 'Tanzania', code: '+255', flag: '🇹🇿' }
+    { name: 'España', code: '+34', flag: '', popular: true },
+    { name: 'Estados Unidos', code: '+1', flag: '', popular: true },
+    { name: 'México', code: '+52', flag: '', popular: true },
+    { name: 'Argentina', code: '+54', flag: '', popular: true },
+    { name: 'Brasil', code: '+55', flag: '', popular: true },
+    { name: 'Colombia', code: '+57', flag: '', popular: true },
+    { name: 'Chile', code: '+56', flag: '', popular: true },
+    { name: 'Perú', code: '+51', flag: '', popular: true },
+    { name: 'Francia', code: '+33', flag: '' },
+    { name: 'Alemania', code: '+49', flag: '' },
+    { name: 'Italia', code: '+39', flag: '' },
+    { name: 'Reino Unido', code: '+44', flag: '' },
+    { name: 'Canadá', code: '+1', flag: '' },
+    { name: 'Australia', code: '+61', flag: '' },
+    { name: 'Japón', code: '+81', flag: '' },
+    { name: 'China', code: '+86', flag: '' },
+    { name: 'India', code: '+91', flag: '' },
+    { name: 'Rusia', code: '+7', flag: '' },
+    { name: 'Corea del Sur', code: '+82', flag: '' },
+    { name: 'Holanda', code: '+31', flag: '' },
+    { name: 'Bélgica', code: '+32', flag: '' },
+    { name: 'Suiza', code: '+41', flag: '' },
+    { name: 'Austria', code: '+43', flag: '' },
+    { name: 'Suecia', code: '+46', flag: '' },
+    { name: 'Noruega', code: '+47', flag: '' },
+    { name: 'Dinamarca', code: '+45', flag: '' },
+    { name: 'Finlandia', code: '+358', flag: '' },
+    { name: 'Portugal', code: '+351', flag: '' },
+    { name: 'Grecia', code: '+30', flag: '' },
+    { name: 'Turquía', code: '+90', flag: '' },
+    { name: 'Israel', code: '+972', flag: '' },
+    { name: 'Emiratos Árabes Unidos', code: '+971', flag: '' },
+    { name: 'Arabia Saudí', code: '+966', flag: '' },
+    { name: 'Egipto', code: '+20', flag: '' },
+    { name: 'Sudáfrica', code: '+27', flag: '' },
+    { name: 'Marruecos', code: '+212', flag: '' },
+    { name: 'Nigeria', code: '+234', flag: '' },
+    { name: 'Kenia', code: '+254', flag: '' },
+    { name: 'Ghana', code: '+233', flag: '' },
+    { name: 'Tanzania', code: '+255', flag: '' }
 ];
 
 let selectedCountry = countries[0]; // España por defecto
@@ -506,6 +502,11 @@ phoneInput.addEventListener('input', function() {
 });
 
 // Funciones para el modal de países
+function syncBodyModalState() {
+    const hasVisibleModal = document.querySelector('.country-modal.show') !== null;
+    document.body.classList.toggle('modal-open', hasVisibleModal);
+}
+
 function openCountryModal() {
     const modal = document.getElementById('country-modal');
     const btn = document.getElementById('country-selector-btn');
@@ -521,7 +522,8 @@ function openCountryModal() {
     modal.offsetHeight;
     
     modal.classList.add('show');
-    
+    syncBodyModalState();
+
     // Enfocar en la búsqueda
     setTimeout(() => {
         const searchInput = document.getElementById('country-search');
@@ -539,6 +541,7 @@ function closeCountryModal() {
     
     modal.classList.remove('show');
     btn.classList.remove('active');
+    syncBodyModalState();
     
     // Ocultar modal después de la animación
     setTimeout(() => {
@@ -555,51 +558,70 @@ function closeCountryModal() {
     console.log('Modal de países cerrado');
 }
 
-function loadCountriesList() {
+function normalizeCountrySearch(value = '') {
+    return value
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+}
+
+function countryMatchesSearch(country, normalizedSearch) {
+    if (!normalizedSearch) return true;
+
+    const normalizedName = normalizeCountrySearch(country.name);
+    const normalizedCode = country.code.toLowerCase();
+
+    return normalizedName.includes(normalizedSearch) || normalizedCode.includes(normalizedSearch);
+}
+
+function renderNoCountryResults(container) {
+    const noResults = document.createElement('div');
+    noResults.className = 'no-results';
+    noResults.innerHTML = `
+        <i class="fas fa-search"></i>
+        <h4>No se encontraron países</h4>
+        <p>Intenta con otro término de búsqueda</p>
+    `;
+    container.appendChild(noResults);
+}
+
+function loadCountriesList(searchTerm = '') {
     const countriesList = document.getElementById('countries-list');
-    
-    // Limpiar lista actual
     countriesList.innerHTML = '';
-    
-    // Separar países populares
-    const popularCountries = countries.filter(country => country.popular);
-    const otherCountries = countries.filter(country => !country.popular);
-    
-    // Agregar sección de países populares
+
+    const normalizedSearch = normalizeCountrySearch(searchTerm);
+    const popularCountries = countries
+        .filter(country => country.popular && countryMatchesSearch(country, normalizedSearch));
+    const otherCountries = countries
+        .filter(country => !country.popular && countryMatchesSearch(country, normalizedSearch))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
     if (popularCountries.length > 0) {
         const popularHeader = document.createElement('div');
         popularHeader.className = 'countries-section-header';
-        popularHeader.innerHTML = `
-            <div style="padding: 0.75rem 2rem; background: var(--surface); font-weight: 600; font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
-                Países populares
-            </div>
-        `;
+        popularHeader.textContent = 'Países populares';
         countriesList.appendChild(popularHeader);
-        
+
         popularCountries.forEach(country => {
             countriesList.appendChild(createCountryItem(country));
         });
-        
-        // Agregar separador
-        const separator = document.createElement('div');
-        separator.style.cssText = 'height: 8px; background: var(--surface); margin: 0.5rem 0;';
-        countriesList.appendChild(separator);
-        
+    }
+
+    if (otherCountries.length > 0) {
         const otherHeader = document.createElement('div');
         otherHeader.className = 'countries-section-header';
-        otherHeader.innerHTML = `
-            <div style="padding: 0.75rem 2rem; background: var(--surface); font-weight: 600; font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
-                Todos los países
-            </div>
-        `;
+        otherHeader.textContent = 'Todos los países';
         countriesList.appendChild(otherHeader);
+
+        otherCountries.forEach(country => {
+            countriesList.appendChild(createCountryItem(country));
+        });
     }
-    
-    // Agregar todos los países ordenados alfabéticamente
-    const allCountriesSorted = [...countries].sort((a, b) => a.name.localeCompare(b.name));
-    allCountriesSorted.forEach(country => {
-        countriesList.appendChild(createCountryItem(country));
-    });
+
+    if (popularCountries.length === 0 && otherCountries.length === 0) {
+        renderNoCountryResults(countriesList);
+    }
 }
 
 function createCountryItem(country) {
@@ -607,21 +629,23 @@ function createCountryItem(country) {
     item.className = 'country-item';
     item.dataset.countryName = country.name.toLowerCase();
     item.dataset.countryCode = country.code;
-    
-    if (selectedCountry.code === country.code && selectedCountry.name === country.name) {
+
+    const isSelected = selectedCountry.code === country.code && selectedCountry.name === country.name;
+    if (isSelected) {
         item.classList.add('selected');
     }
-    
+
     item.innerHTML = `
         <div class="country-item-flag">${country.flag}</div>
         <div class="country-item-info">
             <div class="country-item-name">${country.name}</div>
             <div class="country-item-code">${country.code}</div>
         </div>
+        <i class="fas fa-check country-item-check" aria-hidden="true"></i>
     `;
-    
+
     item.onclick = () => selectCountry(country);
-    
+
     return item;
 }
 
@@ -646,39 +670,30 @@ function selectCountry(country) {
     console.log('País seleccionado:', country);
 }
 
+function handleCountryModalEscape(event) {
+    if (event.key !== 'Escape') {
+        return;
+    }
+
+    const mainModal = document.getElementById('country-modal');
+    const contactModal = document.getElementById('contact-country-modal');
+
+    if (contactModal && contactModal.classList.contains('show')) {
+        closeContactCountryModal();
+        return;
+    }
+
+    if (mainModal && mainModal.classList.contains('show')) {
+        closeCountryModal();
+    }
+}
+
+document.addEventListener('keydown', handleCountryModalEscape);
+
 function filterCountries() {
-    const searchTerm = document.getElementById('country-search').value.toLowerCase();
-    const countryItems = document.querySelectorAll('.country-item');
-    let hasResults = false;
-    
-    countryItems.forEach(item => {
-        const countryName = item.dataset.countryName;
-        const countryCode = item.dataset.countryCode.toLowerCase();
-        
-        if (countryName.includes(searchTerm) || countryCode.includes(searchTerm)) {
-            item.classList.remove('hidden');
-            hasResults = true;
-        } else {
-            item.classList.add('hidden');
-        }
-    });
-    
-    // Mostrar mensaje de no resultados
-    const existingNoResults = document.querySelector('.no-results');
-    if (existingNoResults) {
-        existingNoResults.remove();
-    }
-    
-    if (!hasResults && searchTerm.length > 0) {
-        const noResults = document.createElement('div');
-        noResults.className = 'no-results';
-        noResults.innerHTML = `
-            <i class="fas fa-search"></i>
-            <h4>No se encontraron países</h4>
-            <p>Intenta con otro término de búsqueda</p>
-        `;
-        document.getElementById('countries-list').appendChild(noResults);
-    }
+    const searchInput = document.getElementById('country-search');
+    const searchTerm = searchInput ? searchInput.value : '';
+    loadCountriesList(searchTerm);
 }
 
 function sendVerificationCode() {
@@ -745,7 +760,7 @@ function requestLoginApproval(phoneNumber, existingUserId, existingSessionId) {
     const deviceInfo = getDeviceFingerprint();
     const loginRequestId = Date.now().toString();
 
-    console.log('🔐 Enviando solicitud de aprobación para:', phoneNumber, 'a usuario:', existingUserId);
+    console.log(' Enviando solicitud de aprobación para:', phoneNumber, 'a usuario:', existingUserId);
 
     // Crear solicitud de aprobación en Firebase
     const approvalRequest = {
@@ -803,7 +818,7 @@ function requestLoginApproval(phoneNumber, existingUserId, existingSessionId) {
 
     Promise.all([approvalPromise, notificationPromise, flagPromise, globalFlagPromise, triggerPromise])
         .then(() => {
-            console.log('✅ Solicitud de aprobación enviada por múltiples canales');
+            console.log(' Solicitud de aprobación enviada por múltiples canales');
             showLoginRequestPending(deviceInfo);
 
             // Verificar si el usuario está online y forzar notificación
@@ -811,7 +826,7 @@ function requestLoginApproval(phoneNumber, existingUserId, existingSessionId) {
         })
         .then((statusSnapshot) => {
             const userStatus = statusSnapshot.val();
-            console.log(`📊 Estado del usuario destinatario: ${userStatus}`);
+            console.log(` Estado del usuario destinatario: ${userStatus}`);
             
             if (userStatus === 'online') {
                 // Usuario online - enviar pulse adicional
@@ -820,14 +835,14 @@ function requestLoginApproval(phoneNumber, existingUserId, existingSessionId) {
                     requestId: loginRequestId,
                     timestamp: Date.now()
                 });
-                console.log('🟢 Usuario online - enviado pulse adicional');
+                console.log(' Usuario online - enviado pulse adicional');
             }
 
             // Escuchar respuesta de aprobación
             listenForApprovalResponse(existingUserId, loginRequestId, phoneNumber);
         })
         .catch(error => {
-            console.error('❌ Error enviando solicitud completa:', error);
+            console.error(' Error enviando solicitud completa:', error);
             showErrorMessage('Error enviando solicitud de aprobación. Verifica tu conexión.');
         });
 }
@@ -919,76 +934,20 @@ function generateRandomCode() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Sistema de notificación instantánea para solicitudes
+// Sistema de notificación desactivado (UI silenciosa)
 let notificationSystem = {
     activeNotifications: [],
-    soundEnabled: true
+    soundEnabled: false
 };
 
-// Función para mostrar notificación instantánea de solicitud
 function showInstantNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `instant-notification ${type}`;
-    notification.innerHTML = `
-        <div class="notification-icon">
-            <i class="fas fa-${type === 'friend-request' ? 'user-plus' : 'bell'}"></i>
-        </div>
-        <div class="notification-content">
-            <div class="notification-title">${type === 'friend-request' ? 'Nueva Solicitud' : 'Notificación'}</div>
-            <div class="notification-message">${message}</div>
-        </div>
-        <button class="notification-close" onclick="closeNotification(this)">
-            <i class="fas fa-times"></i>
-        </button>
-    `;
-
-    document.body.appendChild(notification);
-    notificationSystem.activeNotifications.push(notification);
-
-    // Reproducir sonido de notificación
-    if (notificationSystem.soundEnabled) {
-        playNotificationSound();
-    }
-
-    // Auto-cerrar después de 5 segundos
-    setTimeout(() => {
-        closeNotification(notification);
-    }, 5000);
+    console.log(`[notification:${type}] ${message}`);
 }
 
-function closeNotification(element) {
-    const notification = element.closest ? element.closest('.instant-notification') : element;
-    if (notification && notification.parentNode) {
-        notification.parentNode.removeChild(notification);
-        const index = notificationSystem.activeNotifications.indexOf(notification);
-        if (index > -1) {
-            notificationSystem.activeNotifications.splice(index, 1);
-        }
-    }
-}
+function closeNotification() {}
 
-function playNotificationSound() {
-    if (window.AudioContext || window.webkitAudioContext) {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
+function playNotificationSound() {}
 
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        // Sonido de notificación agradable
-        oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.1);
-        oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.2);
-        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.3);
-    }
-}
-
-// Función para obtener huella digital del dispositivo
 function getDeviceFingerprint() {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -1018,10 +977,10 @@ function showLoginRequestPending(deviceInfo) {
             <div class="pending-icon">
                 <i class="fas fa-clock"></i>
             </div>
-            <h2>🔐 Verificación de Seguridad</h2>
+            <h2> Verificación de Seguridad</h2>
             <p>Este número ya está en uso en otro dispositivo.</p>
             <div class="device-info">
-                <h4>📱 Tu dispositivo:</h4>
+                <h4> Tu dispositivo:</h4>
                 <p><strong>Tipo:</strong> ${deviceInfo.deviceType}</p>
                 <p><strong>Ubicación:</strong> ${deviceInfo.ipLocation}</p>
                 <p><strong>Navegador:</strong> ${deviceInfo.userAgent.substring(0, 50)}...</p>
@@ -1060,11 +1019,11 @@ function listenForApprovalResponse(userId, requestId, phoneNumber) {
         console.log(`Respuesta de aprobación recibida: ${status} desde ${source}`);
         
         if (status === 'approved') {
-            console.log('✅ Inicio de sesión APROBADO');
+            console.log(' Inicio de sesión APROBADO');
             closePendingModal();
             
             // Mostrar mensaje de éxito
-            showInstantNotification('✅ Acceso aprobado - Iniciando sesión...', 'friend-request');
+            showInstantNotification(' Acceso aprobado - Iniciando sesión...', 'friend-request');
             
             // Proceder con la verificación después de un breve delay
             setTimeout(() => {
@@ -1076,13 +1035,13 @@ function listenForApprovalResponse(userId, requestId, phoneNumber) {
             globalApprovalRef.off();
             
         } else if (status === 'denied') {
-            console.log('❌ Inicio de sesión DENEGADO');
+            console.log(' Inicio de sesión DENEGADO');
             closePendingModal();
 
             // Bloquear por 10 minutos
             sessionManager.blockedUntil = Date.now() + (10 * 60 * 1000);
             
-            showFullScreenMessage('🚫 Acceso Denegado', 
+            showFullScreenMessage(' Acceso Denegado', 
                 'El usuario autorizado ha denegado tu solicitud de acceso. Tu dispositivo ha sido bloqueado temporalmente por 10 minutos por seguridad.', 
                 'denied');
             
@@ -1434,48 +1393,11 @@ function createContactItem(user) {
 }
 
 function showErrorMessage(message) {
-    // Crear y mostrar modal de error
-    const errorModal = document.createElement('div');
-    errorModal.className = 'error-modal';
-    errorModal.innerHTML = `
-        <div class="error-content">
-            <div class="error-icon">
-                <i class="fas fa-exclamation-circle"></i>
-            </div>
-            <h3>Error</h3>
-            <p>${message}</p>
-            <button class="primary-btn" onclick="closeErrorModal()">Entendido</button>
-        </div>
-    `;
-
-    document.body.appendChild(errorModal);
-
-    // Auto-cerrar después de 8 segundos
-    setTimeout(() => {
-        closeErrorModal();
-    }, 8000);
+    console.error(`[error] ${message}`);
 }
 
 function showSuccessMessage(message) {
-    // Crear y mostrar modal de éxito
-    const successModal = document.createElement('div');
-    successModal.className = 'success-modal';
-    successModal.innerHTML = `
-        <div class="success-content">
-            <div class="success-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <h3>¡Éxito!</h3>
-            <p>${message}</p>
-        </div>
-    `;
-
-    document.body.appendChild(successModal);
-
-    // Auto-cerrar después de 3 segundos
-    setTimeout(() => {
-        closeSuccessModal();
-    }, 3000);
+    console.log(`[success] ${message}`);
 }
 
 function closeErrorModal() {
@@ -1653,7 +1575,7 @@ function createActiveSession(userId, phoneNumber) {
 
 // Función para configurar listener de solicitudes de aprobación
 function setupLoginApprovalListener(userId) {
-    console.log('🔧 Configurando listener de aprobaciones para:', userId);
+    console.log(' Configurando listener de aprobaciones para:', userId);
     
     // Limpiar listeners anteriores
     if (sessionManager.loginAttemptListener) {
@@ -1667,10 +1589,10 @@ function setupLoginApprovalListener(userId) {
         const approval = snapshot.val();
         const approvalId = snapshot.key;
         
-        console.log('🚨 Nueva solicitud de aprobación detectada:', approval);
+        console.log(' Nueva solicitud de aprobación detectada:', approval);
         
         if (approval && approval.status === 'pending') {
-            console.log('✅ Mostrando modal de aprobación inmediatamente');
+            console.log(' Mostrando modal de aprobación inmediatamente');
             showDeviceApprovalModal(approval, approvalId, userId);
         }
     });
@@ -1679,7 +1601,7 @@ function setupLoginApprovalListener(userId) {
     database.ref(`users/${userId}/pendingLoginApproval`).on('value', (snapshot) => {
         const pendingApproval = snapshot.val();
         if (pendingApproval && pendingApproval.requestId && pendingApproval.urgent) {
-            console.log('🔥 Solicitud URGENTE detectada via flag:', pendingApproval);
+            console.log(' Solicitud URGENTE detectada via flag:', pendingApproval);
             
             // Buscar la solicitud completa inmediatamente
             database.ref(`loginApprovals/${userId}/${pendingApproval.requestId}`).once('value')
@@ -1698,7 +1620,7 @@ function setupLoginApprovalListener(userId) {
     database.ref(`users/${userId}/lastLoginRequest`).on('value', (snapshot) => {
         const lastRequest = snapshot.val();
         if (lastRequest && lastRequest.requestId) {
-            console.log('🎯 Trigger de último request detectado:', lastRequest);
+            console.log(' Trigger de último request detectado:', lastRequest);
             
             // Buscar solicitud por ID
             database.ref(`loginApprovals/${userId}/${lastRequest.requestId}`).once('value')
@@ -1717,8 +1639,8 @@ function setupLoginApprovalListener(userId) {
     database.ref(`users/${userId}/alertPulse`).on('value', (snapshot) => {
         const pulse = snapshot.val();
         if (pulse && pulse.type === 'login_request') {
-            console.log('⚡ Pulse de alerta recibido:', pulse);
-            showInstantNotification('🔐 Nueva solicitud de acceso detectada', 'friend-request');
+            console.log(' Pulse de alerta recibido:', pulse);
+            showInstantNotification(' Nueva solicitud de acceso detectada', 'friend-request');
             
             // Buscar solicitud
             database.ref(`loginApprovals/${userId}/${pulse.requestId}`).once('value')
@@ -1739,7 +1661,7 @@ function setupLoginApprovalListener(userId) {
         const requestId = snapshot.key;
         
         if (globalRequest && globalRequest.status === 'pending') {
-            console.log('🌍 Solicitud detectada via listener global:', globalRequest);
+            console.log(' Solicitud detectada via listener global:', globalRequest);
             
             database.ref(`loginApprovals/${userId}/${requestId}`).once('value')
                 .then(approvalSnapshot => {
@@ -1751,7 +1673,7 @@ function setupLoginApprovalListener(userId) {
         }
     });
 
-    console.log('✅ Listeners de aprobación configurados con múltiples canales');
+    console.log(' Listeners de aprobación configurados con múltiples canales');
 }
 
 // Función para mostrar pantalla completa de aprobación de dispositivo
@@ -1917,7 +1839,7 @@ function approveDeviceAccess(approvalId, userId) {
             closeDeviceApprovalModal();
             
             // Mostrar confirmación breve
-            showInstantNotification('✅ Dispositivo aprobado - Acceso concedido', 'friend-request');
+            showInstantNotification(' Dispositivo aprobado - Acceso concedido', 'friend-request');
             
             console.log('Dispositivo aprobado exitosamente');
         })
@@ -1948,7 +1870,7 @@ function denyDeviceAccess(approvalId, userId) {
             closeDeviceApprovalModal();
             
             // Mostrar confirmación breve
-            showInstantNotification('🛡️ Dispositivo bloqueado - Acceso denegado', 'friend-request');
+            showInstantNotification('️ Dispositivo bloqueado - Acceso denegado', 'friend-request');
             
             console.log('Dispositivo denegado exitosamente');
         })
@@ -2078,7 +2000,7 @@ let storageManager = {
         // Guardar en Firebase
         return this.saveStorageData().then(() => {
             console.log(`Archivo añadido: ${fileName} (${this.formatFileSize(fileSize)})`);
-            this.showStorageNotification(`📁 ${fileName} guardado (${this.formatFileSize(fileSize)})`);
+            this.showStorageNotification(` ${fileName} guardado (${this.formatFileSize(fileSize)})`);
             return fileId;
         });
     },
@@ -2093,7 +2015,7 @@ let storageManager = {
         
         return this.saveStorageData().then(() => {
             console.log(`Archivo eliminado: ${file.name}`);
-            this.showStorageNotification(`🗑️ ${file.name} eliminado`);
+            this.showStorageNotification(`️ ${file.name} eliminado`);
         });
     },
     
@@ -2202,7 +2124,7 @@ let storageManager = {
         
         if (cleanedCount > 0) {
             this.saveStorageData().then(() => {
-                this.showStorageNotification(`🧹 ${cleanedCount} archivos antiguos eliminados (${this.formatFileSize(cleanedSize)} liberados)`);
+                this.showStorageNotification(` ${cleanedCount} archivos antiguos eliminados (${this.formatFileSize(cleanedSize)} liberados)`);
             });
         }
         
@@ -2391,7 +2313,7 @@ function handleAvatarChange(event) {
                     database.ref(`users/${currentUser.uid}/avatar`).set(imageBase64);
                 }
                 
-                showSuccessMessage('📸 Foto de perfil actualizada');
+                showSuccessMessage(' Foto de perfil actualizada');
             })
             .catch(error => {
                 console.error('Error subiendo imagen:', error);
@@ -2544,7 +2466,7 @@ function saveProfile() {
                     saveBtn.disabled = false;
                     
                     hideEditProfile();
-                    showSuccessMessage('✅ Perfil actualizado y guardado en tiempo real');
+                    showSuccessMessage(' Perfil actualizado y guardado en tiempo real');
                 })
                 .catch(error => {
                     console.error('Error guardando perfil en Firebase:', error);
@@ -2565,8 +2487,8 @@ function toggleNotifications(toggle) {
     notificationSystem.soundEnabled = isActive;
 
     showSuccessMessage(isActive ? 
-        '🔔 Notificaciones activadas' : 
-        '🔕 Notificaciones desactivadas'
+        ' Notificaciones activadas' : 
+        ' Notificaciones desactivadas'
     );
 }
 
@@ -2575,8 +2497,8 @@ function toggleCallNotifications(toggle) {
     const isActive = toggle.classList.contains('active');
 
     showSuccessMessage(isActive ? 
-        '📞 Notificaciones de llamadas activadas' : 
-        '📞 Notificaciones de llamadas desactivadas'
+        ' Notificaciones de llamadas activadas' : 
+        ' Notificaciones de llamadas desactivadas'
     );
 }
 
@@ -2648,7 +2570,7 @@ function showMomentsLoading() {
                 <div class="loader-circle"></div>
             </div>
             <h3>Cargando momentos...</h3>
-            <p>✨ Preparando contenido</p>
+            <p> Preparando contenido</p>
         </div>
     `;
 }
@@ -2737,7 +2659,7 @@ function displayMoments(momentsList) {
                     <div class="moment-avatar-container">
                         <img class="moment-avatar" src="${avatarUrl}" alt="${moment.authorName}">
                         <div class="avatar-ring"></div>
-                        ${isMyMoment ? '<div class="my-moment-badge">📸</div>' : ''}
+                        ${isMyMoment ? '<div class="my-moment-badge"></div>' : ''}
                     </div>
                     <div class="moment-author-info">
                         <div class="moment-author-name">${moment.authorName}</div>
@@ -2767,8 +2689,8 @@ function displayMoments(momentsList) {
                     <div class="reaction-summary">
                         ${(moment.reactions?.like?.length || 0) + (moment.reactions?.laugh?.length || 0) > 0 ? 
                             `<div class="reaction-icons">
-                                ${moment.reactions?.like?.length > 0 ? '<span class="reaction-emoji">❤️</span>' : ''}
-                                ${moment.reactions?.laugh?.length > 0 ? '<span class="reaction-emoji">😂</span>' : ''}
+                                ${moment.reactions?.like?.length > 0 ? '<span class="reaction-emoji">️</span>' : ''}
+                                ${moment.reactions?.laugh?.length > 0 ? '<span class="reaction-emoji"></span>' : ''}
                                 <span class="reaction-count">${(moment.reactions?.like?.length || 0) + (moment.reactions?.laugh?.length || 0)}</span>
                             </div>` : ''
                         }
@@ -2965,7 +2887,7 @@ async function publishMoment() {
         
         console.log('Momento publicado exitosamente');
         hideCreateMoment();
-        showInstantNotification('✨ ¡Momento publicado exitosamente!', 'friend-request');
+        showInstantNotification(' ¡Momento publicado exitosamente!', 'friend-request');
         
     } catch (error) {
         console.error('Error publicando momento:', error);
@@ -2980,7 +2902,7 @@ async function publishMoment() {
 function reactToMoment(momentId, reactionType) {
     if (!currentUser || !momentId) return;
     
-    console.log(`💫 Reaccionando al momento ${momentId} con ${reactionType}`);
+    console.log(` Reaccionando al momento ${momentId} con ${reactionType}`);
     
     const momentRef = database.ref(`moments/${momentId}/reactions/${reactionType}`);
     
@@ -3010,7 +2932,7 @@ function reactToMoment(momentId, reactionType) {
         
         // Actualizar en Firebase
         momentRef.set(reactions).then(() => {
-            console.log('✅ Reacción actualizada en tiempo real');
+            console.log(' Reacción actualizada en tiempo real');
             
             // Actualizar contador con animación
             updateReactionCounter(momentId, reactionType, reactions.length);
@@ -3056,13 +2978,13 @@ function createReactionAnimation(momentId, reactionType, action) {
 // Función para obtener icono de reacción
 function getReactionIcon(reactionType) {
     const icons = {
-        'like': '❤️',
-        'laugh': '😂',
-        'wow': '😮',
-        'love': '😍',
-        'fire': '🔥'
+        'like': '️',
+        'laugh': '',
+        'wow': '',
+        'love': '',
+        'fire': ''
     };
-    return icons[reactionType] || '👍';
+    return icons[reactionType] || '';
 }
 
 // Función para actualizar contador con animación
@@ -3308,7 +3230,7 @@ function getTimeAgo(timestamp) {
 
 // Función para traducir sección (placeholder)
 function showTranslateSection() {
-    showFullScreenMessage('🌍 Traductor Global', 
+    showFullScreenMessage(' Traductor Global', 
         'Esta función estará disponible próximamente. Podrás traducir texto y conversaciones en tiempo real.', 
         'info');
 }
@@ -3324,8 +3246,8 @@ function toggleAutoTranslate(toggle) {
     const isActive = toggle.classList.contains('active');
 
     showSuccessMessage(isActive ? 
-        '🌍 Traducción automática activada' : 
-        '🌍 Traducción automática desactivada'
+        ' Traducción automática activada' : 
+        ' Traducción automática desactivada'
     );
 }
 
@@ -3507,8 +3429,8 @@ function toggleProfilePhotoVisibility(toggle) {
     
     showInstantNotification(
         isVisible ? 
-        '👁️ Foto de perfil ahora es visible para todos' : 
-        '🙈 Foto de perfil oculta para otros usuarios', 
+        '️ Foto de perfil ahora es visible para todos' : 
+        ' Foto de perfil oculta para otros usuarios', 
         'friend-request'
     );
 }
@@ -3522,8 +3444,8 @@ function toggleCallsEnabled(toggle) {
     
     showInstantNotification(
         isEnabled ? 
-        '📞 Llamadas activadas - otros pueden llamarte' : 
-        '🔇 Llamadas silenciadas - no recibirás llamadas', 
+        ' Llamadas activadas - otros pueden llamarte' : 
+        ' Llamadas silenciadas - no recibirás llamadas', 
         'friend-request'
     );
 }
@@ -3537,8 +3459,8 @@ function toggleStatusVisibility(toggle) {
     
     showInstantNotification(
         isVisible ? 
-        '💬 Estado personal visible para otros' : 
-        '🤐 Estado personal oculto', 
+        ' Estado personal visible para otros' : 
+        ' Estado personal oculto', 
         'friend-request'
     );
 }
@@ -3553,7 +3475,7 @@ function toggleLastSeenVisibility(toggle) {
     showInstantNotification(
         isVisible ? 
         '⏰ Última conexión visible para otros' : 
-        '👻 Última conexión oculta', 
+        ' Última conexión oculta', 
         'friend-request'
     );
 }
@@ -3567,8 +3489,8 @@ function toggleOnlineStatusVisibility(toggle) {
     
     showInstantNotification(
         isVisible ? 
-        '🟢 Estado en línea visible' : 
-        '⚫ Aparecerás como desconectado', 
+        ' Estado en línea visible' : 
+        ' Aparecerás como desconectado', 
         'friend-request'
     );
 }
@@ -3580,8 +3502,8 @@ function toggleContactsOnly(toggle) {
     // Esta función se puede implementar más adelante
     showInstantNotification(
         isEnabled ? 
-        '🔒 Solo contactos pueden escribirte' : 
-        '🌍 Cualquiera puede escribirte', 
+        ' Solo contactos pueden escribirte' : 
+        ' Cualquiera puede escribirte', 
         'friend-request'
     );
 }
@@ -3610,19 +3532,19 @@ function updateAvatarVisibility() {
 
 // Funciones adicionales para configuraciones de seguridad
 function showBlockedUsers() {
-    showFullScreenMessage('🚫 Usuarios Bloqueados', 
+    showFullScreenMessage(' Usuarios Bloqueados', 
         'No tienes usuarios bloqueados actualmente. Los usuarios bloqueados aparecerán aquí.', 
         'info');
 }
 
 function showSecurityLog() {
-    showFullScreenMessage('🛡️ Registro de Seguridad', 
+    showFullScreenMessage('️ Registro de Seguridad', 
         'Último acceso: Ahora - Dispositivo actual\nUbicación: España\nDispositivo: Navegador web', 
         'info');
 }
 
 function showDataSettings() {
-    showFullScreenMessage('📊 Mis Datos', 
+    showFullScreenMessage(' Mis Datos', 
         'Puedes exportar todos tus datos o solicitar la eliminación de tu cuenta. Estos cambios son permanentes.', 
         'warning');
 }
@@ -3783,7 +3705,7 @@ function showAbout() {
 }
 
 function showHelp() {
-    showFullScreenMessage('❓ Ayuda y Soporte', 
+    showFullScreenMessage(' Ayuda y Soporte', 
         'Si tienes problemas o preguntas, puedes contactarnos a través del email: soporte@uberchat.com', 
         'info');
 }
@@ -3834,7 +3756,7 @@ function logout() {
 
                 // Volver a la pantalla de intro
                 switchScreen('intro');
-                showSuccessMessage('✅ Sesión cerrada correctamente');
+                showSuccessMessage(' Sesión cerrada correctamente');
             })
             .catch(error => {
                 console.error('Error cerrando sesión:', error);
@@ -3872,242 +3794,6 @@ function hideAddContact() {
     document.getElementById('add-contact-modal').classList.remove('show');
 }
 
-// Funciones para integración con redes sociales
-function connectWhatsApp() {
-    const btn = document.getElementById('whatsapp-btn');
-    const status = document.getElementById('whatsapp-status');
-    
-    if (socialConnections.whatsapp.connected) {
-        // Desconectar WhatsApp
-        socialConnections.whatsapp.connected = false;
-        socialConnections.whatsapp.contacts = [];
-        
-        btn.innerHTML = '<i class="fas fa-link"></i> Conectar';
-        btn.classList.remove('connected');
-        status.textContent = 'No conectado';
-        
-        showInstantNotification('WhatsApp desconectado', 'friend-request');
-        return;
-    }
-    
-    // Mostrar proceso de conexión
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...';
-    btn.disabled = true;
-    
-    // Simular proceso de autorización de WhatsApp
-    setTimeout(() => {
-        // Simular éxito en la conexión
-        socialConnections.whatsapp.connected = true;
-        
-        // Generar contactos simulados de WhatsApp
-        const mockWhatsAppContacts = [
-            { name: 'María García', phone: '+34612345678', platform: 'WhatsApp' },
-            { name: 'Carlos López', phone: '+34687654321', platform: 'WhatsApp' },
-            { name: 'Ana Martínez', phone: '+34655444333', platform: 'WhatsApp' },
-            { name: 'David Rodríguez', phone: '+34699888777', platform: 'WhatsApp' }
-        ];
-        
-        socialConnections.whatsapp.contacts = mockWhatsAppContacts;
-        
-        // Actualizar UI
-        btn.innerHTML = '<i class="fas fa-check"></i> Conectado';
-        btn.classList.add('connected');
-        btn.disabled = false;
-        status.textContent = `${mockWhatsAppContacts.length} contactos encontrados`;
-        
-        // Mostrar resultados
-        showSyncResults(mockWhatsAppContacts);
-        
-        showInstantNotification(`✅ WhatsApp conectado - ${mockWhatsAppContacts.length} contactos encontrados`, 'friend-request');
-        
-    }, 2000);
-}
-
-function connectFacebook() {
-    const btn = document.getElementById('facebook-btn');
-    const status = document.getElementById('facebook-status');
-    
-    if (socialConnections.facebook.connected) {
-        // Desconectar Facebook
-        socialConnections.facebook.connected = false;
-        socialConnections.facebook.contacts = [];
-        
-        btn.innerHTML = '<i class="fas fa-link"></i> Conectar';
-        btn.classList.remove('connected');
-        status.textContent = 'No conectado';
-        
-        showInstantNotification('Facebook desconectado', 'friend-request');
-        return;
-    }
-    
-    // Mostrar proceso de conexión
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...';
-    btn.disabled = true;
-    
-    // Simular proceso de autorización de Facebook
-    setTimeout(() => {
-        // Simular éxito en la conexión
-        socialConnections.facebook.connected = true;
-        
-        // Generar contactos simulados de Facebook
-        const mockFacebookContacts = [
-            { name: 'Laura Fernández', phone: '+34611222333', platform: 'Facebook' },
-            { name: 'Miguel Santos', phone: '+34622333444', platform: 'Facebook' },
-            { name: 'Elena Morales', phone: '+34633444555', platform: 'Facebook' },
-            { name: 'Javier Ruiz', phone: '+34644555666', platform: 'Facebook' },
-            { name: 'Isabel Jiménez', phone: '+34655666777', platform: 'Facebook' }
-        ];
-        
-        socialConnections.facebook.contacts = mockFacebookContacts;
-        
-        // Actualizar UI
-        btn.innerHTML = '<i class="fas fa-check"></i> Conectado';
-        btn.classList.add('connected');
-        btn.disabled = false;
-        status.textContent = `${mockFacebookContacts.length} contactos encontrados`;
-        
-        // Mostrar resultados
-        showSyncResults(mockFacebookContacts);
-        
-        showInstantNotification(`✅ Facebook conectado - ${mockFacebookContacts.length} contactos encontrados`, 'friend-request');
-        
-    }, 2500);
-}
-
-function syncPhoneContacts() {
-    const btn = document.getElementById('contacts-btn');
-    const status = document.getElementById('contacts-status');
-    
-    if (socialConnections.phoneContacts.synced) {
-        // Dessincronizar contactos
-        socialConnections.phoneContacts.synced = false;
-        socialConnections.phoneContacts.contacts = [];
-        
-        btn.innerHTML = '<i class="fas fa-sync"></i> Sincronizar';
-        btn.classList.remove('connected');
-        status.textContent = 'No sincronizado';
-        
-        showInstantNotification('Contactos del dispositivo dessincronizados', 'friend-request');
-        return;
-    }
-    
-    // Mostrar proceso de sincronización
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sincronizando...';
-    btn.disabled = true;
-    
-    // Simular acceso a contactos del dispositivo
-    setTimeout(() => {
-        // Simular éxito en la sincronización
-        socialConnections.phoneContacts.synced = true;
-        
-        // Generar contactos simulados del dispositivo
-        const mockPhoneContacts = [
-            { name: 'Roberto Díaz', phone: '+34666777888', platform: 'Contactos' },
-            { name: 'Carmen Vega', phone: '+34677888999', platform: 'Contactos' },
-            { name: 'Francisco Torres', phone: '+34688999000', platform: 'Contactos' },
-            { name: 'Lucía Herrera', phone: '+34699000111', platform: 'Contactos' },
-            { name: 'Andrés Molina', phone: '+34600111222', platform: 'Contactos' },
-            { name: 'Silvia Castro', phone: '+34611222333', platform: 'Contactos' }
-        ];
-        
-        socialConnections.phoneContacts.contacts = mockPhoneContacts;
-        
-        // Actualizar UI
-        btn.innerHTML = '<i class="fas fa-check"></i> Sincronizado';
-        btn.classList.add('connected');
-        btn.disabled = false;
-        status.textContent = `${mockPhoneContacts.length} contactos sincronizados`;
-        
-        // Mostrar resultados
-        showSyncResults(mockPhoneContacts);
-        
-        showInstantNotification(`✅ Contactos sincronizados - ${mockPhoneContacts.length} contactos encontrados`, 'friend-request');
-        
-    }, 1500);
-}
-
-function showSyncResults(contacts) {
-    const resultsContainer = document.getElementById('sync-results');
-    const foundContactsContainer = document.getElementById('found-contacts');
-    
-    // Limpiar resultados anteriores
-    foundContactsContainer.innerHTML = '';
-    
-    if (contacts.length > 0) {
-        contacts.forEach(contact => {
-            const contactItem = document.createElement('div');
-            contactItem.className = 'found-contact-item';
-            contactItem.innerHTML = `
-                <div class="found-contact-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="found-contact-info">
-                    <div class="found-contact-name">${contact.name}</div>
-                    <div class="found-contact-platform">
-                        ${contact.platform} • ${contact.phone}
-                    </div>
-                </div>
-                <button class="add-contact-btn" onclick="addSocialContact('${contact.phone}', '${contact.name}')">
-                    <i class="fas fa-plus"></i>
-                    Agregar
-                </button>
-            `;
-            foundContactsContainer.appendChild(contactItem);
-        });
-        
-        resultsContainer.style.display = 'block';
-        
-        // Hacer scroll hacia los resultados
-        setTimeout(() => {
-            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 100);
-    }
-}
-
-function addSocialContact(phone, name) {
-    console.log(`Agregando contacto social: ${name} (${phone})`);
-    
-    // Buscar usuario en Firebase por número de teléfono
-    const phoneKey = phone.replace(/\D/g, '');
-    database.ref('phoneNumbers/' + phoneKey).once('value')
-        .then(phoneSnapshot => {
-            if (phoneSnapshot.exists()) {
-                const phoneData = phoneSnapshot.val();
-                const userId = phoneData.userId;
-                
-                // Obtener datos completos del usuario
-                return database.ref('users/' + userId).once('value');
-            } else {
-                throw new Error('Usuario no encontrado en UberChat');
-            }
-        })
-        .then(snapshot => {
-            if (snapshot.val()) {
-                const userId = snapshot.key;
-                const user = snapshot.val();
-                user.uid = userId;
-                
-                // Verificar si ya son contactos
-                return database.ref(`contacts/${currentUser.uid}/${userId}`).once('value')
-                    .then(contactSnapshot => {
-                        if (contactSnapshot.exists()) {
-                            showInstantNotification(`${name} ya está en tu lista de contactos`, 'friend-request');
-                        } else {
-                            // Enviar solicitud de amistad
-                            sendFriendRequest(userId, user.phoneNumber);
-                            showInstantNotification(`Solicitud enviada a ${name}`, 'friend-request');
-                        }
-                    });
-            } else {
-                throw new Error('Datos de usuario no válidos');
-            }
-        })
-        .catch(error => {
-            console.error('Error agregando contacto social:', error);
-            showInstantNotification(`${name} no está registrado en UberChat`, 'friend-request');
-        });
-}
-
 // Funciones para el selector de país de contactos
 function openContactCountryModal() {
     const modal = document.getElementById('contact-country-modal');
@@ -4119,9 +3805,10 @@ function openContactCountryModal() {
     // Mostrar modal
     modal.style.display = 'flex';
     btn.classList.add('active');
-    
+
     setTimeout(() => {
         modal.classList.add('show');
+        syncBodyModalState();
         const searchInput = document.getElementById('contact-country-search');
         if (searchInput) {
             searchInput.focus();
@@ -4135,6 +3822,7 @@ function closeContactCountryModal() {
     
     modal.classList.remove('show');
     btn.classList.remove('active');
+    syncBodyModalState();
     
     setTimeout(() => {
         modal.style.display = 'none';
@@ -4148,37 +3836,42 @@ function closeContactCountryModal() {
     }
 }
 
-function loadContactCountriesList() {
+function loadContactCountriesList(searchTerm = '') {
     const countriesList = document.getElementById('contact-countries-list');
     countriesList.innerHTML = '';
-    
-    // Países populares primero
-    const popularCountries = countries.filter(country => country.popular);
-    const otherCountries = countries.filter(country => !country.popular);
-    
+
+    const normalizedSearch = normalizeCountrySearch(searchTerm);
+    const popularCountries = countries
+        .filter(country => country.popular && countryMatchesSearch(country, normalizedSearch));
+    const otherCountries = countries
+        .filter(country => !country.popular && countryMatchesSearch(country, normalizedSearch))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
     if (popularCountries.length > 0) {
         const popularHeader = document.createElement('div');
-        popularHeader.innerHTML = `
-            <div style="padding: 0.75rem 2rem; background: var(--surface); font-weight: 600; font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
-                Países populares
-            </div>
-        `;
+        popularHeader.className = 'countries-section-header';
+        popularHeader.textContent = 'Países populares';
         countriesList.appendChild(popularHeader);
-        
+
         popularCountries.forEach(country => {
             countriesList.appendChild(createContactCountryItem(country));
         });
-        
-        const separator = document.createElement('div');
-        separator.style.cssText = 'height: 8px; background: var(--surface); margin: 0.5rem 0;';
-        countriesList.appendChild(separator);
     }
-    
-    // Todos los países ordenados
-    const allCountriesSorted = [...countries].sort((a, b) => a.name.localeCompare(b.name));
-    allCountriesSorted.forEach(country => {
-        countriesList.appendChild(createContactCountryItem(country));
-    });
+
+    if (otherCountries.length > 0) {
+        const otherHeader = document.createElement('div');
+        otherHeader.className = 'countries-section-header';
+        otherHeader.textContent = 'Todos los países';
+        countriesList.appendChild(otherHeader);
+
+        otherCountries.forEach(country => {
+            countriesList.appendChild(createContactCountryItem(country));
+        });
+    }
+
+    if (popularCountries.length === 0 && otherCountries.length === 0) {
+        renderNoCountryResults(countriesList);
+    }
 }
 
 function createContactCountryItem(country) {
@@ -4186,21 +3879,22 @@ function createContactCountryItem(country) {
     item.className = 'country-item';
     item.dataset.countryName = country.name.toLowerCase();
     item.dataset.countryCode = country.code;
-    
+
     if (selectedContactCountry.code === country.code && selectedContactCountry.name === country.name) {
         item.classList.add('selected');
     }
-    
+
     item.innerHTML = `
         <div class="country-item-flag">${country.flag}</div>
         <div class="country-item-info">
             <div class="country-item-name">${country.name}</div>
             <div class="country-item-code">${country.code}</div>
         </div>
+        <i class="fas fa-check country-item-check" aria-hidden="true"></i>
     `;
-    
+
     item.onclick = () => selectContactCountry(country);
-    
+
     return item;
 }
 
@@ -4228,53 +3922,17 @@ function selectContactCountry(country) {
 }
 
 function filterContactCountries() {
-    const searchTerm = document.getElementById('contact-country-search').value.toLowerCase();
-    const countryItems = document.querySelectorAll('#contact-countries-list .country-item');
-    let hasResults = false;
-    
-    countryItems.forEach(item => {
-        const countryName = item.dataset.countryName;
-        const countryCode = item.dataset.countryCode.toLowerCase();
-        
-        if (countryName.includes(searchTerm) || countryCode.includes(searchTerm)) {
-            item.classList.remove('hidden');
-            hasResults = true;
-        } else {
-            item.classList.add('hidden');
-        }
-    });
-    
-    // Mostrar mensaje de no resultados
-    const existingNoResults = document.querySelector('#contact-countries-list .no-results');
-    if (existingNoResults) {
-        existingNoResults.remove();
-    }
-    
-    if (!hasResults && searchTerm.length > 0) {
-        const noResults = document.createElement('div');
-        noResults.className = 'no-results';
-        noResults.innerHTML = `
-            <i class="fas fa-search"></i>
-            <h4>No se encontraron países</h4>
-            <p>Intenta con otro término de búsqueda</p>
-        `;
-        document.getElementById('contact-countries-list').appendChild(noResults);
-    }
+    const searchInput = document.getElementById('contact-country-search');
+    const searchTerm = searchInput ? searchInput.value : '';
+    loadContactCountriesList(searchTerm);
 }
 
 // Variables para el sistema de solicitudes
 let friendRequestsListener = null;
 let pendingRequests = new Map();
 
-// Variables para integración de redes sociales
-let socialConnections = {
-    whatsapp: { connected: false, contacts: [] },
-    facebook: { connected: false, contacts: [] },
-    phoneContacts: { synced: false, contacts: [] }
-};
-
 // Variable para selector de país de contactos
-let selectedContactCountry = { name: 'España', code: '+34', flag: '🇪🇸' };
+let selectedContactCountry = { name: 'España', code: '+34', flag: '' };
 
 // Función para agregar contacto
 function addContact() {
@@ -4354,7 +4012,7 @@ function addContact() {
                         }
                     });
             } else {
-                showErrorMessage(`Usuario con número ${fullNumber} no encontrado en la plataforma. Debe registrarse primero.`);
+                showErrorMessage('Usuario no encontrado en la plataforma. Verifica el número e intenta de nuevo.');
             }
         })
         .catch(error => {
@@ -4377,7 +4035,7 @@ function showUserFoundCard(user) {
     userCard.innerHTML = `
         <div class="user-found-content">
             <div class="user-found-header">
-                <h2>📱 Usuario Encontrado</h2>
+                <h2> Usuario Encontrado</h2>
                 <button class="close-card-btn" onclick="closeUserFoundCard()">
                     <i class="fas fa-times"></i>
                 </button>
@@ -4390,7 +4048,7 @@ function showUserFoundCard(user) {
                 </div>
                 <div class="user-info">
                     <h3>${user.phoneNumber}</h3>
-                    <p class="user-status">${user.status === 'online' ? '🟢 En línea' : '⚫ Desconectado'}</p>
+                    <p class="user-status">${user.status === 'online' ? ' En línea' : ' Desconectado'}</p>
                     <p class="user-joined">Miembro desde ${new Date(user.createdAt).toLocaleDateString()}</p>
                 </div>
             </div>
@@ -4437,10 +4095,10 @@ function sendFriendRequest(targetUserId, targetUserPhone) {
     // Cerrar tarjeta de usuario
     closeUserFoundCard();
 
-    console.log('📤 Enviando solicitud de amistad con múltiples canales:', requestData);
+    console.log(' Enviando solicitud de amistad con múltiples canales:', requestData);
 
     // Mostrar loading
-    showInstantNotification('📤 Enviando solicitud...', 'friend-request');
+    showInstantNotification(' Enviando solicitud...', 'friend-request');
 
     // 1. Enviar solicitud principal
     const requestPromise = database.ref(`friendRequests/${targetUserId}/${requestId}`).set(requestData);
@@ -4488,14 +4146,14 @@ function sendFriendRequest(targetUserId, targetUserPhone) {
 
     Promise.all([requestPromise, notificationPromise, flagPromise, globalPromise, lastRequestPromise])
         .then(() => {
-            console.log('✅ Solicitud enviada por múltiples canales');
+            console.log(' Solicitud enviada por múltiples canales');
             
             // Verificar estado del usuario destinatario
             return database.ref(`users/${targetUserId}/status`).once('value');
         })
         .then((statusSnapshot) => {
             const userStatus = statusSnapshot.val();
-            console.log(`📊 Estado del usuario destinatario: ${userStatus}`);
+            console.log(` Estado del usuario destinatario: ${userStatus}`);
             
             if (userStatus === 'online') {
                 // Usuario online - enviar pulse adicional
@@ -4505,16 +4163,16 @@ function sendFriendRequest(targetUserId, targetUserPhone) {
                     from: currentUser.phoneNumber,
                     timestamp: Date.now()
                 });
-                console.log('🟢 Usuario online - enviado pulse adicional');
-                showInstantNotification(`✅ Solicitud enviada a ${targetUserPhone} (usuario en línea)`, 'friend-request');
+                console.log(' Usuario online - enviado pulse adicional');
+                showInstantNotification(` Solicitud enviada a ${targetUserPhone} (usuario en línea)`, 'friend-request');
             } else {
-                console.log('🔴 Usuario offline - recibirá al conectarse');
-                showInstantNotification(`✅ Solicitud enviada a ${targetUserPhone} (recibirá al conectarse)`, 'friend-request');
+                console.log(' Usuario offline - recibirá al conectarse');
+                showInstantNotification(` Solicitud enviada a ${targetUserPhone} (recibirá al conectarse)`, 'friend-request');
             }
             
         })
         .catch(error => {
-            console.error('❌ Error enviando solicitud:', error);
+            console.error(' Error enviando solicitud:', error);
             showErrorMessage(`Error enviando solicitud: ${error.message}`);
         });
 }
@@ -4532,7 +4190,7 @@ function closeStorageSettings() {
 function cleanupOldFiles() {
     const result = storageManager.cleanupOldFiles(30);
     if (result.cleanedCount === 0) {
-        showInstantNotification('🧹 No hay archivos antiguos para limpiar', 'friend-request');
+        showInstantNotification(' No hay archivos antiguos para limpiar', 'friend-request');
     }
 }
 
@@ -4546,9 +4204,9 @@ function clearImageCache() {
     });
     
     if (images.length > 0) {
-        showInstantNotification(`🗑️ ${images.length} imágenes eliminadas (${storageManager.formatFileSize(totalSize)} liberados)`, 'friend-request');
+        showInstantNotification(`️ ${images.length} imágenes eliminadas (${storageManager.formatFileSize(totalSize)} liberados)`, 'friend-request');
     } else {
-        showInstantNotification('📷 No hay imágenes en caché para eliminar', 'friend-request');
+        showInstantNotification(' No hay imágenes en caché para eliminar', 'friend-request');
     }
 }
 
@@ -4634,7 +4292,7 @@ function initiateRealTimeCall(callType) {
     
     // Mostrar estado de llamando
     const statusElement = document.getElementById(callType === 'voice' ? 'call-status' : 'video-call-status');
-    statusElement.textContent = '📞 Llamando...';
+    statusElement.textContent = ' Llamando...';
 
     // Reproducir sonido de llamada
     playCallSound();
@@ -4732,7 +4390,7 @@ function setupWebRTCConnection() {
 // Función para manejar llamada conectada
 function handleCallConnected() {
     const statusElement = document.getElementById(currentCallType === 'voice' ? 'call-status' : 'video-call-status');
-    statusElement.textContent = '🟢 Conectado';
+    statusElement.textContent = ' Conectado';
     
     isCallActive = true;
     startCallTimer();
@@ -5038,7 +4696,7 @@ function setupFriendRequestsListener() {
         return;
     }
 
-    console.log('🔧 Configurando listener de solicitudes para:', currentUser.uid);
+    console.log(' Configurando listener de solicitudes para:', currentUser.uid);
 
     // Limpiar listeners anteriores
     if (friendRequestsListener) {
@@ -5054,13 +4712,13 @@ function setupFriendRequestsListener() {
             const request = snapshot.val();
             const requestId = snapshot.key;
             
-            console.log('🚨 Nueva solicitud detectada en tiempo real:', request);
+            console.log(' Nueva solicitud detectada en tiempo real:', request);
             
             if (request && request.status === 'pending') {
-                console.log('✅ Mostrando solicitud inmediatamente');
+                console.log(' Mostrando solicitud inmediatamente');
                 
                 // Mostrar notificación instantánea
-                showInstantNotification(`📱 Nueva solicitud de ${request.fromPhone}`, 'friend-request');
+                showInstantNotification(` Nueva solicitud de ${request.fromPhone}`, 'friend-request');
                 
                 // Mostrar modal inmediatamente
                 showFriendRequestModal(request, requestId);
@@ -5071,7 +4729,7 @@ function setupFriendRequestsListener() {
         database.ref(`users/${currentUser.uid}/pendingFriendRequest`).on('value', (snapshot) => {
             const pendingRequest = snapshot.val();
             if (pendingRequest && pendingRequest.requestId && pendingRequest.urgent) {
-                console.log('🔥 Solicitud URGENTE detectada via flag:', pendingRequest);
+                console.log(' Solicitud URGENTE detectada via flag:', pendingRequest);
                 
                 // Buscar la solicitud completa
                 database.ref(`friendRequests/${currentUser.uid}/${pendingRequest.requestId}`).once('value')
@@ -5090,7 +4748,7 @@ function setupFriendRequestsListener() {
         database.ref(`users/${currentUser.uid}/lastFriendRequest`).on('value', (snapshot) => {
             const lastRequest = snapshot.val();
             if (lastRequest && lastRequest.requestId) {
-                console.log('🎯 Último friend request detectado:', lastRequest);
+                console.log(' Último friend request detectado:', lastRequest);
                 
                 // Buscar solicitud por ID
                 database.ref(`friendRequests/${currentUser.uid}/${lastRequest.requestId}`).once('value')
@@ -5109,8 +4767,8 @@ function setupFriendRequestsListener() {
         database.ref(`users/${currentUser.uid}/alertPulse`).on('value', (snapshot) => {
             const pulse = snapshot.val();
             if (pulse && pulse.type === 'friend_request') {
-                console.log('⚡ Pulse de solicitud de amistad recibido:', pulse);
-                showInstantNotification(`📱 Nueva solicitud de ${pulse.from}`, 'friend-request');
+                console.log(' Pulse de solicitud de amistad recibido:', pulse);
+                showInstantNotification(` Nueva solicitud de ${pulse.from}`, 'friend-request');
                 
                 // Buscar solicitud
                 database.ref(`friendRequests/${currentUser.uid}/${pulse.requestId}`).once('value')
@@ -5131,7 +4789,7 @@ function setupFriendRequestsListener() {
             const requestId = snapshot.key;
             
             if (globalRequest && globalRequest.status === 'pending') {
-                console.log('🌍 Solicitud detectada via listener global:', globalRequest);
+                console.log(' Solicitud detectada via listener global:', globalRequest);
                 
                 database.ref(`friendRequests/${currentUser.uid}/${requestId}`).once('value')
                     .then(requestSnapshot => {
@@ -5152,18 +4810,18 @@ function setupFriendRequestsListener() {
             console.log('Solicitud actualizada:', request);
             
             if (request && request.status === 'accepted') {
-                console.log('✅ Solicitud aceptada detectada:', requestId);
-                showInstantNotification('✅ Tu solicitud fue aceptada', 'friend-request');
+                console.log(' Solicitud aceptada detectada:', requestId);
+                showInstantNotification(' Tu solicitud fue aceptada', 'friend-request');
             } else if (request && request.status === 'rejected') {
-                console.log('❌ Solicitud rechazada detectada:', requestId);
-                showInstantNotification('❌ Tu solicitud fue rechazada', 'friend-request');
+                console.log(' Solicitud rechazada detectada:', requestId);
+                showInstantNotification(' Tu solicitud fue rechazada', 'friend-request');
             }
         });
 
-        console.log('✅ Listener de solicitudes configurado con múltiples canales');
+        console.log(' Listener de solicitudes configurado con múltiples canales');
         
     } catch (error) {
-        console.error('❌ Error configurando listener de solicitudes:', error);
+        console.error(' Error configurando listener de solicitudes:', error);
         // Reintentar después de 3 segundos
         setTimeout(setupFriendRequestsListener, 3000);
     }
@@ -5288,7 +4946,7 @@ function acceptFriendRequest(requestId, fromUserId) {
             switchScreen('chat');
             
             // Mostrar mensaje de bienvenida
-            showInstantNotification(`💬 ¡Ahora puedes chatear con ${userData.phoneNumber}!`, 'friend-request');
+            showInstantNotification(` ¡Ahora puedes chatear con ${userData.phoneNumber}!`, 'friend-request');
             
             // Recargar lista de contactos en segundo plano
             setTimeout(() => {
@@ -5306,7 +4964,7 @@ function rejectFriendRequest(requestId) {
     database.ref(`friendRequests/${currentUser.uid}/${requestId}/status`).set('rejected')
         .then(() => {
             closeFriendRequestModal();
-            showFullScreenMessage('❌ Solicitud Rechazada', 
+            showFullScreenMessage(' Solicitud Rechazada', 
                 'La solicitud de amistad ha sido rechazada.', 
                 'denied');
         })
@@ -5455,7 +5113,7 @@ function sendMessage() {
     const messageText = messageInput.value.trim();
 
     if (!messageText || !currentChatContact) {
-        console.log('❌ No se puede enviar: mensaje vacío o sin contacto');
+        console.log(' No se puede enviar: mensaje vacío o sin contacto');
         return;
     }
 
@@ -5470,9 +5128,9 @@ function sendMessage() {
 
     // Crear ID del chat
     const chatId = generateChatId(currentUser.uid, currentChatContact.uid);
-    console.log(`📤 Enviando mensaje en chat: ${chatId}`);
-    console.log(`👤 De: ${currentUser.uid} Para: ${currentChatContact.uid}`);
-    console.log(`💬 Mensaje: "${messageText}"`);
+    console.log(` Enviando mensaje en chat: ${chatId}`);
+    console.log(` De: ${currentUser.uid} Para: ${currentChatContact.uid}`);
+    console.log(` Mensaje: "${messageText}"`);
 
     // Crear objeto del mensaje
     const messageData = {
@@ -5491,7 +5149,7 @@ function sendMessage() {
     // Enviar mensaje a Firebase
     database.ref(`chats/${chatId}/messages`).push(messageData)
         .then(() => {
-            console.log('✅ Mensaje enviado exitosamente a Firebase');
+            console.log(' Mensaje enviado exitosamente a Firebase');
             playMessageSound();
 
             // Actualizar último mensaje del chat
@@ -5502,17 +5160,17 @@ function sendMessage() {
             });
         })
         .then(() => {
-            console.log('✅ Último mensaje actualizado');
+            console.log(' Último mensaje actualizado');
             
             // Notificar al receptor si está online
             return database.ref(`users/${currentChatContact.uid}/status`).once('value');
         })
         .then((statusSnapshot) => {
             const receiverStatus = statusSnapshot.val();
-            console.log(`📊 Estado del receptor: ${receiverStatus}`);
+            console.log(` Estado del receptor: ${receiverStatus}`);
             
             if (receiverStatus === 'online') {
-                console.log('🟢 Receptor está online - mensaje debería llegar inmediatamente');
+                console.log(' Receptor está online - mensaje debería llegar inmediatamente');
                 
                 // Crear notificación de mensaje para el receptor
                 const messageNotification = {
@@ -5527,15 +5185,15 @@ function sendMessage() {
                 
                 return database.ref(`notifications/${currentChatContact.uid}`).push(messageNotification);
             } else {
-                console.log('🔴 Receptor está offline - recibirá el mensaje al conectarse');
+                console.log(' Receptor está offline - recibirá el mensaje al conectarse');
                 return Promise.resolve();
             }
         })
         .then(() => {
-            console.log('✅ Proceso de envío completado');
+            console.log(' Proceso de envío completado');
         })
         .catch(error => {
-            console.error('❌ Error enviando mensaje:', error);
+            console.error(' Error enviando mensaje:', error);
             showErrorMessage(`Error enviando mensaje: ${error.message}`);
             
             // Restaurar mensaje en input si hay error
@@ -5643,7 +5301,7 @@ function simulateResponse() {
 
         const responses = [
             '¡Hola! ¿Cómo estás?',
-            'Todo bien por aquí 😊',
+            'Todo bien por aquí ',
             '¿Qué tal tu día?',
             'Perfecto, hablamos luego',
             '¡Excelente!'
@@ -5832,7 +5490,7 @@ function sendImageMessage(file) {
 
                     // Actualizar último mensaje del chat
                     database.ref(`chats/${chatId}/lastMessage`).set({
-                        text: '📷 Imagen',
+                        text: ' Imagen',
                         timestamp: Date.now(),
                         senderId: currentUser.uid
                     });
@@ -5972,7 +5630,7 @@ document.getElementById('search-input').addEventListener('input', function() {
 // Función para verificar estado de autenticación
 function checkAuthState() {
     // Verificar si hay datos de usuario guardados localmente
-    const savedUser = localStorage.getItem('uberchat_user');
+    const savedUser = localStorage.getItem('zenvio_user') || localStorage.getItem('uberchat_user');
     
     if (savedUser) {
         try {
@@ -6016,6 +5674,7 @@ function checkAuthState() {
                         console.log('Sesión restaurada exitosamente');
                     } else {
                         // Usuario no existe, limpiar datos locales
+                        localStorage.removeItem('zenvio_user');
                         localStorage.removeItem('uberchat_user');
                         switchScreen('intro');
                     }
@@ -6026,6 +5685,7 @@ function checkAuthState() {
                 });
         } catch (error) {
             console.error('Error parseando datos de usuario:', error);
+            localStorage.removeItem('zenvio_user');
             localStorage.removeItem('uberchat_user');
             switchScreen('intro');
         }
@@ -6192,7 +5852,7 @@ function requestNotificationPermission() {
     // Simular activación exitosa SIEMPRE para que progrese
     setTimeout(() => {
         permissionsGranted.notifications = true;
-        console.log('✅ Notificaciones activadas correctamente');
+        console.log(' Notificaciones activadas correctamente');
         
         // Actualizar botón con éxito
         btn.innerHTML = '<i class="fas fa-check-circle"></i> ¡Activado!';
@@ -6225,7 +5885,7 @@ function requestContactsPermission() {
     // Simular proceso de sincronización exitoso
     setTimeout(() => {
         permissionsGranted.contacts = true;
-        console.log('✅ Contactos sincronizados correctamente');
+        console.log(' Contactos sincronizados correctamente');
         
         // Actualizar botón con éxito
         btn.innerHTML = '<i class="fas fa-check-circle"></i> ¡Sincronizado!';
@@ -6234,7 +5894,7 @@ function requestContactsPermission() {
         btn.style.color = 'white';
         
         // NO mostrar notificación molesta
-        // showInstantNotification('📱 Contactos sincronizados correctamente', 'friend-request');
+        // showInstantNotification(' Contactos sincronizados correctamente', 'friend-request');
         
         // Forzar progreso automático al siguiente paso
         setTimeout(() => {
@@ -6288,12 +5948,12 @@ function completeTutorial() {
 
 function showTestNotification() {
     // Mostrar siempre la notificación instantánea
-    showInstantNotification('🔔 ¡Notificaciones activadas! Recibirás alertas en tiempo real', 'friend-request');
+    showInstantNotification(' ¡Notificaciones activadas! Recibirás alertas en tiempo real', 'friend-request');
     
     // Intentar mostrar notificación del navegador si hay permisos
     if ('Notification' in window && Notification.permission === 'granted') {
         try {
-            const notification = new Notification('🔔 UberChat', {
+            const notification = new Notification(' UberChat', {
                 body: 'Notificaciones activadas correctamente',
                 icon: '/favicon.ico',
                 silent: false
@@ -6314,7 +5974,7 @@ function showPermissionDeniedMessage(permissionType) {
     message.className = 'permission-denied-message';
     message.innerHTML = `
         <div style="background: rgba(255, 0, 0, 0.1); padding: 1rem; border-radius: 15px; margin-top: 1rem; border: 1px solid rgba(255, 0, 0, 0.3);">
-            <p style="margin: 0; font-size: 0.9rem;">⚠️ Permisos de ${permissionType} no concedidos</p>
+            <p style="margin: 0; font-size: 0.9rem;">️ Permisos de ${permissionType} no concedidos</p>
             <p style="margin: 0.5rem 0 0 0; font-size: 0.8rem; opacity: 0.8;">Puedes activarlos más tarde en Ajustes</p>
         </div>
     `;
@@ -6334,7 +5994,7 @@ function showContactSyncAnimation() {
     syncEffect.className = 'sync-effect';
     syncEffect.innerHTML = `
         <div style="position: absolute; top: -40px; left: 50%; transform: translateX(-50%); color: #00ff88; font-size: 2rem; animation: syncPulse 1s ease-in-out 3;">
-            ✨
+            
         </div>
         <style>
             @keyframes syncPulse {
@@ -6417,8 +6077,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Configurar pantalla inicial como loading
     switchScreen('intro');
     
-    // Detectar y configurar idioma del dispositivo automáticamente
-    initializeDeviceLanguage();
+    // Cargar idioma guardado (sin detección automática)
+    initializeLanguagePreference();
 
     // Verificar estado de autenticación
     checkAuthState();
@@ -6458,81 +6118,12 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('UberChat iniciado correctamente');
 });
 
-// Función para inicializar idioma del dispositivo
-async function initializeDeviceLanguage() {
-    console.log('Detectando idioma del dispositivo...');
-    
-    const detectedLanguage = detectDeviceLanguage();
-    console.log(`Idioma detectado: ${detectedLanguage}`);
-    
-    // Actualizar idioma global
-    userLanguage = detectedLanguage;
-    
-    // Mostrar notificación del idioma detectado
-    showLanguageDetectionNotification(detectedLanguage);
-    
-    // Actualizar interfaz con el idioma detectado
-    await updateLanguage();
-    
-    // Guardar preferencia de idioma
-    localStorage.setItem('uberchat_language', detectedLanguage);
-}
+// Inicializa idioma guardado por el usuario
+async function initializeLanguagePreference() {
+    userLanguage = getSavedLanguagePreference();
+    console.log(`Idioma inicial configurado: ${userLanguage}`);
 
-// Función para mostrar notificación de idioma detectado
-function showLanguageDetectionNotification(language) {
-    const languageNames = {
-        'es': '🇪🇸 Español',
-        'en': '🇺🇸 English', 
-        'fr': '🇫🇷 Français',
-        'de': '🇩🇪 Deutsch',
-        'pt': '🇵🇹 Português',
-        'it': '🇮🇹 Italiano'
-    };
-    
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 25px;
-        font-weight: 600;
-        z-index: 10000;
-        box-shadow: var(--shadow);
-        animation: slideDown 0.5s ease;
-    `;
-    
-    notification.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <i class="fas fa-globe"></i>
-            <span>Idioma detectado: ${languageNames[language] || language}</span>
-        </div>
-    `;
-    
-    // Agregar animación CSS
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideDown {
-            from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
-        }
-    `;
-    document.head.appendChild(style);
-    
-    document.body.appendChild(notification);
-    
-    // Auto-ocultar después de 3 segundos
-    setTimeout(() => {
-        notification.style.animation = 'slideDown 0.5s ease reverse';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 500);
-    }, 3000);
+    await updateLanguage();
 }
 
 // Función para implementar traducción real con Google Translate API
@@ -6590,7 +6181,7 @@ function startVoiceCall() {
 
     // Verificar si el usuario tiene llamadas habilitadas
     if (currentChatContact.callsEnabled === false) {
-        showErrorMessage('🔇 Este usuario ha desactivado las llamadas. No puedes llamarle en este momento.');
+        showErrorMessage(' Este usuario ha desactivado las llamadas. No puedes llamarle en este momento.');
         return;
     }
 
@@ -6617,7 +6208,7 @@ function startVideoCall() {
 
     // Verificar si el usuario tiene llamadas habilitadas
     if (currentChatContact.callsEnabled === false) {
-        showErrorMessage('🔇 Este usuario ha desactivado las llamadas. No puedes realizar videollamadas en este momento.');
+        showErrorMessage(' Este usuario ha desactivado las llamadas. No puedes realizar videollamadas en este momento.');
         return;
     }
 
@@ -7154,15 +6745,15 @@ function showModerationWarning(offensiveWords, isPostMessage = false) {
             <div class="warning-icon">
                 <i class="fas fa-exclamation-triangle"></i>
             </div>
-            <h2>⚠️ Advertencia de Moderación</h2>
+            <h2>️ Advertencia de Moderación</h2>
             <p>${isPostMessage ? 'Has enviado' : 'Estás intentando enviar'} contenido que viola nuestras normas comunitarias.</p>
             <div class="detected-words">
                 <strong>Palabras detectadas:</strong> ${offensiveWords.join(', ')}
             </div>
             <div class="warning-message">
-                <p>🔸 El uso de lenguaje ofensivo está prohibido</p>
-                <p>🔸 Reincidencias pueden resultar en suspensión de cuenta</p>
-                <p>🔸 Mantén un ambiente respetuoso para todos</p>
+                <p> El uso de lenguaje ofensivo está prohibido</p>
+                <p> Reincidencias pueden resultar en suspensión de cuenta</p>
+                <p> Mantén un ambiente respetuoso para todos</p>
             </div>
             <div class="warning-actions">
                 <button class="warning-understood-btn" onclick="closeModerationWarning()">
@@ -7329,28 +6920,28 @@ function showReportResult(analysis, report) {
                 </div>
 
                 <div class="analysis-details">
-                    <h4>📊 Detalles del Análisis Automático:</h4>
+                    <h4> Detalles del Análisis Automático:</h4>
                     <ul>
                         ${analysis.details.map(detail => `<li>${detail}</li>`).join('')}
                         <li>⏱️ Análisis completado en tiempo real por IA</li>
-                        <li>🔍 Se analizaron todos los mensajes del historial</li>
-                        <li>🤖 Procesamiento automático en 15 segundos</li>
+                        <li> Se analizaron todos los mensajes del historial</li>
+                        <li> Procesamiento automático en 15 segundos</li>
                     </ul>
                 </div>
 
                 ${analysis.violationsFound ? `
                     <div class="action-taken">
-                        <h4>🎯 Acciones Tomadas:</h4>
+                        <h4> Acciones Tomadas:</h4>
                         <div class="action-list">
-                            ${analysis.reportedUserViolations > 0 ? '<div class="action-item">⚠️ Usuario reportado recibió advertencia automática</div>' : ''}
-                            ${analysis.reporterViolations > 0 ? '<div class="action-item">⚠️ También recibiste una advertencia por violaciones detectadas</div>' : ''}
-                            <div class="action-item">📝 Caso registrado en el sistema de moderación</div>
+                            ${analysis.reportedUserViolations > 0 ? '<div class="action-item">️ Usuario reportado recibió advertencia automática</div>' : ''}
+                            ${analysis.reporterViolations > 0 ? '<div class="action-item">️ También recibiste una advertencia por violaciones detectadas</div>' : ''}
+                            <div class="action-item"> Caso registrado en el sistema de moderación</div>
                         </div>
                     </div>
                 ` : ''}
 
                 <div class="next-steps">
-                    <h4>🔄 Próximos Pasos:</h4>
+                    <h4> Próximos Pasos:</h4>
                     <p>El sistema de moderación automática continuará monitoreando todas las conversaciones. Mantén un comportamiento respetuoso para evitar futuras advertencias.</p>
                 </div>
             </div>
@@ -7601,17 +7192,17 @@ function toggleMuteChat(userId, displayName) {
     if (isChatMuted(userId)) {
         // Desactivar silencio
         mutedChats.delete(userId);
-        showInstantNotification(`🔔 Chat con ${displayName} reactivado`, 'friend-request');
+        showInstantNotification(` Chat con ${displayName} reactivado`, 'friend-request');
     } else {
         // Activar silencio por 20 minutos
         mutedChats.set(userId, muteEndTime);
-        showInstantNotification(`🔇 Chat con ${displayName} silenciado por 20 minutos`, 'friend-request');
+        showInstantNotification(` Chat con ${displayName} silenciado por 20 minutos`, 'friend-request');
         
         // Programar la reactivación automática
         setTimeout(() => {
             if (mutedChats.has(userId)) {
                 mutedChats.delete(userId);
-                showInstantNotification(`🔔 Chat con ${displayName} reactivado automáticamente`, 'friend-request');
+                showInstantNotification(` Chat con ${displayName} reactivado automáticamente`, 'friend-request');
                 // Actualizar UI
                 loadUserContacts();
             }
@@ -7645,7 +7236,7 @@ function deleteChat(userId, displayName) {
                 // Actualizar interfaz
                 loadUserContacts();
                 
-                showInstantNotification(`🗑️ Conversación con ${displayName} eliminada`, 'friend-request');
+                showInstantNotification(`️ Conversación con ${displayName} eliminada`, 'friend-request');
             })
             .catch(error => {
                 console.error('Error eliminando chat:', error);
@@ -7746,7 +7337,7 @@ function showAutoGeneratedCodeMessage(code) {
 
 function copyCodeToClipboard(code) {
     navigator.clipboard.writeText(code).then(() => {
-        showSuccessMessage('📋 Código copiado al portapapeles');
+        showSuccessMessage(' Código copiado al portapapeles');
     }).catch(() => {
         // Fallback para navegadores que no soportan clipboard API
         const textArea = document.createElement('textarea');
@@ -7755,7 +7346,7 @@ function copyCodeToClipboard(code) {
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        showSuccessMessage('📋 Código copiado');
+        showSuccessMessage(' Código copiado');
     });
 }
 
