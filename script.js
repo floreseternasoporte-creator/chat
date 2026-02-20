@@ -24,7 +24,7 @@ const database = firebase.database();
 
 // Estado global de la aplicación
 let currentScreen = 'intro';
-let userLanguage = detectDeviceLanguage();
+let userLanguage = 'es';
 let currentChatContact = null;
 let currentUser = null;
 
@@ -80,17 +80,15 @@ let sessionManager = {
 let deviceApprovalModal = null;
 let approvalTimeout = null;
 
-// Función para detectar idioma del dispositivo
-function detectDeviceLanguage() {
-    // Obtener idioma del navegador/dispositivo
-    const deviceLang = navigator.language || navigator.userLanguage || 'es';
-    const langCode = deviceLang.substring(0, 2).toLowerCase();
-    
-    // Idiomas soportados
+function getSavedLanguagePreference() {
+    const savedLanguage = localStorage.getItem('zenvio_language') || localStorage.getItem('uberchat_language');
     const supportedLanguages = ['es', 'en', 'fr', 'de', 'pt', 'it'];
-    
-    // Si el idioma está soportado, usarlo; sino usar español por defecto
-    return supportedLanguages.includes(langCode) ? langCode : 'es';
+
+    if (savedLanguage && supportedLanguages.includes(savedLanguage)) {
+        return savedLanguage;
+    }
+
+    return 'es';
 }
 
 // Google Translate API - Configuración
@@ -436,8 +434,6 @@ document.getElementById('language-select').addEventListener('change', async func
         // Actualizar interfaz en tiempo real
         await updateLanguage();
         
-        // Mostrar confirmación
-        showInstantNotification(`🌍 Idioma cambiado a: ${this.options[this.selectedIndex].text}`, 'friend-request');
     }
 });
 
@@ -6417,8 +6413,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Configurar pantalla inicial como loading
     switchScreen('intro');
     
-    // Detectar y configurar idioma del dispositivo automáticamente
-    initializeDeviceLanguage();
+    // Cargar idioma guardado (sin detección automática)
+    initializeLanguagePreference();
 
     // Verificar estado de autenticación
     checkAuthState();
@@ -6458,81 +6454,12 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('UberChat iniciado correctamente');
 });
 
-// Función para inicializar idioma del dispositivo
-async function initializeDeviceLanguage() {
-    console.log('Detectando idioma del dispositivo...');
-    
-    const detectedLanguage = detectDeviceLanguage();
-    console.log(`Idioma detectado: ${detectedLanguage}`);
-    
-    // Actualizar idioma global
-    userLanguage = detectedLanguage;
-    
-    // Mostrar notificación del idioma detectado
-    showLanguageDetectionNotification(detectedLanguage);
-    
-    // Actualizar interfaz con el idioma detectado
-    await updateLanguage();
-    
-    // Guardar preferencia de idioma
-    localStorage.setItem('uberchat_language', detectedLanguage);
-}
+// Inicializa idioma guardado por el usuario
+async function initializeLanguagePreference() {
+    userLanguage = getSavedLanguagePreference();
+    console.log(`Idioma inicial configurado: ${userLanguage}`);
 
-// Función para mostrar notificación de idioma detectado
-function showLanguageDetectionNotification(language) {
-    const languageNames = {
-        'es': '🇪🇸 Español',
-        'en': '🇺🇸 English', 
-        'fr': '🇫🇷 Français',
-        'de': '🇩🇪 Deutsch',
-        'pt': '🇵🇹 Português',
-        'it': '🇮🇹 Italiano'
-    };
-    
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 25px;
-        font-weight: 600;
-        z-index: 10000;
-        box-shadow: var(--shadow);
-        animation: slideDown 0.5s ease;
-    `;
-    
-    notification.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <i class="fas fa-globe"></i>
-            <span>Idioma detectado: ${languageNames[language] || language}</span>
-        </div>
-    `;
-    
-    // Agregar animación CSS
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideDown {
-            from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
-        }
-    `;
-    document.head.appendChild(style);
-    
-    document.body.appendChild(notification);
-    
-    // Auto-ocultar después de 3 segundos
-    setTimeout(() => {
-        notification.style.animation = 'slideDown 0.5s ease reverse';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 500);
-    }, 3000);
+    await updateLanguage();
 }
 
 // Función para implementar traducción real con Google Translate API
