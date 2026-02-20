@@ -447,46 +447,46 @@ function goToIntro() {
 
 // Lista completa de países con banderas y códigos
 const countries = [
-    { name: 'España', code: '+34', flag: '🇪🇸', popular: true },
-    { name: 'Estados Unidos', code: '+1', flag: '🇺🇸', popular: true },
-    { name: 'México', code: '+52', flag: '🇲🇽', popular: true },
-    { name: 'Argentina', code: '+54', flag: '🇦🇷', popular: true },
-    { name: 'Brasil', code: '+55', flag: '🇧🇷', popular: true },
-    { name: 'Colombia', code: '+57', flag: '🇨🇴', popular: true },
-    { name: 'Chile', code: '+56', flag: '🇨🇱', popular: true },
-    { name: 'Perú', code: '+51', flag: '🇵🇪', popular: true },
-    { name: 'Francia', code: '+33', flag: '🇫🇷' },
-    { name: 'Alemania', code: '+49', flag: '🇩🇪' },
-    { name: 'Italia', code: '+39', flag: '🇮🇹' },
-    { name: 'Reino Unido', code: '+44', flag: '🇬🇧' },
-    { name: 'Canadá', code: '+1', flag: '🇨🇦' },
-    { name: 'Australia', code: '+61', flag: '🇦🇺' },
-    { name: 'Japón', code: '+81', flag: '🇯🇵' },
-    { name: 'China', code: '+86', flag: '🇨🇳' },
-    { name: 'India', code: '+91', flag: '🇮🇳' },
-    { name: 'Rusia', code: '+7', flag: '🇷🇺' },
-    { name: 'Corea del Sur', code: '+82', flag: '🇰🇷' },
-    { name: 'Holanda', code: '+31', flag: '🇳🇱' },
-    { name: 'Bélgica', code: '+32', flag: '🇧🇪' },
-    { name: 'Suiza', code: '+41', flag: '🇨🇭' },
-    { name: 'Austria', code: '+43', flag: '🇦🇹' },
-    { name: 'Suecia', code: '+46', flag: '🇸🇪' },
-    { name: 'Noruega', code: '+47', flag: '🇳🇴' },
-    { name: 'Dinamarca', code: '+45', flag: '🇩🇰' },
-    { name: 'Finlandia', code: '+358', flag: '🇫🇮' },
-    { name: 'Portugal', code: '+351', flag: '🇵🇹' },
-    { name: 'Grecia', code: '+30', flag: '🇬🇷' },
-    { name: 'Turquía', code: '+90', flag: '🇹🇷' },
-    { name: 'Israel', code: '+972', flag: '🇮🇱' },
-    { name: 'Emiratos Árabes Unidos', code: '+971', flag: '🇦🇪' },
-    { name: 'Arabia Saudí', code: '+966', flag: '🇸🇦' },
-    { name: 'Egipto', code: '+20', flag: '🇪🇬' },
-    { name: 'Sudáfrica', code: '+27', flag: '🇿🇦' },
-    { name: 'Marruecos', code: '+212', flag: '🇲🇦' },
-    { name: 'Nigeria', code: '+234', flag: '🇳🇬' },
-    { name: 'Kenia', code: '+254', flag: '🇰🇪' },
-    { name: 'Ghana', code: '+233', flag: '🇬🇭' },
-    { name: 'Tanzania', code: '+255', flag: '🇹🇿' }
+    { name: 'España', code: '+34', flag: '', popular: true },
+    { name: 'Estados Unidos', code: '+1', flag: '', popular: true },
+    { name: 'México', code: '+52', flag: '', popular: true },
+    { name: 'Argentina', code: '+54', flag: '', popular: true },
+    { name: 'Brasil', code: '+55', flag: '', popular: true },
+    { name: 'Colombia', code: '+57', flag: '', popular: true },
+    { name: 'Chile', code: '+56', flag: '', popular: true },
+    { name: 'Perú', code: '+51', flag: '', popular: true },
+    { name: 'Francia', code: '+33', flag: '' },
+    { name: 'Alemania', code: '+49', flag: '' },
+    { name: 'Italia', code: '+39', flag: '' },
+    { name: 'Reino Unido', code: '+44', flag: '' },
+    { name: 'Canadá', code: '+1', flag: '' },
+    { name: 'Australia', code: '+61', flag: '' },
+    { name: 'Japón', code: '+81', flag: '' },
+    { name: 'China', code: '+86', flag: '' },
+    { name: 'India', code: '+91', flag: '' },
+    { name: 'Rusia', code: '+7', flag: '' },
+    { name: 'Corea del Sur', code: '+82', flag: '' },
+    { name: 'Holanda', code: '+31', flag: '' },
+    { name: 'Bélgica', code: '+32', flag: '' },
+    { name: 'Suiza', code: '+41', flag: '' },
+    { name: 'Austria', code: '+43', flag: '' },
+    { name: 'Suecia', code: '+46', flag: '' },
+    { name: 'Noruega', code: '+47', flag: '' },
+    { name: 'Dinamarca', code: '+45', flag: '' },
+    { name: 'Finlandia', code: '+358', flag: '' },
+    { name: 'Portugal', code: '+351', flag: '' },
+    { name: 'Grecia', code: '+30', flag: '' },
+    { name: 'Turquía', code: '+90', flag: '' },
+    { name: 'Israel', code: '+972', flag: '' },
+    { name: 'Emiratos Árabes Unidos', code: '+971', flag: '' },
+    { name: 'Arabia Saudí', code: '+966', flag: '' },
+    { name: 'Egipto', code: '+20', flag: '' },
+    { name: 'Sudáfrica', code: '+27', flag: '' },
+    { name: 'Marruecos', code: '+212', flag: '' },
+    { name: 'Nigeria', code: '+234', flag: '' },
+    { name: 'Kenia', code: '+254', flag: '' },
+    { name: 'Ghana', code: '+233', flag: '' },
+    { name: 'Tanzania', code: '+255', flag: '' }
 ];
 
 let selectedCountry = countries[0]; // España por defecto
@@ -696,30 +696,6 @@ function filterCountries() {
     loadCountriesList(searchTerm);
 }
 
-document.addEventListener('keydown', handleCountryModalEscape);
-
-function filterCountries() {
-    const searchInput = document.getElementById('country-search');
-    const searchTerm = searchInput ? searchInput.value : '';
-    loadCountriesList(searchTerm);
-}
-
-document.addEventListener('keydown', handleCountryModalEscape);
-
-function filterCountries() {
-    const searchInput = document.getElementById('country-search');
-    const searchTerm = searchInput ? searchInput.value : '';
-    loadCountriesList(searchTerm);
-}
-
-document.addEventListener('keydown', handleCountryModalEscape);
-
-function filterCountries() {
-    const searchInput = document.getElementById('country-search');
-    const searchTerm = searchInput ? searchInput.value : '';
-    loadCountriesList(searchTerm);
-}
-
 function sendVerificationCode() {
     const countryCode = selectedCountry.code;
     const phoneNumber = document.getElementById('phone-input').value;
@@ -784,7 +760,7 @@ function requestLoginApproval(phoneNumber, existingUserId, existingSessionId) {
     const deviceInfo = getDeviceFingerprint();
     const loginRequestId = Date.now().toString();
 
-    console.log('🔐 Enviando solicitud de aprobación para:', phoneNumber, 'a usuario:', existingUserId);
+    console.log(' Enviando solicitud de aprobación para:', phoneNumber, 'a usuario:', existingUserId);
 
     // Crear solicitud de aprobación en Firebase
     const approvalRequest = {
@@ -842,7 +818,7 @@ function requestLoginApproval(phoneNumber, existingUserId, existingSessionId) {
 
     Promise.all([approvalPromise, notificationPromise, flagPromise, globalFlagPromise, triggerPromise])
         .then(() => {
-            console.log('✅ Solicitud de aprobación enviada por múltiples canales');
+            console.log(' Solicitud de aprobación enviada por múltiples canales');
             showLoginRequestPending(deviceInfo);
 
             // Verificar si el usuario está online y forzar notificación
@@ -850,7 +826,7 @@ function requestLoginApproval(phoneNumber, existingUserId, existingSessionId) {
         })
         .then((statusSnapshot) => {
             const userStatus = statusSnapshot.val();
-            console.log(`📊 Estado del usuario destinatario: ${userStatus}`);
+            console.log(` Estado del usuario destinatario: ${userStatus}`);
             
             if (userStatus === 'online') {
                 // Usuario online - enviar pulse adicional
@@ -859,14 +835,14 @@ function requestLoginApproval(phoneNumber, existingUserId, existingSessionId) {
                     requestId: loginRequestId,
                     timestamp: Date.now()
                 });
-                console.log('🟢 Usuario online - enviado pulse adicional');
+                console.log(' Usuario online - enviado pulse adicional');
             }
 
             // Escuchar respuesta de aprobación
             listenForApprovalResponse(existingUserId, loginRequestId, phoneNumber);
         })
         .catch(error => {
-            console.error('❌ Error enviando solicitud completa:', error);
+            console.error(' Error enviando solicitud completa:', error);
             showErrorMessage('Error enviando solicitud de aprobación. Verifica tu conexión.');
         });
 }
@@ -1001,10 +977,10 @@ function showLoginRequestPending(deviceInfo) {
             <div class="pending-icon">
                 <i class="fas fa-clock"></i>
             </div>
-            <h2>🔐 Verificación de Seguridad</h2>
+            <h2> Verificación de Seguridad</h2>
             <p>Este número ya está en uso en otro dispositivo.</p>
             <div class="device-info">
-                <h4>📱 Tu dispositivo:</h4>
+                <h4> Tu dispositivo:</h4>
                 <p><strong>Tipo:</strong> ${deviceInfo.deviceType}</p>
                 <p><strong>Ubicación:</strong> ${deviceInfo.ipLocation}</p>
                 <p><strong>Navegador:</strong> ${deviceInfo.userAgent.substring(0, 50)}...</p>
@@ -1043,11 +1019,11 @@ function listenForApprovalResponse(userId, requestId, phoneNumber) {
         console.log(`Respuesta de aprobación recibida: ${status} desde ${source}`);
         
         if (status === 'approved') {
-            console.log('✅ Inicio de sesión APROBADO');
+            console.log(' Inicio de sesión APROBADO');
             closePendingModal();
             
             // Mostrar mensaje de éxito
-            showInstantNotification('✅ Acceso aprobado - Iniciando sesión...', 'friend-request');
+            showInstantNotification(' Acceso aprobado - Iniciando sesión...', 'friend-request');
             
             // Proceder con la verificación después de un breve delay
             setTimeout(() => {
@@ -1059,13 +1035,13 @@ function listenForApprovalResponse(userId, requestId, phoneNumber) {
             globalApprovalRef.off();
             
         } else if (status === 'denied') {
-            console.log('❌ Inicio de sesión DENEGADO');
+            console.log(' Inicio de sesión DENEGADO');
             closePendingModal();
 
             // Bloquear por 10 minutos
             sessionManager.blockedUntil = Date.now() + (10 * 60 * 1000);
             
-            showFullScreenMessage('🚫 Acceso Denegado', 
+            showFullScreenMessage(' Acceso Denegado', 
                 'El usuario autorizado ha denegado tu solicitud de acceso. Tu dispositivo ha sido bloqueado temporalmente por 10 minutos por seguridad.', 
                 'denied');
             
@@ -1599,7 +1575,7 @@ function createActiveSession(userId, phoneNumber) {
 
 // Función para configurar listener de solicitudes de aprobación
 function setupLoginApprovalListener(userId) {
-    console.log('🔧 Configurando listener de aprobaciones para:', userId);
+    console.log(' Configurando listener de aprobaciones para:', userId);
     
     // Limpiar listeners anteriores
     if (sessionManager.loginAttemptListener) {
@@ -1613,10 +1589,10 @@ function setupLoginApprovalListener(userId) {
         const approval = snapshot.val();
         const approvalId = snapshot.key;
         
-        console.log('🚨 Nueva solicitud de aprobación detectada:', approval);
+        console.log(' Nueva solicitud de aprobación detectada:', approval);
         
         if (approval && approval.status === 'pending') {
-            console.log('✅ Mostrando modal de aprobación inmediatamente');
+            console.log(' Mostrando modal de aprobación inmediatamente');
             showDeviceApprovalModal(approval, approvalId, userId);
         }
     });
@@ -1625,7 +1601,7 @@ function setupLoginApprovalListener(userId) {
     database.ref(`users/${userId}/pendingLoginApproval`).on('value', (snapshot) => {
         const pendingApproval = snapshot.val();
         if (pendingApproval && pendingApproval.requestId && pendingApproval.urgent) {
-            console.log('🔥 Solicitud URGENTE detectada via flag:', pendingApproval);
+            console.log(' Solicitud URGENTE detectada via flag:', pendingApproval);
             
             // Buscar la solicitud completa inmediatamente
             database.ref(`loginApprovals/${userId}/${pendingApproval.requestId}`).once('value')
@@ -1644,7 +1620,7 @@ function setupLoginApprovalListener(userId) {
     database.ref(`users/${userId}/lastLoginRequest`).on('value', (snapshot) => {
         const lastRequest = snapshot.val();
         if (lastRequest && lastRequest.requestId) {
-            console.log('🎯 Trigger de último request detectado:', lastRequest);
+            console.log(' Trigger de último request detectado:', lastRequest);
             
             // Buscar solicitud por ID
             database.ref(`loginApprovals/${userId}/${lastRequest.requestId}`).once('value')
@@ -1663,8 +1639,8 @@ function setupLoginApprovalListener(userId) {
     database.ref(`users/${userId}/alertPulse`).on('value', (snapshot) => {
         const pulse = snapshot.val();
         if (pulse && pulse.type === 'login_request') {
-            console.log('⚡ Pulse de alerta recibido:', pulse);
-            showInstantNotification('🔐 Nueva solicitud de acceso detectada', 'friend-request');
+            console.log(' Pulse de alerta recibido:', pulse);
+            showInstantNotification(' Nueva solicitud de acceso detectada', 'friend-request');
             
             // Buscar solicitud
             database.ref(`loginApprovals/${userId}/${pulse.requestId}`).once('value')
@@ -1685,7 +1661,7 @@ function setupLoginApprovalListener(userId) {
         const requestId = snapshot.key;
         
         if (globalRequest && globalRequest.status === 'pending') {
-            console.log('🌍 Solicitud detectada via listener global:', globalRequest);
+            console.log(' Solicitud detectada via listener global:', globalRequest);
             
             database.ref(`loginApprovals/${userId}/${requestId}`).once('value')
                 .then(approvalSnapshot => {
@@ -1697,7 +1673,7 @@ function setupLoginApprovalListener(userId) {
         }
     });
 
-    console.log('✅ Listeners de aprobación configurados con múltiples canales');
+    console.log(' Listeners de aprobación configurados con múltiples canales');
 }
 
 // Función para mostrar pantalla completa de aprobación de dispositivo
@@ -1863,7 +1839,7 @@ function approveDeviceAccess(approvalId, userId) {
             closeDeviceApprovalModal();
             
             // Mostrar confirmación breve
-            showInstantNotification('✅ Dispositivo aprobado - Acceso concedido', 'friend-request');
+            showInstantNotification(' Dispositivo aprobado - Acceso concedido', 'friend-request');
             
             console.log('Dispositivo aprobado exitosamente');
         })
@@ -1894,7 +1870,7 @@ function denyDeviceAccess(approvalId, userId) {
             closeDeviceApprovalModal();
             
             // Mostrar confirmación breve
-            showInstantNotification('🛡️ Dispositivo bloqueado - Acceso denegado', 'friend-request');
+            showInstantNotification('️ Dispositivo bloqueado - Acceso denegado', 'friend-request');
             
             console.log('Dispositivo denegado exitosamente');
         })
@@ -2024,7 +2000,7 @@ let storageManager = {
         // Guardar en Firebase
         return this.saveStorageData().then(() => {
             console.log(`Archivo añadido: ${fileName} (${this.formatFileSize(fileSize)})`);
-            this.showStorageNotification(`📁 ${fileName} guardado (${this.formatFileSize(fileSize)})`);
+            this.showStorageNotification(` ${fileName} guardado (${this.formatFileSize(fileSize)})`);
             return fileId;
         });
     },
@@ -2039,7 +2015,7 @@ let storageManager = {
         
         return this.saveStorageData().then(() => {
             console.log(`Archivo eliminado: ${file.name}`);
-            this.showStorageNotification(`🗑️ ${file.name} eliminado`);
+            this.showStorageNotification(`️ ${file.name} eliminado`);
         });
     },
     
@@ -2148,7 +2124,7 @@ let storageManager = {
         
         if (cleanedCount > 0) {
             this.saveStorageData().then(() => {
-                this.showStorageNotification(`🧹 ${cleanedCount} archivos antiguos eliminados (${this.formatFileSize(cleanedSize)} liberados)`);
+                this.showStorageNotification(` ${cleanedCount} archivos antiguos eliminados (${this.formatFileSize(cleanedSize)} liberados)`);
             });
         }
         
@@ -2337,7 +2313,7 @@ function handleAvatarChange(event) {
                     database.ref(`users/${currentUser.uid}/avatar`).set(imageBase64);
                 }
                 
-                showSuccessMessage('📸 Foto de perfil actualizada');
+                showSuccessMessage(' Foto de perfil actualizada');
             })
             .catch(error => {
                 console.error('Error subiendo imagen:', error);
@@ -2490,7 +2466,7 @@ function saveProfile() {
                     saveBtn.disabled = false;
                     
                     hideEditProfile();
-                    showSuccessMessage('✅ Perfil actualizado y guardado en tiempo real');
+                    showSuccessMessage(' Perfil actualizado y guardado en tiempo real');
                 })
                 .catch(error => {
                     console.error('Error guardando perfil en Firebase:', error);
@@ -2511,8 +2487,8 @@ function toggleNotifications(toggle) {
     notificationSystem.soundEnabled = isActive;
 
     showSuccessMessage(isActive ? 
-        '🔔 Notificaciones activadas' : 
-        '🔕 Notificaciones desactivadas'
+        ' Notificaciones activadas' : 
+        ' Notificaciones desactivadas'
     );
 }
 
@@ -2521,8 +2497,8 @@ function toggleCallNotifications(toggle) {
     const isActive = toggle.classList.contains('active');
 
     showSuccessMessage(isActive ? 
-        '📞 Notificaciones de llamadas activadas' : 
-        '📞 Notificaciones de llamadas desactivadas'
+        ' Notificaciones de llamadas activadas' : 
+        ' Notificaciones de llamadas desactivadas'
     );
 }
 
@@ -2594,7 +2570,7 @@ function showMomentsLoading() {
                 <div class="loader-circle"></div>
             </div>
             <h3>Cargando momentos...</h3>
-            <p>✨ Preparando contenido</p>
+            <p> Preparando contenido</p>
         </div>
     `;
 }
@@ -2683,7 +2659,7 @@ function displayMoments(momentsList) {
                     <div class="moment-avatar-container">
                         <img class="moment-avatar" src="${avatarUrl}" alt="${moment.authorName}">
                         <div class="avatar-ring"></div>
-                        ${isMyMoment ? '<div class="my-moment-badge">📸</div>' : ''}
+                        ${isMyMoment ? '<div class="my-moment-badge"></div>' : ''}
                     </div>
                     <div class="moment-author-info">
                         <div class="moment-author-name">${moment.authorName}</div>
@@ -2713,8 +2689,8 @@ function displayMoments(momentsList) {
                     <div class="reaction-summary">
                         ${(moment.reactions?.like?.length || 0) + (moment.reactions?.laugh?.length || 0) > 0 ? 
                             `<div class="reaction-icons">
-                                ${moment.reactions?.like?.length > 0 ? '<span class="reaction-emoji">❤️</span>' : ''}
-                                ${moment.reactions?.laugh?.length > 0 ? '<span class="reaction-emoji">😂</span>' : ''}
+                                ${moment.reactions?.like?.length > 0 ? '<span class="reaction-emoji">️</span>' : ''}
+                                ${moment.reactions?.laugh?.length > 0 ? '<span class="reaction-emoji"></span>' : ''}
                                 <span class="reaction-count">${(moment.reactions?.like?.length || 0) + (moment.reactions?.laugh?.length || 0)}</span>
                             </div>` : ''
                         }
@@ -2911,7 +2887,7 @@ async function publishMoment() {
         
         console.log('Momento publicado exitosamente');
         hideCreateMoment();
-        showInstantNotification('✨ ¡Momento publicado exitosamente!', 'friend-request');
+        showInstantNotification(' ¡Momento publicado exitosamente!', 'friend-request');
         
     } catch (error) {
         console.error('Error publicando momento:', error);
@@ -2926,7 +2902,7 @@ async function publishMoment() {
 function reactToMoment(momentId, reactionType) {
     if (!currentUser || !momentId) return;
     
-    console.log(`💫 Reaccionando al momento ${momentId} con ${reactionType}`);
+    console.log(` Reaccionando al momento ${momentId} con ${reactionType}`);
     
     const momentRef = database.ref(`moments/${momentId}/reactions/${reactionType}`);
     
@@ -2956,7 +2932,7 @@ function reactToMoment(momentId, reactionType) {
         
         // Actualizar en Firebase
         momentRef.set(reactions).then(() => {
-            console.log('✅ Reacción actualizada en tiempo real');
+            console.log(' Reacción actualizada en tiempo real');
             
             // Actualizar contador con animación
             updateReactionCounter(momentId, reactionType, reactions.length);
@@ -3002,13 +2978,13 @@ function createReactionAnimation(momentId, reactionType, action) {
 // Función para obtener icono de reacción
 function getReactionIcon(reactionType) {
     const icons = {
-        'like': '❤️',
-        'laugh': '😂',
-        'wow': '😮',
-        'love': '😍',
-        'fire': '🔥'
+        'like': '️',
+        'laugh': '',
+        'wow': '',
+        'love': '',
+        'fire': ''
     };
-    return icons[reactionType] || '👍';
+    return icons[reactionType] || '';
 }
 
 // Función para actualizar contador con animación
@@ -3254,7 +3230,7 @@ function getTimeAgo(timestamp) {
 
 // Función para traducir sección (placeholder)
 function showTranslateSection() {
-    showFullScreenMessage('🌍 Traductor Global', 
+    showFullScreenMessage(' Traductor Global', 
         'Esta función estará disponible próximamente. Podrás traducir texto y conversaciones en tiempo real.', 
         'info');
 }
@@ -3270,8 +3246,8 @@ function toggleAutoTranslate(toggle) {
     const isActive = toggle.classList.contains('active');
 
     showSuccessMessage(isActive ? 
-        '🌍 Traducción automática activada' : 
-        '🌍 Traducción automática desactivada'
+        ' Traducción automática activada' : 
+        ' Traducción automática desactivada'
     );
 }
 
@@ -3453,8 +3429,8 @@ function toggleProfilePhotoVisibility(toggle) {
     
     showInstantNotification(
         isVisible ? 
-        '👁️ Foto de perfil ahora es visible para todos' : 
-        '🙈 Foto de perfil oculta para otros usuarios', 
+        '️ Foto de perfil ahora es visible para todos' : 
+        ' Foto de perfil oculta para otros usuarios', 
         'friend-request'
     );
 }
@@ -3468,8 +3444,8 @@ function toggleCallsEnabled(toggle) {
     
     showInstantNotification(
         isEnabled ? 
-        '📞 Llamadas activadas - otros pueden llamarte' : 
-        '🔇 Llamadas silenciadas - no recibirás llamadas', 
+        ' Llamadas activadas - otros pueden llamarte' : 
+        ' Llamadas silenciadas - no recibirás llamadas', 
         'friend-request'
     );
 }
@@ -3483,8 +3459,8 @@ function toggleStatusVisibility(toggle) {
     
     showInstantNotification(
         isVisible ? 
-        '💬 Estado personal visible para otros' : 
-        '🤐 Estado personal oculto', 
+        ' Estado personal visible para otros' : 
+        ' Estado personal oculto', 
         'friend-request'
     );
 }
@@ -3499,7 +3475,7 @@ function toggleLastSeenVisibility(toggle) {
     showInstantNotification(
         isVisible ? 
         '⏰ Última conexión visible para otros' : 
-        '👻 Última conexión oculta', 
+        ' Última conexión oculta', 
         'friend-request'
     );
 }
@@ -3513,8 +3489,8 @@ function toggleOnlineStatusVisibility(toggle) {
     
     showInstantNotification(
         isVisible ? 
-        '🟢 Estado en línea visible' : 
-        '⚫ Aparecerás como desconectado', 
+        ' Estado en línea visible' : 
+        ' Aparecerás como desconectado', 
         'friend-request'
     );
 }
@@ -3526,8 +3502,8 @@ function toggleContactsOnly(toggle) {
     // Esta función se puede implementar más adelante
     showInstantNotification(
         isEnabled ? 
-        '🔒 Solo contactos pueden escribirte' : 
-        '🌍 Cualquiera puede escribirte', 
+        ' Solo contactos pueden escribirte' : 
+        ' Cualquiera puede escribirte', 
         'friend-request'
     );
 }
@@ -3556,19 +3532,19 @@ function updateAvatarVisibility() {
 
 // Funciones adicionales para configuraciones de seguridad
 function showBlockedUsers() {
-    showFullScreenMessage('🚫 Usuarios Bloqueados', 
+    showFullScreenMessage(' Usuarios Bloqueados', 
         'No tienes usuarios bloqueados actualmente. Los usuarios bloqueados aparecerán aquí.', 
         'info');
 }
 
 function showSecurityLog() {
-    showFullScreenMessage('🛡️ Registro de Seguridad', 
+    showFullScreenMessage('️ Registro de Seguridad', 
         'Último acceso: Ahora - Dispositivo actual\nUbicación: España\nDispositivo: Navegador web', 
         'info');
 }
 
 function showDataSettings() {
-    showFullScreenMessage('📊 Mis Datos', 
+    showFullScreenMessage(' Mis Datos', 
         'Puedes exportar todos tus datos o solicitar la eliminación de tu cuenta. Estos cambios son permanentes.', 
         'warning');
 }
@@ -3729,7 +3705,7 @@ function showAbout() {
 }
 
 function showHelp() {
-    showFullScreenMessage('❓ Ayuda y Soporte', 
+    showFullScreenMessage(' Ayuda y Soporte', 
         'Si tienes problemas o preguntas, puedes contactarnos a través del email: soporte@uberchat.com', 
         'info');
 }
@@ -3780,7 +3756,7 @@ function logout() {
 
                 // Volver a la pantalla de intro
                 switchScreen('intro');
-                showSuccessMessage('✅ Sesión cerrada correctamente');
+                showSuccessMessage(' Sesión cerrada correctamente');
             })
             .catch(error => {
                 console.error('Error cerrando sesión:', error);
@@ -3956,7 +3932,7 @@ let friendRequestsListener = null;
 let pendingRequests = new Map();
 
 // Variable para selector de país de contactos
-let selectedContactCountry = { name: 'España', code: '+34', flag: '🇪🇸' };
+let selectedContactCountry = { name: 'España', code: '+34', flag: '' };
 
 // Función para agregar contacto
 function addContact() {
@@ -4059,7 +4035,7 @@ function showUserFoundCard(user) {
     userCard.innerHTML = `
         <div class="user-found-content">
             <div class="user-found-header">
-                <h2>📱 Usuario Encontrado</h2>
+                <h2> Usuario Encontrado</h2>
                 <button class="close-card-btn" onclick="closeUserFoundCard()">
                     <i class="fas fa-times"></i>
                 </button>
@@ -4072,7 +4048,7 @@ function showUserFoundCard(user) {
                 </div>
                 <div class="user-info">
                     <h3>${user.phoneNumber}</h3>
-                    <p class="user-status">${user.status === 'online' ? '🟢 En línea' : '⚫ Desconectado'}</p>
+                    <p class="user-status">${user.status === 'online' ? ' En línea' : ' Desconectado'}</p>
                     <p class="user-joined">Miembro desde ${new Date(user.createdAt).toLocaleDateString()}</p>
                 </div>
             </div>
@@ -4119,10 +4095,10 @@ function sendFriendRequest(targetUserId, targetUserPhone) {
     // Cerrar tarjeta de usuario
     closeUserFoundCard();
 
-    console.log('📤 Enviando solicitud de amistad con múltiples canales:', requestData);
+    console.log(' Enviando solicitud de amistad con múltiples canales:', requestData);
 
     // Mostrar loading
-    showInstantNotification('📤 Enviando solicitud...', 'friend-request');
+    showInstantNotification(' Enviando solicitud...', 'friend-request');
 
     // 1. Enviar solicitud principal
     const requestPromise = database.ref(`friendRequests/${targetUserId}/${requestId}`).set(requestData);
@@ -4170,14 +4146,14 @@ function sendFriendRequest(targetUserId, targetUserPhone) {
 
     Promise.all([requestPromise, notificationPromise, flagPromise, globalPromise, lastRequestPromise])
         .then(() => {
-            console.log('✅ Solicitud enviada por múltiples canales');
+            console.log(' Solicitud enviada por múltiples canales');
             
             // Verificar estado del usuario destinatario
             return database.ref(`users/${targetUserId}/status`).once('value');
         })
         .then((statusSnapshot) => {
             const userStatus = statusSnapshot.val();
-            console.log(`📊 Estado del usuario destinatario: ${userStatus}`);
+            console.log(` Estado del usuario destinatario: ${userStatus}`);
             
             if (userStatus === 'online') {
                 // Usuario online - enviar pulse adicional
@@ -4187,16 +4163,16 @@ function sendFriendRequest(targetUserId, targetUserPhone) {
                     from: currentUser.phoneNumber,
                     timestamp: Date.now()
                 });
-                console.log('🟢 Usuario online - enviado pulse adicional');
-                showInstantNotification(`✅ Solicitud enviada a ${targetUserPhone} (usuario en línea)`, 'friend-request');
+                console.log(' Usuario online - enviado pulse adicional');
+                showInstantNotification(` Solicitud enviada a ${targetUserPhone} (usuario en línea)`, 'friend-request');
             } else {
-                console.log('🔴 Usuario offline - recibirá al conectarse');
-                showInstantNotification(`✅ Solicitud enviada a ${targetUserPhone} (recibirá al conectarse)`, 'friend-request');
+                console.log(' Usuario offline - recibirá al conectarse');
+                showInstantNotification(` Solicitud enviada a ${targetUserPhone} (recibirá al conectarse)`, 'friend-request');
             }
             
         })
         .catch(error => {
-            console.error('❌ Error enviando solicitud:', error);
+            console.error(' Error enviando solicitud:', error);
             showErrorMessage(`Error enviando solicitud: ${error.message}`);
         });
 }
@@ -4214,7 +4190,7 @@ function closeStorageSettings() {
 function cleanupOldFiles() {
     const result = storageManager.cleanupOldFiles(30);
     if (result.cleanedCount === 0) {
-        showInstantNotification('🧹 No hay archivos antiguos para limpiar', 'friend-request');
+        showInstantNotification(' No hay archivos antiguos para limpiar', 'friend-request');
     }
 }
 
@@ -4228,9 +4204,9 @@ function clearImageCache() {
     });
     
     if (images.length > 0) {
-        showInstantNotification(`🗑️ ${images.length} imágenes eliminadas (${storageManager.formatFileSize(totalSize)} liberados)`, 'friend-request');
+        showInstantNotification(`️ ${images.length} imágenes eliminadas (${storageManager.formatFileSize(totalSize)} liberados)`, 'friend-request');
     } else {
-        showInstantNotification('📷 No hay imágenes en caché para eliminar', 'friend-request');
+        showInstantNotification(' No hay imágenes en caché para eliminar', 'friend-request');
     }
 }
 
@@ -4316,7 +4292,7 @@ function initiateRealTimeCall(callType) {
     
     // Mostrar estado de llamando
     const statusElement = document.getElementById(callType === 'voice' ? 'call-status' : 'video-call-status');
-    statusElement.textContent = '📞 Llamando...';
+    statusElement.textContent = ' Llamando...';
 
     // Reproducir sonido de llamada
     playCallSound();
@@ -4414,7 +4390,7 @@ function setupWebRTCConnection() {
 // Función para manejar llamada conectada
 function handleCallConnected() {
     const statusElement = document.getElementById(currentCallType === 'voice' ? 'call-status' : 'video-call-status');
-    statusElement.textContent = '🟢 Conectado';
+    statusElement.textContent = ' Conectado';
     
     isCallActive = true;
     startCallTimer();
@@ -4720,7 +4696,7 @@ function setupFriendRequestsListener() {
         return;
     }
 
-    console.log('🔧 Configurando listener de solicitudes para:', currentUser.uid);
+    console.log(' Configurando listener de solicitudes para:', currentUser.uid);
 
     // Limpiar listeners anteriores
     if (friendRequestsListener) {
@@ -4736,13 +4712,13 @@ function setupFriendRequestsListener() {
             const request = snapshot.val();
             const requestId = snapshot.key;
             
-            console.log('🚨 Nueva solicitud detectada en tiempo real:', request);
+            console.log(' Nueva solicitud detectada en tiempo real:', request);
             
             if (request && request.status === 'pending') {
-                console.log('✅ Mostrando solicitud inmediatamente');
+                console.log(' Mostrando solicitud inmediatamente');
                 
                 // Mostrar notificación instantánea
-                showInstantNotification(`📱 Nueva solicitud de ${request.fromPhone}`, 'friend-request');
+                showInstantNotification(` Nueva solicitud de ${request.fromPhone}`, 'friend-request');
                 
                 // Mostrar modal inmediatamente
                 showFriendRequestModal(request, requestId);
@@ -4753,7 +4729,7 @@ function setupFriendRequestsListener() {
         database.ref(`users/${currentUser.uid}/pendingFriendRequest`).on('value', (snapshot) => {
             const pendingRequest = snapshot.val();
             if (pendingRequest && pendingRequest.requestId && pendingRequest.urgent) {
-                console.log('🔥 Solicitud URGENTE detectada via flag:', pendingRequest);
+                console.log(' Solicitud URGENTE detectada via flag:', pendingRequest);
                 
                 // Buscar la solicitud completa
                 database.ref(`friendRequests/${currentUser.uid}/${pendingRequest.requestId}`).once('value')
@@ -4772,7 +4748,7 @@ function setupFriendRequestsListener() {
         database.ref(`users/${currentUser.uid}/lastFriendRequest`).on('value', (snapshot) => {
             const lastRequest = snapshot.val();
             if (lastRequest && lastRequest.requestId) {
-                console.log('🎯 Último friend request detectado:', lastRequest);
+                console.log(' Último friend request detectado:', lastRequest);
                 
                 // Buscar solicitud por ID
                 database.ref(`friendRequests/${currentUser.uid}/${lastRequest.requestId}`).once('value')
@@ -4791,8 +4767,8 @@ function setupFriendRequestsListener() {
         database.ref(`users/${currentUser.uid}/alertPulse`).on('value', (snapshot) => {
             const pulse = snapshot.val();
             if (pulse && pulse.type === 'friend_request') {
-                console.log('⚡ Pulse de solicitud de amistad recibido:', pulse);
-                showInstantNotification(`📱 Nueva solicitud de ${pulse.from}`, 'friend-request');
+                console.log(' Pulse de solicitud de amistad recibido:', pulse);
+                showInstantNotification(` Nueva solicitud de ${pulse.from}`, 'friend-request');
                 
                 // Buscar solicitud
                 database.ref(`friendRequests/${currentUser.uid}/${pulse.requestId}`).once('value')
@@ -4813,7 +4789,7 @@ function setupFriendRequestsListener() {
             const requestId = snapshot.key;
             
             if (globalRequest && globalRequest.status === 'pending') {
-                console.log('🌍 Solicitud detectada via listener global:', globalRequest);
+                console.log(' Solicitud detectada via listener global:', globalRequest);
                 
                 database.ref(`friendRequests/${currentUser.uid}/${requestId}`).once('value')
                     .then(requestSnapshot => {
@@ -4834,18 +4810,18 @@ function setupFriendRequestsListener() {
             console.log('Solicitud actualizada:', request);
             
             if (request && request.status === 'accepted') {
-                console.log('✅ Solicitud aceptada detectada:', requestId);
-                showInstantNotification('✅ Tu solicitud fue aceptada', 'friend-request');
+                console.log(' Solicitud aceptada detectada:', requestId);
+                showInstantNotification(' Tu solicitud fue aceptada', 'friend-request');
             } else if (request && request.status === 'rejected') {
-                console.log('❌ Solicitud rechazada detectada:', requestId);
-                showInstantNotification('❌ Tu solicitud fue rechazada', 'friend-request');
+                console.log(' Solicitud rechazada detectada:', requestId);
+                showInstantNotification(' Tu solicitud fue rechazada', 'friend-request');
             }
         });
 
-        console.log('✅ Listener de solicitudes configurado con múltiples canales');
+        console.log(' Listener de solicitudes configurado con múltiples canales');
         
     } catch (error) {
-        console.error('❌ Error configurando listener de solicitudes:', error);
+        console.error(' Error configurando listener de solicitudes:', error);
         // Reintentar después de 3 segundos
         setTimeout(setupFriendRequestsListener, 3000);
     }
@@ -4970,7 +4946,7 @@ function acceptFriendRequest(requestId, fromUserId) {
             switchScreen('chat');
             
             // Mostrar mensaje de bienvenida
-            showInstantNotification(`💬 ¡Ahora puedes chatear con ${userData.phoneNumber}!`, 'friend-request');
+            showInstantNotification(` ¡Ahora puedes chatear con ${userData.phoneNumber}!`, 'friend-request');
             
             // Recargar lista de contactos en segundo plano
             setTimeout(() => {
@@ -4988,7 +4964,7 @@ function rejectFriendRequest(requestId) {
     database.ref(`friendRequests/${currentUser.uid}/${requestId}/status`).set('rejected')
         .then(() => {
             closeFriendRequestModal();
-            showFullScreenMessage('❌ Solicitud Rechazada', 
+            showFullScreenMessage(' Solicitud Rechazada', 
                 'La solicitud de amistad ha sido rechazada.', 
                 'denied');
         })
@@ -5137,7 +5113,7 @@ function sendMessage() {
     const messageText = messageInput.value.trim();
 
     if (!messageText || !currentChatContact) {
-        console.log('❌ No se puede enviar: mensaje vacío o sin contacto');
+        console.log(' No se puede enviar: mensaje vacío o sin contacto');
         return;
     }
 
@@ -5152,9 +5128,9 @@ function sendMessage() {
 
     // Crear ID del chat
     const chatId = generateChatId(currentUser.uid, currentChatContact.uid);
-    console.log(`📤 Enviando mensaje en chat: ${chatId}`);
-    console.log(`👤 De: ${currentUser.uid} Para: ${currentChatContact.uid}`);
-    console.log(`💬 Mensaje: "${messageText}"`);
+    console.log(` Enviando mensaje en chat: ${chatId}`);
+    console.log(` De: ${currentUser.uid} Para: ${currentChatContact.uid}`);
+    console.log(` Mensaje: "${messageText}"`);
 
     // Crear objeto del mensaje
     const messageData = {
@@ -5173,7 +5149,7 @@ function sendMessage() {
     // Enviar mensaje a Firebase
     database.ref(`chats/${chatId}/messages`).push(messageData)
         .then(() => {
-            console.log('✅ Mensaje enviado exitosamente a Firebase');
+            console.log(' Mensaje enviado exitosamente a Firebase');
             playMessageSound();
 
             // Actualizar último mensaje del chat
@@ -5184,17 +5160,17 @@ function sendMessage() {
             });
         })
         .then(() => {
-            console.log('✅ Último mensaje actualizado');
+            console.log(' Último mensaje actualizado');
             
             // Notificar al receptor si está online
             return database.ref(`users/${currentChatContact.uid}/status`).once('value');
         })
         .then((statusSnapshot) => {
             const receiverStatus = statusSnapshot.val();
-            console.log(`📊 Estado del receptor: ${receiverStatus}`);
+            console.log(` Estado del receptor: ${receiverStatus}`);
             
             if (receiverStatus === 'online') {
-                console.log('🟢 Receptor está online - mensaje debería llegar inmediatamente');
+                console.log(' Receptor está online - mensaje debería llegar inmediatamente');
                 
                 // Crear notificación de mensaje para el receptor
                 const messageNotification = {
@@ -5209,15 +5185,15 @@ function sendMessage() {
                 
                 return database.ref(`notifications/${currentChatContact.uid}`).push(messageNotification);
             } else {
-                console.log('🔴 Receptor está offline - recibirá el mensaje al conectarse');
+                console.log(' Receptor está offline - recibirá el mensaje al conectarse');
                 return Promise.resolve();
             }
         })
         .then(() => {
-            console.log('✅ Proceso de envío completado');
+            console.log(' Proceso de envío completado');
         })
         .catch(error => {
-            console.error('❌ Error enviando mensaje:', error);
+            console.error(' Error enviando mensaje:', error);
             showErrorMessage(`Error enviando mensaje: ${error.message}`);
             
             // Restaurar mensaje en input si hay error
@@ -5325,7 +5301,7 @@ function simulateResponse() {
 
         const responses = [
             '¡Hola! ¿Cómo estás?',
-            'Todo bien por aquí 😊',
+            'Todo bien por aquí ',
             '¿Qué tal tu día?',
             'Perfecto, hablamos luego',
             '¡Excelente!'
@@ -5514,7 +5490,7 @@ function sendImageMessage(file) {
 
                     // Actualizar último mensaje del chat
                     database.ref(`chats/${chatId}/lastMessage`).set({
-                        text: '📷 Imagen',
+                        text: ' Imagen',
                         timestamp: Date.now(),
                         senderId: currentUser.uid
                     });
@@ -5876,7 +5852,7 @@ function requestNotificationPermission() {
     // Simular activación exitosa SIEMPRE para que progrese
     setTimeout(() => {
         permissionsGranted.notifications = true;
-        console.log('✅ Notificaciones activadas correctamente');
+        console.log(' Notificaciones activadas correctamente');
         
         // Actualizar botón con éxito
         btn.innerHTML = '<i class="fas fa-check-circle"></i> ¡Activado!';
@@ -5909,7 +5885,7 @@ function requestContactsPermission() {
     // Simular proceso de sincronización exitoso
     setTimeout(() => {
         permissionsGranted.contacts = true;
-        console.log('✅ Contactos sincronizados correctamente');
+        console.log(' Contactos sincronizados correctamente');
         
         // Actualizar botón con éxito
         btn.innerHTML = '<i class="fas fa-check-circle"></i> ¡Sincronizado!';
@@ -5918,7 +5894,7 @@ function requestContactsPermission() {
         btn.style.color = 'white';
         
         // NO mostrar notificación molesta
-        // showInstantNotification('📱 Contactos sincronizados correctamente', 'friend-request');
+        // showInstantNotification(' Contactos sincronizados correctamente', 'friend-request');
         
         // Forzar progreso automático al siguiente paso
         setTimeout(() => {
@@ -5972,12 +5948,12 @@ function completeTutorial() {
 
 function showTestNotification() {
     // Mostrar siempre la notificación instantánea
-    showInstantNotification('🔔 ¡Notificaciones activadas! Recibirás alertas en tiempo real', 'friend-request');
+    showInstantNotification(' ¡Notificaciones activadas! Recibirás alertas en tiempo real', 'friend-request');
     
     // Intentar mostrar notificación del navegador si hay permisos
     if ('Notification' in window && Notification.permission === 'granted') {
         try {
-            const notification = new Notification('🔔 UberChat', {
+            const notification = new Notification(' UberChat', {
                 body: 'Notificaciones activadas correctamente',
                 icon: '/favicon.ico',
                 silent: false
@@ -5998,7 +5974,7 @@ function showPermissionDeniedMessage(permissionType) {
     message.className = 'permission-denied-message';
     message.innerHTML = `
         <div style="background: rgba(255, 0, 0, 0.1); padding: 1rem; border-radius: 15px; margin-top: 1rem; border: 1px solid rgba(255, 0, 0, 0.3);">
-            <p style="margin: 0; font-size: 0.9rem;">⚠️ Permisos de ${permissionType} no concedidos</p>
+            <p style="margin: 0; font-size: 0.9rem;">️ Permisos de ${permissionType} no concedidos</p>
             <p style="margin: 0.5rem 0 0 0; font-size: 0.8rem; opacity: 0.8;">Puedes activarlos más tarde en Ajustes</p>
         </div>
     `;
@@ -6018,7 +5994,7 @@ function showContactSyncAnimation() {
     syncEffect.className = 'sync-effect';
     syncEffect.innerHTML = `
         <div style="position: absolute; top: -40px; left: 50%; transform: translateX(-50%); color: #00ff88; font-size: 2rem; animation: syncPulse 1s ease-in-out 3;">
-            ✨
+            
         </div>
         <style>
             @keyframes syncPulse {
@@ -6205,7 +6181,7 @@ function startVoiceCall() {
 
     // Verificar si el usuario tiene llamadas habilitadas
     if (currentChatContact.callsEnabled === false) {
-        showErrorMessage('🔇 Este usuario ha desactivado las llamadas. No puedes llamarle en este momento.');
+        showErrorMessage(' Este usuario ha desactivado las llamadas. No puedes llamarle en este momento.');
         return;
     }
 
@@ -6232,7 +6208,7 @@ function startVideoCall() {
 
     // Verificar si el usuario tiene llamadas habilitadas
     if (currentChatContact.callsEnabled === false) {
-        showErrorMessage('🔇 Este usuario ha desactivado las llamadas. No puedes realizar videollamadas en este momento.');
+        showErrorMessage(' Este usuario ha desactivado las llamadas. No puedes realizar videollamadas en este momento.');
         return;
     }
 
@@ -6769,15 +6745,15 @@ function showModerationWarning(offensiveWords, isPostMessage = false) {
             <div class="warning-icon">
                 <i class="fas fa-exclamation-triangle"></i>
             </div>
-            <h2>⚠️ Advertencia de Moderación</h2>
+            <h2>️ Advertencia de Moderación</h2>
             <p>${isPostMessage ? 'Has enviado' : 'Estás intentando enviar'} contenido que viola nuestras normas comunitarias.</p>
             <div class="detected-words">
                 <strong>Palabras detectadas:</strong> ${offensiveWords.join(', ')}
             </div>
             <div class="warning-message">
-                <p>🔸 El uso de lenguaje ofensivo está prohibido</p>
-                <p>🔸 Reincidencias pueden resultar en suspensión de cuenta</p>
-                <p>🔸 Mantén un ambiente respetuoso para todos</p>
+                <p> El uso de lenguaje ofensivo está prohibido</p>
+                <p> Reincidencias pueden resultar en suspensión de cuenta</p>
+                <p> Mantén un ambiente respetuoso para todos</p>
             </div>
             <div class="warning-actions">
                 <button class="warning-understood-btn" onclick="closeModerationWarning()">
@@ -6944,28 +6920,28 @@ function showReportResult(analysis, report) {
                 </div>
 
                 <div class="analysis-details">
-                    <h4>📊 Detalles del Análisis Automático:</h4>
+                    <h4> Detalles del Análisis Automático:</h4>
                     <ul>
                         ${analysis.details.map(detail => `<li>${detail}</li>`).join('')}
                         <li>⏱️ Análisis completado en tiempo real por IA</li>
-                        <li>🔍 Se analizaron todos los mensajes del historial</li>
-                        <li>🤖 Procesamiento automático en 15 segundos</li>
+                        <li> Se analizaron todos los mensajes del historial</li>
+                        <li> Procesamiento automático en 15 segundos</li>
                     </ul>
                 </div>
 
                 ${analysis.violationsFound ? `
                     <div class="action-taken">
-                        <h4>🎯 Acciones Tomadas:</h4>
+                        <h4> Acciones Tomadas:</h4>
                         <div class="action-list">
-                            ${analysis.reportedUserViolations > 0 ? '<div class="action-item">⚠️ Usuario reportado recibió advertencia automática</div>' : ''}
-                            ${analysis.reporterViolations > 0 ? '<div class="action-item">⚠️ También recibiste una advertencia por violaciones detectadas</div>' : ''}
-                            <div class="action-item">📝 Caso registrado en el sistema de moderación</div>
+                            ${analysis.reportedUserViolations > 0 ? '<div class="action-item">️ Usuario reportado recibió advertencia automática</div>' : ''}
+                            ${analysis.reporterViolations > 0 ? '<div class="action-item">️ También recibiste una advertencia por violaciones detectadas</div>' : ''}
+                            <div class="action-item"> Caso registrado en el sistema de moderación</div>
                         </div>
                     </div>
                 ` : ''}
 
                 <div class="next-steps">
-                    <h4>🔄 Próximos Pasos:</h4>
+                    <h4> Próximos Pasos:</h4>
                     <p>El sistema de moderación automática continuará monitoreando todas las conversaciones. Mantén un comportamiento respetuoso para evitar futuras advertencias.</p>
                 </div>
             </div>
@@ -7216,17 +7192,17 @@ function toggleMuteChat(userId, displayName) {
     if (isChatMuted(userId)) {
         // Desactivar silencio
         mutedChats.delete(userId);
-        showInstantNotification(`🔔 Chat con ${displayName} reactivado`, 'friend-request');
+        showInstantNotification(` Chat con ${displayName} reactivado`, 'friend-request');
     } else {
         // Activar silencio por 20 minutos
         mutedChats.set(userId, muteEndTime);
-        showInstantNotification(`🔇 Chat con ${displayName} silenciado por 20 minutos`, 'friend-request');
+        showInstantNotification(` Chat con ${displayName} silenciado por 20 minutos`, 'friend-request');
         
         // Programar la reactivación automática
         setTimeout(() => {
             if (mutedChats.has(userId)) {
                 mutedChats.delete(userId);
-                showInstantNotification(`🔔 Chat con ${displayName} reactivado automáticamente`, 'friend-request');
+                showInstantNotification(` Chat con ${displayName} reactivado automáticamente`, 'friend-request');
                 // Actualizar UI
                 loadUserContacts();
             }
@@ -7260,7 +7236,7 @@ function deleteChat(userId, displayName) {
                 // Actualizar interfaz
                 loadUserContacts();
                 
-                showInstantNotification(`🗑️ Conversación con ${displayName} eliminada`, 'friend-request');
+                showInstantNotification(`️ Conversación con ${displayName} eliminada`, 'friend-request');
             })
             .catch(error => {
                 console.error('Error eliminando chat:', error);
@@ -7361,7 +7337,7 @@ function showAutoGeneratedCodeMessage(code) {
 
 function copyCodeToClipboard(code) {
     navigator.clipboard.writeText(code).then(() => {
-        showSuccessMessage('📋 Código copiado al portapapeles');
+        showSuccessMessage(' Código copiado al portapapeles');
     }).catch(() => {
         // Fallback para navegadores que no soportan clipboard API
         const textArea = document.createElement('textarea');
@@ -7370,7 +7346,7 @@ function copyCodeToClipboard(code) {
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        showSuccessMessage('📋 Código copiado');
+        showSuccessMessage(' Código copiado');
     });
 }
 

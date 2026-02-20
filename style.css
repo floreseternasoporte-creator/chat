@@ -7943,3 +7943,53 @@ body.modal-open {
 
 
 #add-contact-modal .search-suggestions { margin-top: 0.75rem; }
+
+/* ===== Full-screen auth flow (no modal cards) ===== */
+#intro-screen,
+#register-screen,
+#verification-screen {
+    background: var(--background);
+}
+
+#intro-screen .intro-container,
+#register-screen .register-container,
+#verification-screen .verification-container {
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+    min-height: 100vh;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+}
+
+.intro-shell {
+    width: 100%;
+    max-width: 100%;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    padding: 0;
+}
+
+.intro-top-badge {
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 0;
+    border-radius: 0;
+    font-weight: 600;
+}
+
+.verification-container {
+    padding-top: 5rem;
+}
+
+.verification-container .back-btn {
+    position: absolute;
+    top: 1.25rem;
+    left: 1rem;
+    background: transparent;
+    border: none;
+}
