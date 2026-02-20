@@ -502,6 +502,11 @@ phoneInput.addEventListener('input', function() {
 });
 
 // Funciones para el modal de países
+function syncBodyModalState() {
+    const hasVisibleModal = document.querySelector('.country-modal.show') !== null;
+    document.body.classList.toggle('modal-open', hasVisibleModal);
+}
+
 function openCountryModal() {
     const modal = document.getElementById('country-modal');
     const btn = document.getElementById('country-selector-btn');
@@ -517,7 +522,7 @@ function openCountryModal() {
     modal.offsetHeight;
     
     modal.classList.add('show');
-    document.body.classList.add('modal-open');
+    syncBodyModalState();
 
     // Enfocar en la búsqueda
     setTimeout(() => {
@@ -536,7 +541,7 @@ function closeCountryModal() {
     
     modal.classList.remove('show');
     btn.classList.remove('active');
-    document.body.classList.remove('modal-open');
+    syncBodyModalState();
     
     // Ocultar modal después de la animación
     setTimeout(() => {
@@ -557,7 +562,7 @@ function normalizeCountrySearch(value = '') {
     return value
         .toLowerCase()
         .normalize('NFD')
-        .replace(/[̀-ͯ]/g, '')
+        .replace(/[\u0300-\u036f]/g, '')
         .trim();
 }
 
@@ -666,9 +671,29 @@ function selectCountry(country) {
 }
 
 function handleCountryModalEscape(event) {
-    if (event.key === 'Escape') {
+    if (event.key !== 'Escape') {
+        return;
+    }
+
+    const mainModal = document.getElementById('country-modal');
+    const contactModal = document.getElementById('contact-country-modal');
+
+    if (contactModal && contactModal.classList.contains('show')) {
+        closeContactCountryModal();
+        return;
+    }
+
+    if (mainModal && mainModal.classList.contains('show')) {
         closeCountryModal();
     }
+}
+
+document.addEventListener('keydown', handleCountryModalEscape);
+
+function filterCountries() {
+    const searchInput = document.getElementById('country-search');
+    const searchTerm = searchInput ? searchInput.value : '';
+    loadCountriesList(searchTerm);
 }
 
 document.addEventListener('keydown', handleCountryModalEscape);
@@ -4117,10 +4142,10 @@ function openContactCountryModal() {
     // Mostrar modal
     modal.style.display = 'flex';
     btn.classList.add('active');
-    document.body.classList.add('modal-open');
-    
+
     setTimeout(() => {
         modal.classList.add('show');
+        syncBodyModalState();
         const searchInput = document.getElementById('contact-country-search');
         if (searchInput) {
             searchInput.focus();
@@ -4134,7 +4159,7 @@ function closeContactCountryModal() {
     
     modal.classList.remove('show');
     btn.classList.remove('active');
-    document.body.classList.remove('modal-open');
+    syncBodyModalState();
     
     setTimeout(() => {
         modal.style.display = 'none';
