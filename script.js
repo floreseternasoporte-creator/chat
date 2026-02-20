@@ -827,6 +827,10 @@ function selectContactCountry(country) {
     }, 150);
 }
 
+function normalizePhoneNumber(phone = '') {
+    return (phone || '').toString().replace(/\D/g, '');
+}
+
 function addContact() {
     if (!currentUser || !currentUser.uid) {
         showErrorMessage('Debes iniciar sesión para agregar contactos.');
@@ -836,46 +840,76 @@ function addContact() {
     const phoneInput = document.getElementById('contact-phone');
     if (!phoneInput) return;
 
-    const cleanPhone = phoneInput.value.replace(/\D/g, '');
+    const cleanPhone = normalizePhoneNumber(phoneInput.value);
+    const cleanCountryCode = normalizePhoneNumber(selectedContactCountry.code);
+
     if (cleanPhone.length < 8) {
         showErrorMessage('Ingresa un número de teléfono válido.');
         return;
     }
 
-    const fullPhone = `${selectedContactCountry.code}${cleanPhone}`;
+    const normalizedTarget = `${cleanCountryCode}${cleanPhone}`;
+
     const searchButton = document.getElementById('manual-search-btn');
     if (searchButton) {
         searchButton.disabled = true;
         searchButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
     }
 
-    database.ref('users').orderByChild('phoneNumber').equalTo(fullPhone).once('value')
+    database.ref('users').once('value')
         .then((snapshot) => {
-            if (!snapshot.exists()) {
+            const users = snapshot.val() || {};
+            const matchEntry = Object.entries(users).find(([uid, user]) => {
+                if (!user || uid === currentUser.uid) return false;
+                const userPhone = normalizePhoneNumber(user.phoneNumber || '');
+                return userPhone === normalizedTarget;
+            });
+
+            if (!matchEntry) {
                 throw new Error('No se encontró ningún usuario con ese número.');
             }
 
-            const users = snapshot.val();
-            const targetUid = Object.keys(users)[0];
+            const [targetUid, targetUser] = matchEntry;
 
-            if (targetUid === currentUser.uid) {
-                throw new Error('No puedes agregarte a ti mismo.');
-            }
+            return database.ref(`contacts/${currentUser.uid}/${targetUid}`).once('value')
+                .then(existingContact => {
+                    if (existingContact.exists()) {
+                        throw new Error('Este usuario ya está en tus contactos.');
+                    }
 
-            const targetUser = users[targetUid];
-            return database.ref(`contacts/${currentUser.uid}/${targetUid}`).set({
-                addedAt: firebase.database.ServerValue.TIMESTAMP,
-                phoneNumber: targetUser.phoneNumber || fullPhone,
-                displayName: targetUser.username || targetUser.name || targetUser.phoneNumber || 'Contacto'
-            }).then(() => targetUser);
+                    const requestData = {
+                        fromUid: currentUser.uid,
+                        fromPhone: currentUser.phoneNumber || '',
+                        fromName: currentUser.username || currentUser.phoneNumber || 'Usuario',
+                        fromAvatar: currentUser.avatar || '',
+                        toUid: targetUid,
+                        toPhone: targetUser.phoneNumber || '',
+                        status: 'pending',
+                        timestamp: Date.now()
+                    };
+
+                    const requestRef = database.ref(`friendRequests/${targetUid}`).push();
+                    return requestRef.set(requestData)
+                        .then(() => {
+                            const notificationData = {
+                                type: 'friend_request',
+                                requestId: requestRef.key,
+                                fromUid: currentUser.uid,
+                                fromName: requestData.fromName,
+                                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                                read: false
+                            };
+                            return database.ref(`notifications/${targetUid}/${requestRef.key}`).set(notificationData)
+                                .then(() => ({ targetUser }));
+                        });
+                });
         })
-        .then((targetUser) => {
-            showSuccessMessage(`Contacto agregado: ${targetUser.username || targetUser.phoneNumber || 'Usuario'}`);
+        .then(({ targetUser }) => {
+            showSuccessMessage(`Solicitud enviada a ${targetUser.username || targetUser.phoneNumber || 'usuario'}.`);
             hideAddContact();
-            loadUserContacts();
         })
         .catch((error) => {
-            showErrorMessage(error.message || 'No se pudo agregar el contacto.');
+            showErrorMessage(error.message || 'No se pudo enviar la solicitud.');
         })
         .finally(() => {
             if (searchButton) {
@@ -2256,8 +2290,16 @@ function setupLoginApprovalListener() {
 }
 
 function setupFriendRequestsListener() {
-    // No-op defensivo para evitar bloquear verificación si esta función no existe en builds parciales
-    return;
+    if (!currentUser || !currentUser.uid) return;
+
+    const requestsRef = database.ref(`friendRequests/${currentUser.uid}`);
+    requestsRef.off();
+    requestsRef.on('child_added', (snapshot) => {
+        const request = snapshot.val();
+        const requestId = snapshot.key;
+        if (!request || request.status !== 'pending') return;
+        showFriendRequestModal(request, requestId);
+    });
 }
 function setupNotificationsListener() {
     if (!currentUser || !currentUser.uid) {
@@ -2352,6 +2394,75 @@ function setupNotificationsListener() {
 }
 
 // Mantener la conexión activa
+
+function showFriendRequestModal(request, requestId) {
+    if (!request || !requestId) return;
+    if (document.getElementById(`friend-request-${requestId}`)) return;
+
+    const modal = document.createElement('div');
+    modal.className = 'modal show';
+    modal.id = `friend-request-${requestId}`;
+    modal.innerHTML = `
+        <div class="modal-content" style="height:auto;max-width:420px;margin:auto;border-radius:16px;overflow:hidden;">
+            <div class="modal-header"><h3>Solicitud de contacto</h3></div>
+            <div class="modal-body">
+                <p><strong>${request.fromName || request.fromPhone || 'Usuario'}</strong> quiere agregarte.</p>
+            </div>
+            <div class="modal-footer" style="display:flex;gap:10px;padding:16px;">
+                <button class="secondary-btn" onclick="rejectFriendRequest('${requestId}')">Rechazar</button>
+                <button class="primary-btn" onclick="acceptFriendRequest('${requestId}')">Aceptar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function closeFriendRequestModal(requestId) {
+    const modal = document.getElementById(`friend-request-${requestId}`);
+    if (modal) modal.remove();
+}
+
+function acceptFriendRequest(requestId) {
+    if (!currentUser || !currentUser.uid) return;
+
+    database.ref(`friendRequests/${currentUser.uid}/${requestId}`).once('value').then((snapshot) => {
+        if (!snapshot.exists()) return;
+        const req = snapshot.val();
+
+        const updates = {};
+        updates[`friendRequests/${currentUser.uid}/${requestId}/status`] = 'accepted';
+        updates[`contacts/${currentUser.uid}/${req.fromUid}`] = {
+            addedAt: firebase.database.ServerValue.TIMESTAMP,
+            displayName: req.fromName || req.fromPhone || 'Contacto',
+            phoneNumber: req.fromPhone || ''
+        };
+        updates[`contacts/${req.fromUid}/${currentUser.uid}`] = {
+            addedAt: firebase.database.ServerValue.TIMESTAMP,
+            displayName: currentUser.username || currentUser.phoneNumber || 'Contacto',
+            phoneNumber: currentUser.phoneNumber || ''
+        };
+        updates[`notifications/${req.fromUid}/${requestId}`] = {
+            type: 'friend_request_accepted',
+            byUid: currentUser.uid,
+            byName: currentUser.username || currentUser.phoneNumber || 'Usuario',
+            timestamp: firebase.database.ServerValue.TIMESTAMP,
+            read: false
+        };
+
+        return database.ref().update(updates).then(() => {
+            closeFriendRequestModal(requestId);
+            loadUserContacts();
+        });
+    }).catch((error) => console.error('Error aceptando solicitud:', error));
+}
+
+function rejectFriendRequest(requestId) {
+    if (!currentUser || !currentUser.uid) return;
+    database.ref(`friendRequests/${currentUser.uid}/${requestId}/status`).set('rejected')
+        .then(() => closeFriendRequestModal(requestId))
+        .catch((error) => console.error('Error rechazando solicitud:', error));
+}
+
 function maintainConnection() {
     if (currentUser && currentUser.uid) {
         // Actualizar presencia cada 30 segundos
@@ -2462,7 +2573,7 @@ function requestContactsPermission() {
         setTimeout(() => {
             console.log('Progresando al paso final del tutorial...');
             tutorialStep = 3;
-            switchScreen('tutorial-features');
+            completeTutorial();
         }, 1500);
     }, 1000);
 }
@@ -2476,8 +2587,8 @@ function nextTutorialStep() {
         console.log('Cambiando a pantalla de contactos...');
         switchScreen('tutorial-contacts');
     } else if (tutorialStep === 3) {
-        console.log('Cambiando a pantalla final...');
-        switchScreen('tutorial-features');
+        console.log('Completando tutorial sin pantalla final...');
+        completeTutorial();
     } else {
         console.log('Completando tutorial...');
         completeTutorial();
