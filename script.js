@@ -885,14 +885,6 @@ function addContact() {
         });
 }
 
-document.addEventListener('keydown', handleCountryModalEscape);
-
-function filterCountries() {
-    const searchInput = document.getElementById('country-search');
-    const searchTerm = searchInput ? searchInput.value : '';
-    loadCountriesList(searchTerm);
-}
-
 function sendVerificationCode() {
     const countryCode = selectedCountry.code;
     const phoneNumber = document.getElementById('phone-input').value;
@@ -2214,8 +2206,17 @@ function checkAuthState() {
                     }
                 })
                 .catch(error => {
-                    console.error('Error verificando usuario en Firebase:', error);
-                    switchScreen('intro');
+                    console.error('Error verificando usuario en Firebase, continuando con sesión local:', error);
+
+                    // Fallback: mantener sesión local para no bloquear el inicio automático
+                    updateUserStatus('online');
+                    setupFriendRequestsListener();
+                    setupNotificationsListener();
+                    setupCallRequestsListener();
+                    maintainConnection();
+                    initializeSettings();
+                    loadUserContacts();
+                    switchScreen('chat-list');
                 });
         } catch (error) {
             console.error('Error parseando datos de usuario:', error);
@@ -4280,4 +4281,113 @@ function logout() {
     localStorage.removeItem('uberchat_user');
     currentUser = null;
     switchScreen('intro');
+}
+
+
+function goToChatList() {
+    switchScreen('chat-list');
+    loadUserContacts();
+}
+
+function showEditProfile() {
+    const modal = document.getElementById('edit-profile-modal');
+    if (!modal) return;
+
+    const avatarPreview = document.getElementById('avatar-preview');
+    const usernameInput = document.getElementById('username-input');
+    const statusInput = document.getElementById('status-input');
+
+    if (avatarPreview) {
+        avatarPreview.src = (currentUser && currentUser.avatar) || document.getElementById('profile-avatar')?.src || '';
+    }
+    if (usernameInput) {
+        usernameInput.value = (currentUser && (currentUser.username || currentUser.name)) || '';
+    }
+    if (statusInput) {
+        statusInput.value = (currentUser && currentUser.statusText) || '';
+    }
+
+    modal.classList.add('show');
+}
+
+function hideEditProfile() {
+    const modal = document.getElementById('edit-profile-modal');
+    if (modal) modal.classList.remove('show');
+}
+
+function selectNewAvatar() {
+    const avatarInput = document.getElementById('avatar-input');
+    if (avatarInput) avatarInput.click();
+}
+
+function changeProfileAvatar() {
+    selectNewAvatar();
+}
+
+function handleAvatarChange(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const avatarPreview = document.getElementById('avatar-preview');
+        if (avatarPreview) avatarPreview.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function saveProfile() {
+    if (!currentUser || !currentUser.uid) {
+        hideEditProfile();
+        return;
+    }
+
+    const usernameInput = document.getElementById('username-input');
+    const statusInput = document.getElementById('status-input');
+    const avatarPreview = document.getElementById('avatar-preview');
+
+    const updates = {
+        username: usernameInput ? usernameInput.value.trim() || (currentUser.username || '') : (currentUser.username || ''),
+        statusText: statusInput ? statusInput.value.trim() : (currentUser.statusText || ''),
+        avatar: avatarPreview ? avatarPreview.src : (currentUser.avatar || '')
+    };
+
+    database.ref(`users/${currentUser.uid}`).update(updates)
+        .then(() => {
+            currentUser = { ...currentUser, ...updates };
+            localStorage.setItem('zenvio_user', JSON.stringify(currentUser));
+            initializeSettings();
+            hideEditProfile();
+        })
+        .catch((error) => {
+            console.error('Error guardando perfil:', error);
+            // Mantener UX funcional aunque falle Firebase
+            currentUser = { ...currentUser, ...updates };
+            localStorage.setItem('zenvio_user', JSON.stringify(currentUser));
+            initializeSettings();
+            hideEditProfile();
+        });
+}
+
+function showPrivacySettings() {
+    showSuccessMessage('Configuración de privacidad disponible próximamente.');
+}
+
+function toggleNotifications(toggleElement) {
+    if (!toggleElement) return;
+    toggleElement.classList.toggle('active');
+}
+
+function toggleCallNotifications(toggleElement) {
+    if (!toggleElement) return;
+    toggleElement.classList.toggle('active');
+}
+
+function toggleAutoTranslate(toggleElement) {
+    if (!toggleElement) return;
+    toggleElement.classList.toggle('active');
+}
+
+function showCreateMoment() {
+    showSuccessMessage('Momentos está temporalmente deshabilitado.');
 }
