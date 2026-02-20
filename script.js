@@ -490,6 +490,7 @@ const countries = [
 ];
 
 let selectedCountry = countries[0]; // España por defecto
+let selectedContactCountry = countries[0]; // Selector de país para agregar contacto
 
 // Pantalla de Registro
 const phoneInput = document.getElementById('phone-input');
@@ -686,6 +687,202 @@ function handleCountryModalEscape(event) {
     if (mainModal && mainModal.classList.contains('show')) {
         closeCountryModal();
     }
+}
+
+document.addEventListener('keydown', handleCountryModalEscape);
+
+function filterCountries() {
+    const searchInput = document.getElementById('country-search');
+    const searchTerm = searchInput ? searchInput.value : '';
+    loadCountriesList(searchTerm);
+}
+
+
+function showAddContact() {
+    const modal = document.getElementById('add-contact-modal');
+    if (!modal) return;
+    modal.classList.add('show');
+}
+
+function hideAddContact() {
+    const modal = document.getElementById('add-contact-modal');
+    if (!modal) return;
+    modal.classList.remove('show');
+
+    const phoneInput = document.getElementById('contact-phone');
+    if (phoneInput) {
+        phoneInput.value = '';
+    }
+}
+
+function loadContactCountriesList(searchTerm = '') {
+    const countriesList = document.getElementById('contact-countries-list');
+    if (!countriesList) return;
+
+    countriesList.innerHTML = '';
+
+    const normalizedSearch = normalizeCountrySearch(searchTerm);
+    const popularCountries = countries
+        .filter(country => country.popular && countryMatchesSearch(country, normalizedSearch));
+    const otherCountries = countries
+        .filter(country => !country.popular && countryMatchesSearch(country, normalizedSearch))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+    const createContactItem = (country) => {
+        const item = document.createElement('div');
+        item.className = 'country-item';
+
+        if (selectedContactCountry.code === country.code && selectedContactCountry.name === country.name) {
+            item.classList.add('selected');
+        }
+
+        item.innerHTML = `
+            <div class="country-item-flag">${country.flag}</div>
+            <div class="country-item-info">
+                <div class="country-item-name">${country.name}</div>
+                <div class="country-item-code">${country.code}</div>
+            </div>
+            <i class="fas fa-check country-item-check" aria-hidden="true"></i>
+        `;
+
+        item.onclick = () => selectContactCountry(country);
+        return item;
+    };
+
+    if (popularCountries.length > 0) {
+        const popularHeader = document.createElement('div');
+        popularHeader.className = 'countries-section-header';
+        popularHeader.textContent = 'Países populares';
+        countriesList.appendChild(popularHeader);
+        popularCountries.forEach(country => countriesList.appendChild(createContactItem(country)));
+    }
+
+    if (otherCountries.length > 0) {
+        const otherHeader = document.createElement('div');
+        otherHeader.className = 'countries-section-header';
+        otherHeader.textContent = 'Todos los países';
+        countriesList.appendChild(otherHeader);
+        otherCountries.forEach(country => countriesList.appendChild(createContactItem(country)));
+    }
+
+    if (popularCountries.length === 0 && otherCountries.length === 0) {
+        renderNoCountryResults(countriesList);
+    }
+}
+
+function openContactCountryModal() {
+    const modal = document.getElementById('contact-country-modal');
+    if (!modal) return;
+
+    loadContactCountriesList();
+    modal.style.display = 'flex';
+    modal.offsetHeight;
+    modal.classList.add('show');
+    syncBodyModalState();
+
+    setTimeout(() => {
+        const searchInput = document.getElementById('contact-country-search');
+        if (searchInput) searchInput.focus();
+    }, 250);
+}
+
+function closeContactCountryModal() {
+    const modal = document.getElementById('contact-country-modal');
+    if (!modal) return;
+
+    modal.classList.remove('show');
+    syncBodyModalState();
+
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 250);
+
+    const searchInput = document.getElementById('contact-country-search');
+    if (searchInput) {
+        searchInput.value = '';
+        filterContactCountries();
+    }
+}
+
+function filterContactCountries() {
+    const searchInput = document.getElementById('contact-country-search');
+    const searchTerm = searchInput ? searchInput.value : '';
+    loadContactCountriesList(searchTerm);
+}
+
+function selectContactCountry(country) {
+    selectedContactCountry = country;
+
+    const selector = document.querySelector('#contact-country-selector .selected-country');
+    if (selector) {
+        selector.querySelector('.country-flag').textContent = country.flag;
+        selector.querySelector('.country-code').textContent = country.code;
+    }
+
+    closeContactCountryModal();
+
+    setTimeout(() => {
+        const phoneInput = document.getElementById('contact-phone');
+        if (phoneInput) phoneInput.focus();
+    }, 150);
+}
+
+function addContact() {
+    if (!currentUser || !currentUser.uid) {
+        showErrorMessage('Debes iniciar sesión para agregar contactos.');
+        return;
+    }
+
+    const phoneInput = document.getElementById('contact-phone');
+    if (!phoneInput) return;
+
+    const cleanPhone = phoneInput.value.replace(/\D/g, '');
+    if (cleanPhone.length < 8) {
+        showErrorMessage('Ingresa un número de teléfono válido.');
+        return;
+    }
+
+    const fullPhone = `${selectedContactCountry.code}${cleanPhone}`;
+    const searchButton = document.getElementById('manual-search-btn');
+    if (searchButton) {
+        searchButton.disabled = true;
+        searchButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
+    }
+
+    database.ref('users').orderByChild('phoneNumber').equalTo(fullPhone).once('value')
+        .then((snapshot) => {
+            if (!snapshot.exists()) {
+                throw new Error('No se encontró ningún usuario con ese número.');
+            }
+
+            const users = snapshot.val();
+            const targetUid = Object.keys(users)[0];
+
+            if (targetUid === currentUser.uid) {
+                throw new Error('No puedes agregarte a ti mismo.');
+            }
+
+            const targetUser = users[targetUid];
+            return database.ref(`contacts/${currentUser.uid}/${targetUid}`).set({
+                addedAt: firebase.database.ServerValue.TIMESTAMP,
+                phoneNumber: targetUser.phoneNumber || fullPhone,
+                displayName: targetUser.username || targetUser.name || targetUser.phoneNumber || 'Contacto'
+            }).then(() => targetUser);
+        })
+        .then((targetUser) => {
+            showSuccessMessage(`Contacto agregado: ${targetUser.username || targetUser.phoneNumber || 'Usuario'}`);
+            hideAddContact();
+            loadUserContacts();
+        })
+        .catch((error) => {
+            showErrorMessage(error.message || 'No se pudo agregar el contacto.');
+        })
+        .finally(() => {
+            if (searchButton) {
+                searchButton.disabled = false;
+                searchButton.innerHTML = '<i class="fas fa-search"></i> Buscar Usuario';
+            }
+        });
 }
 
 document.addEventListener('keydown', handleCountryModalEscape);
@@ -2792,6 +2989,11 @@ function endCall() {
         };
         callHistory.unshift(callRecord);
         updateCallHistoryUI();
+
+        if (currentUser && currentUser.uid) {
+            database.ref(`callHistory/${currentUser.uid}`).push(callRecord)
+                .catch(error => console.error('Error guardando historial de llamada:', error));
+        }
     }
 
     // Limpiar recursos de WebRTC
@@ -3066,6 +3268,24 @@ function stopCallSound() {
 }
 
 // Funciones para historial de llamadas
+function loadCallHistory() {
+    if (!currentUser || !currentUser.uid) {
+        updateCallHistoryUI();
+        return;
+    }
+
+    database.ref(`callHistory/${currentUser.uid}`).limitToLast(100).once('value')
+        .then((snapshot) => {
+            const historyData = snapshot.val() || {};
+            callHistory = Object.values(historyData).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            updateCallHistoryUI();
+        })
+        .catch((error) => {
+            console.error('Error cargando historial de llamadas:', error);
+            updateCallHistoryUI();
+        });
+}
+
 function updateCallHistoryUI() {
     const callsList = document.getElementById('calls-list');
     if (!callsList) return;

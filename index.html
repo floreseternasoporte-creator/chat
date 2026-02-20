@@ -338,6 +338,37 @@
         </div>
     </div>
 
+    <!-- Pantalla de Historial de Llamadas -->
+    <div id="calls-history-screen" class="screen">
+        <div class="calls-header">
+            <h2>Llamadas</h2>
+            <button class="clear-calls-btn" onclick="clearCallHistory()">Limpiar</button>
+        </div>
+
+        <div class="calls-list" id="calls-list">
+            <div class="empty-state">
+                <i class="fas fa-phone-slash"></i>
+                <h3>Sin historial de llamadas</h3>
+                <p>Tus llamadas aparecerán aquí</p>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="showSection('chats')">
+                <i class="fas fa-comments"></i>
+                <span>Chats</span>
+            </div>
+            <div class="nav-item active" onclick="showSection('calls')">
+                <i class="fas fa-phone"></i>
+                <span>Llamadas</span>
+            </div>
+            <div class="nav-item" onclick="showSection('settings')">
+                <i class="fas fa-cog"></i>
+                <span>Ajustes</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Pantalla de Chat Individual -->
     <div id="chat-screen" class="screen">
         <div class="chat-container">
