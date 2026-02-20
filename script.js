@@ -696,6 +696,14 @@ function filterCountries() {
     loadCountriesList(searchTerm);
 }
 
+document.addEventListener('keydown', handleCountryModalEscape);
+
+function filterCountries() {
+    const searchInput = document.getElementById('country-search');
+    const searchTerm = searchInput ? searchInput.value : '';
+    loadCountriesList(searchTerm);
+}
+
 function sendVerificationCode() {
     const countryCode = selectedCountry.code;
     const phoneNumber = document.getElementById('phone-input').value;
