@@ -24,7 +24,7 @@ const database = firebase.database();
 
 // Estado global de la aplicación
 let currentScreen = 'intro';
-let userLanguage = detectDeviceLanguage();
+let userLanguage = 'es';
 let currentChatContact = null;
 let currentUser = null;
 
@@ -80,17 +80,15 @@ let sessionManager = {
 let deviceApprovalModal = null;
 let approvalTimeout = null;
 
-// Función para detectar idioma del dispositivo
-function detectDeviceLanguage() {
-    // Obtener idioma del navegador/dispositivo
-    const deviceLang = navigator.language || navigator.userLanguage || 'es';
-    const langCode = deviceLang.substring(0, 2).toLowerCase();
-    
-    // Idiomas soportados
+function getSavedLanguagePreference() {
+    const savedLanguage = localStorage.getItem('zenvio_language') || localStorage.getItem('uberchat_language');
     const supportedLanguages = ['es', 'en', 'fr', 'de', 'pt', 'it'];
-    
-    // Si el idioma está soportado, usarlo; sino usar español por defecto
-    return supportedLanguages.includes(langCode) ? langCode : 'es';
+
+    if (savedLanguage && supportedLanguages.includes(savedLanguage)) {
+        return savedLanguage;
+    }
+
+    return 'es';
 }
 
 // Google Translate API - Configuración
@@ -436,8 +434,6 @@ document.getElementById('language-select').addEventListener('change', async func
         // Actualizar interfaz en tiempo real
         await updateLanguage();
         
-        // Mostrar confirmación
-        showInstantNotification(`🌍 Idioma cambiado a: ${this.options[this.selectedIndex].text}`, 'friend-request');
     }
 });
 
@@ -506,6 +502,11 @@ phoneInput.addEventListener('input', function() {
 });
 
 // Funciones para el modal de países
+function syncBodyModalState() {
+    const hasVisibleModal = document.querySelector('.country-modal.show') !== null;
+    document.body.classList.toggle('modal-open', hasVisibleModal);
+}
+
 function openCountryModal() {
     const modal = document.getElementById('country-modal');
     const btn = document.getElementById('country-selector-btn');
@@ -521,7 +522,8 @@ function openCountryModal() {
     modal.offsetHeight;
     
     modal.classList.add('show');
-    
+    syncBodyModalState();
+
     // Enfocar en la búsqueda
     setTimeout(() => {
         const searchInput = document.getElementById('country-search');
@@ -539,6 +541,7 @@ function closeCountryModal() {
     
     modal.classList.remove('show');
     btn.classList.remove('active');
+    syncBodyModalState();
     
     // Ocultar modal después de la animación
     setTimeout(() => {
@@ -555,51 +558,70 @@ function closeCountryModal() {
     console.log('Modal de países cerrado');
 }
 
-function loadCountriesList() {
+function normalizeCountrySearch(value = '') {
+    return value
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+}
+
+function countryMatchesSearch(country, normalizedSearch) {
+    if (!normalizedSearch) return true;
+
+    const normalizedName = normalizeCountrySearch(country.name);
+    const normalizedCode = country.code.toLowerCase();
+
+    return normalizedName.includes(normalizedSearch) || normalizedCode.includes(normalizedSearch);
+}
+
+function renderNoCountryResults(container) {
+    const noResults = document.createElement('div');
+    noResults.className = 'no-results';
+    noResults.innerHTML = `
+        <i class="fas fa-search"></i>
+        <h4>No se encontraron países</h4>
+        <p>Intenta con otro término de búsqueda</p>
+    `;
+    container.appendChild(noResults);
+}
+
+function loadCountriesList(searchTerm = '') {
     const countriesList = document.getElementById('countries-list');
-    
-    // Limpiar lista actual
     countriesList.innerHTML = '';
-    
-    // Separar países populares
-    const popularCountries = countries.filter(country => country.popular);
-    const otherCountries = countries.filter(country => !country.popular);
-    
-    // Agregar sección de países populares
+
+    const normalizedSearch = normalizeCountrySearch(searchTerm);
+    const popularCountries = countries
+        .filter(country => country.popular && countryMatchesSearch(country, normalizedSearch));
+    const otherCountries = countries
+        .filter(country => !country.popular && countryMatchesSearch(country, normalizedSearch))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
     if (popularCountries.length > 0) {
         const popularHeader = document.createElement('div');
         popularHeader.className = 'countries-section-header';
-        popularHeader.innerHTML = `
-            <div style="padding: 0.75rem 2rem; background: var(--surface); font-weight: 600; font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
-                Países populares
-            </div>
-        `;
+        popularHeader.textContent = 'Países populares';
         countriesList.appendChild(popularHeader);
-        
+
         popularCountries.forEach(country => {
             countriesList.appendChild(createCountryItem(country));
         });
-        
-        // Agregar separador
-        const separator = document.createElement('div');
-        separator.style.cssText = 'height: 8px; background: var(--surface); margin: 0.5rem 0;';
-        countriesList.appendChild(separator);
-        
+    }
+
+    if (otherCountries.length > 0) {
         const otherHeader = document.createElement('div');
         otherHeader.className = 'countries-section-header';
-        otherHeader.innerHTML = `
-            <div style="padding: 0.75rem 2rem; background: var(--surface); font-weight: 600; font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
-                Todos los países
-            </div>
-        `;
+        otherHeader.textContent = 'Todos los países';
         countriesList.appendChild(otherHeader);
+
+        otherCountries.forEach(country => {
+            countriesList.appendChild(createCountryItem(country));
+        });
     }
-    
-    // Agregar todos los países ordenados alfabéticamente
-    const allCountriesSorted = [...countries].sort((a, b) => a.name.localeCompare(b.name));
-    allCountriesSorted.forEach(country => {
-        countriesList.appendChild(createCountryItem(country));
-    });
+
+    if (popularCountries.length === 0 && otherCountries.length === 0) {
+        renderNoCountryResults(countriesList);
+    }
 }
 
 function createCountryItem(country) {
@@ -607,21 +629,23 @@ function createCountryItem(country) {
     item.className = 'country-item';
     item.dataset.countryName = country.name.toLowerCase();
     item.dataset.countryCode = country.code;
-    
-    if (selectedCountry.code === country.code && selectedCountry.name === country.name) {
+
+    const isSelected = selectedCountry.code === country.code && selectedCountry.name === country.name;
+    if (isSelected) {
         item.classList.add('selected');
     }
-    
+
     item.innerHTML = `
         <div class="country-item-flag">${country.flag}</div>
         <div class="country-item-info">
             <div class="country-item-name">${country.name}</div>
             <div class="country-item-code">${country.code}</div>
         </div>
+        <i class="fas fa-check country-item-check" aria-hidden="true"></i>
     `;
-    
+
     item.onclick = () => selectCountry(country);
-    
+
     return item;
 }
 
@@ -646,39 +670,30 @@ function selectCountry(country) {
     console.log('País seleccionado:', country);
 }
 
+function handleCountryModalEscape(event) {
+    if (event.key !== 'Escape') {
+        return;
+    }
+
+    const mainModal = document.getElementById('country-modal');
+    const contactModal = document.getElementById('contact-country-modal');
+
+    if (contactModal && contactModal.classList.contains('show')) {
+        closeContactCountryModal();
+        return;
+    }
+
+    if (mainModal && mainModal.classList.contains('show')) {
+        closeCountryModal();
+    }
+}
+
+document.addEventListener('keydown', handleCountryModalEscape);
+
 function filterCountries() {
-    const searchTerm = document.getElementById('country-search').value.toLowerCase();
-    const countryItems = document.querySelectorAll('.country-item');
-    let hasResults = false;
-    
-    countryItems.forEach(item => {
-        const countryName = item.dataset.countryName;
-        const countryCode = item.dataset.countryCode.toLowerCase();
-        
-        if (countryName.includes(searchTerm) || countryCode.includes(searchTerm)) {
-            item.classList.remove('hidden');
-            hasResults = true;
-        } else {
-            item.classList.add('hidden');
-        }
-    });
-    
-    // Mostrar mensaje de no resultados
-    const existingNoResults = document.querySelector('.no-results');
-    if (existingNoResults) {
-        existingNoResults.remove();
-    }
-    
-    if (!hasResults && searchTerm.length > 0) {
-        const noResults = document.createElement('div');
-        noResults.className = 'no-results';
-        noResults.innerHTML = `
-            <i class="fas fa-search"></i>
-            <h4>No se encontraron países</h4>
-            <p>Intenta con otro término de búsqueda</p>
-        `;
-        document.getElementById('countries-list').appendChild(noResults);
-    }
+    const searchInput = document.getElementById('country-search');
+    const searchTerm = searchInput ? searchInput.value : '';
+    loadCountriesList(searchTerm);
 }
 
 function sendVerificationCode() {
@@ -4119,9 +4134,10 @@ function openContactCountryModal() {
     // Mostrar modal
     modal.style.display = 'flex';
     btn.classList.add('active');
-    
+
     setTimeout(() => {
         modal.classList.add('show');
+        syncBodyModalState();
         const searchInput = document.getElementById('contact-country-search');
         if (searchInput) {
             searchInput.focus();
@@ -4135,6 +4151,7 @@ function closeContactCountryModal() {
     
     modal.classList.remove('show');
     btn.classList.remove('active');
+    syncBodyModalState();
     
     setTimeout(() => {
         modal.style.display = 'none';
@@ -4148,37 +4165,42 @@ function closeContactCountryModal() {
     }
 }
 
-function loadContactCountriesList() {
+function loadContactCountriesList(searchTerm = '') {
     const countriesList = document.getElementById('contact-countries-list');
     countriesList.innerHTML = '';
-    
-    // Países populares primero
-    const popularCountries = countries.filter(country => country.popular);
-    const otherCountries = countries.filter(country => !country.popular);
-    
+
+    const normalizedSearch = normalizeCountrySearch(searchTerm);
+    const popularCountries = countries
+        .filter(country => country.popular && countryMatchesSearch(country, normalizedSearch));
+    const otherCountries = countries
+        .filter(country => !country.popular && countryMatchesSearch(country, normalizedSearch))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
     if (popularCountries.length > 0) {
         const popularHeader = document.createElement('div');
-        popularHeader.innerHTML = `
-            <div style="padding: 0.75rem 2rem; background: var(--surface); font-weight: 600; font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
-                Países populares
-            </div>
-        `;
+        popularHeader.className = 'countries-section-header';
+        popularHeader.textContent = 'Países populares';
         countriesList.appendChild(popularHeader);
-        
+
         popularCountries.forEach(country => {
             countriesList.appendChild(createContactCountryItem(country));
         });
-        
-        const separator = document.createElement('div');
-        separator.style.cssText = 'height: 8px; background: var(--surface); margin: 0.5rem 0;';
-        countriesList.appendChild(separator);
     }
-    
-    // Todos los países ordenados
-    const allCountriesSorted = [...countries].sort((a, b) => a.name.localeCompare(b.name));
-    allCountriesSorted.forEach(country => {
-        countriesList.appendChild(createContactCountryItem(country));
-    });
+
+    if (otherCountries.length > 0) {
+        const otherHeader = document.createElement('div');
+        otherHeader.className = 'countries-section-header';
+        otherHeader.textContent = 'Todos los países';
+        countriesList.appendChild(otherHeader);
+
+        otherCountries.forEach(country => {
+            countriesList.appendChild(createContactCountryItem(country));
+        });
+    }
+
+    if (popularCountries.length === 0 && otherCountries.length === 0) {
+        renderNoCountryResults(countriesList);
+    }
 }
 
 function createContactCountryItem(country) {
@@ -4186,21 +4208,22 @@ function createContactCountryItem(country) {
     item.className = 'country-item';
     item.dataset.countryName = country.name.toLowerCase();
     item.dataset.countryCode = country.code;
-    
+
     if (selectedContactCountry.code === country.code && selectedContactCountry.name === country.name) {
         item.classList.add('selected');
     }
-    
+
     item.innerHTML = `
         <div class="country-item-flag">${country.flag}</div>
         <div class="country-item-info">
             <div class="country-item-name">${country.name}</div>
             <div class="country-item-code">${country.code}</div>
         </div>
+        <i class="fas fa-check country-item-check" aria-hidden="true"></i>
     `;
-    
+
     item.onclick = () => selectContactCountry(country);
-    
+
     return item;
 }
 
@@ -4228,38 +4251,9 @@ function selectContactCountry(country) {
 }
 
 function filterContactCountries() {
-    const searchTerm = document.getElementById('contact-country-search').value.toLowerCase();
-    const countryItems = document.querySelectorAll('#contact-countries-list .country-item');
-    let hasResults = false;
-    
-    countryItems.forEach(item => {
-        const countryName = item.dataset.countryName;
-        const countryCode = item.dataset.countryCode.toLowerCase();
-        
-        if (countryName.includes(searchTerm) || countryCode.includes(searchTerm)) {
-            item.classList.remove('hidden');
-            hasResults = true;
-        } else {
-            item.classList.add('hidden');
-        }
-    });
-    
-    // Mostrar mensaje de no resultados
-    const existingNoResults = document.querySelector('#contact-countries-list .no-results');
-    if (existingNoResults) {
-        existingNoResults.remove();
-    }
-    
-    if (!hasResults && searchTerm.length > 0) {
-        const noResults = document.createElement('div');
-        noResults.className = 'no-results';
-        noResults.innerHTML = `
-            <i class="fas fa-search"></i>
-            <h4>No se encontraron países</h4>
-            <p>Intenta con otro término de búsqueda</p>
-        `;
-        document.getElementById('contact-countries-list').appendChild(noResults);
-    }
+    const searchInput = document.getElementById('contact-country-search');
+    const searchTerm = searchInput ? searchInput.value : '';
+    loadContactCountriesList(searchTerm);
 }
 
 // Variables para el sistema de solicitudes
@@ -5972,7 +5966,7 @@ document.getElementById('search-input').addEventListener('input', function() {
 // Función para verificar estado de autenticación
 function checkAuthState() {
     // Verificar si hay datos de usuario guardados localmente
-    const savedUser = localStorage.getItem('uberchat_user');
+    const savedUser = localStorage.getItem('zenvio_user') || localStorage.getItem('uberchat_user');
     
     if (savedUser) {
         try {
@@ -6016,6 +6010,7 @@ function checkAuthState() {
                         console.log('Sesión restaurada exitosamente');
                     } else {
                         // Usuario no existe, limpiar datos locales
+                        localStorage.removeItem('zenvio_user');
                         localStorage.removeItem('uberchat_user');
                         switchScreen('intro');
                     }
@@ -6026,6 +6021,7 @@ function checkAuthState() {
                 });
         } catch (error) {
             console.error('Error parseando datos de usuario:', error);
+            localStorage.removeItem('zenvio_user');
             localStorage.removeItem('uberchat_user');
             switchScreen('intro');
         }
@@ -6417,8 +6413,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Configurar pantalla inicial como loading
     switchScreen('intro');
     
-    // Detectar y configurar idioma del dispositivo automáticamente
-    initializeDeviceLanguage();
+    // Cargar idioma guardado (sin detección automática)
+    initializeLanguagePreference();
 
     // Verificar estado de autenticación
     checkAuthState();
@@ -6458,81 +6454,12 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('UberChat iniciado correctamente');
 });
 
-// Función para inicializar idioma del dispositivo
-async function initializeDeviceLanguage() {
-    console.log('Detectando idioma del dispositivo...');
-    
-    const detectedLanguage = detectDeviceLanguage();
-    console.log(`Idioma detectado: ${detectedLanguage}`);
-    
-    // Actualizar idioma global
-    userLanguage = detectedLanguage;
-    
-    // Mostrar notificación del idioma detectado
-    showLanguageDetectionNotification(detectedLanguage);
-    
-    // Actualizar interfaz con el idioma detectado
-    await updateLanguage();
-    
-    // Guardar preferencia de idioma
-    localStorage.setItem('uberchat_language', detectedLanguage);
-}
+// Inicializa idioma guardado por el usuario
+async function initializeLanguagePreference() {
+    userLanguage = getSavedLanguagePreference();
+    console.log(`Idioma inicial configurado: ${userLanguage}`);
 
-// Función para mostrar notificación de idioma detectado
-function showLanguageDetectionNotification(language) {
-    const languageNames = {
-        'es': '🇪🇸 Español',
-        'en': '🇺🇸 English', 
-        'fr': '🇫🇷 Français',
-        'de': '🇩🇪 Deutsch',
-        'pt': '🇵🇹 Português',
-        'it': '🇮🇹 Italiano'
-    };
-    
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 25px;
-        font-weight: 600;
-        z-index: 10000;
-        box-shadow: var(--shadow);
-        animation: slideDown 0.5s ease;
-    `;
-    
-    notification.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <i class="fas fa-globe"></i>
-            <span>Idioma detectado: ${languageNames[language] || language}</span>
-        </div>
-    `;
-    
-    // Agregar animación CSS
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideDown {
-            from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
-        }
-    `;
-    document.head.appendChild(style);
-    
-    document.body.appendChild(notification);
-    
-    // Auto-ocultar después de 3 segundos
-    setTimeout(() => {
-        notification.style.animation = 'slideDown 0.5s ease reverse';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 500);
-    }, 3000);
+    await updateLanguage();
 }
 
 // Función para implementar traducción real con Google Translate API
