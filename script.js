@@ -5969,7 +5969,7 @@ document.getElementById('search-input').addEventListener('input', function() {
 // Función para verificar estado de autenticación
 function checkAuthState() {
     // Verificar si hay datos de usuario guardados localmente
-    const savedUser = localStorage.getItem('uberchat_user');
+    const savedUser = localStorage.getItem('zenvio_user') || localStorage.getItem('uberchat_user');
     
     if (savedUser) {
         try {
@@ -6013,6 +6013,7 @@ function checkAuthState() {
                         console.log('Sesión restaurada exitosamente');
                     } else {
                         // Usuario no existe, limpiar datos locales
+                        localStorage.removeItem('zenvio_user');
                         localStorage.removeItem('uberchat_user');
                         switchScreen('intro');
                     }
@@ -6023,6 +6024,7 @@ function checkAuthState() {
                 });
         } catch (error) {
             console.error('Error parseando datos de usuario:', error);
+            localStorage.removeItem('zenvio_user');
             localStorage.removeItem('uberchat_user');
             switchScreen('intro');
         }
