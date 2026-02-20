@@ -1158,40 +1158,46 @@ function verifyCode() {
                 avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.phoneNumber.replace(/\D/g, '')}`
             };
 
-            // Guardar usuario en Firebase Realtime Database
-            database.ref('users/' + user.uid).set(currentUser)
-                .then(() => {
-                    console.log('Usuario guardado en Firebase Database:', currentUser);
+            const continueAfterVerification = () => {
+                // Guardar en localStorage para persistencia
+                localStorage.setItem('zenvio_user', JSON.stringify(currentUser));
 
-                    // Guardar en localStorage para persistencia
-                    localStorage.setItem('zenvio_user', JSON.stringify(currentUser));
+                // Crear sesión activa
+                createActiveSession(user.uid, user.phoneNumber);
 
-                    // Crear sesión activa
-                    createActiveSession(user.uid, user.phoneNumber);
+                // Configurar listeners importantes inmediatamente
+                setupLoginApprovalListener(user.uid);
+                setupFriendRequestsListener();
+                setupNotificationsListener();
+                setupCallRequestsListener();
 
-                    // Configurar listeners importantes inmediatamente
-                    setupLoginApprovalListener(user.uid);
-                    setupFriendRequestsListener();
-                    setupNotificationsListener();
-                    setupCallRequestsListener();
+                // Inicializar configuraciones
+                initializeSettings();
 
-                    // Inicializar configuraciones
-                    initializeSettings();
-                    
-                    // Inicializar sistema de almacenamiento en tiempo real
+                // Inicializar sistema de almacenamiento en tiempo real
+                if (typeof storageManager !== 'undefined' && storageManager.initialize) {
                     storageManager.initialize();
+                }
 
-                    console.log('Configurando listeners en tiempo real...');
+                console.log('Configurando listeners en tiempo real...');
 
-                    setTimeout(() => {
-                        // Iniciar tutorial después de verificación exitosa
-                        startTutorial();
-                    }, 1500);
+                setTimeout(() => {
+                    // Iniciar tutorial después de verificación exitosa
+                    startTutorial();
+                }, 1500);
+            };
+
+            // Guardar usuario en Firebase Realtime Database
+            database.ref('users/' + user.uid).update(currentUser)
+                .then(() => {
+                    console.log('Usuario guardado/actualizado en Firebase Database:', currentUser);
+                    continueAfterVerification();
                 })
                 .catch(error => {
-                    console.error('Error guardando usuario:', error);
-                    statusElement.className = 'verification-status error';
-                    statusElement.innerHTML = '<i class="fas fa-times-circle"></i> Error guardando usuario';
+                    // En entornos de verificación simulada puede fallar por reglas de auth;
+                    // no bloqueamos el inicio de sesión local del usuario.
+                    console.error('Error guardando usuario en Firebase, continuando en modo local:', error);
+                    continueAfterVerification();
                 });
         })
         .catch(function(error) {
