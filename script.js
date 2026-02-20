@@ -24,7 +24,7 @@ const database = firebase.database();
 
 // Estado global de la aplicación
 let currentScreen = 'intro';
-let userLanguage = detectDeviceLanguage();
+let userLanguage = 'es';
 let currentChatContact = null;
 let currentUser = null;
 
@@ -80,17 +80,15 @@ let sessionManager = {
 let deviceApprovalModal = null;
 let approvalTimeout = null;
 
-// Función para detectar idioma del dispositivo
-function detectDeviceLanguage() {
-    // Obtener idioma del navegador/dispositivo
-    const deviceLang = navigator.language || navigator.userLanguage || 'es';
-    const langCode = deviceLang.substring(0, 2).toLowerCase();
-    
-    // Idiomas soportados
+function getSavedLanguagePreference() {
+    const savedLanguage = localStorage.getItem('zenvio_language') || localStorage.getItem('uberchat_language');
     const supportedLanguages = ['es', 'en', 'fr', 'de', 'pt', 'it'];
-    
-    // Si el idioma está soportado, usarlo; sino usar español por defecto
-    return supportedLanguages.includes(langCode) ? langCode : 'es';
+
+    if (savedLanguage && supportedLanguages.includes(savedLanguage)) {
+        return savedLanguage;
+    }
+
+    return 'es';
 }
 
 // Google Translate API - Configuración
@@ -436,8 +434,6 @@ document.getElementById('language-select').addEventListener('change', async func
         // Actualizar interfaz en tiempo real
         await updateLanguage();
         
-        // Mostrar confirmación
-        showInstantNotification(`🌍 Idioma cambiado a: ${this.options[this.selectedIndex].text}`, 'friend-request');
     }
 });
 
@@ -451,46 +447,46 @@ function goToIntro() {
 
 // Lista completa de países con banderas y códigos
 const countries = [
-    { name: 'España', code: '+34', flag: '🇪🇸', popular: true },
-    { name: 'Estados Unidos', code: '+1', flag: '🇺🇸', popular: true },
-    { name: 'México', code: '+52', flag: '🇲🇽', popular: true },
-    { name: 'Argentina', code: '+54', flag: '🇦🇷', popular: true },
-    { name: 'Brasil', code: '+55', flag: '🇧🇷', popular: true },
-    { name: 'Colombia', code: '+57', flag: '🇨🇴', popular: true },
-    { name: 'Chile', code: '+56', flag: '🇨🇱', popular: true },
-    { name: 'Perú', code: '+51', flag: '🇵🇪', popular: true },
-    { name: 'Francia', code: '+33', flag: '🇫🇷' },
-    { name: 'Alemania', code: '+49', flag: '🇩🇪' },
-    { name: 'Italia', code: '+39', flag: '🇮🇹' },
-    { name: 'Reino Unido', code: '+44', flag: '🇬🇧' },
-    { name: 'Canadá', code: '+1', flag: '🇨🇦' },
-    { name: 'Australia', code: '+61', flag: '🇦🇺' },
-    { name: 'Japón', code: '+81', flag: '🇯🇵' },
-    { name: 'China', code: '+86', flag: '🇨🇳' },
-    { name: 'India', code: '+91', flag: '🇮🇳' },
-    { name: 'Rusia', code: '+7', flag: '🇷🇺' },
-    { name: 'Corea del Sur', code: '+82', flag: '🇰🇷' },
-    { name: 'Holanda', code: '+31', flag: '🇳🇱' },
-    { name: 'Bélgica', code: '+32', flag: '🇧🇪' },
-    { name: 'Suiza', code: '+41', flag: '🇨🇭' },
-    { name: 'Austria', code: '+43', flag: '🇦🇹' },
-    { name: 'Suecia', code: '+46', flag: '🇸🇪' },
-    { name: 'Noruega', code: '+47', flag: '🇳🇴' },
-    { name: 'Dinamarca', code: '+45', flag: '🇩🇰' },
-    { name: 'Finlandia', code: '+358', flag: '🇫🇮' },
-    { name: 'Portugal', code: '+351', flag: '🇵🇹' },
-    { name: 'Grecia', code: '+30', flag: '🇬🇷' },
-    { name: 'Turquía', code: '+90', flag: '🇹🇷' },
-    { name: 'Israel', code: '+972', flag: '🇮🇱' },
-    { name: 'Emiratos Árabes Unidos', code: '+971', flag: '🇦🇪' },
-    { name: 'Arabia Saudí', code: '+966', flag: '🇸🇦' },
-    { name: 'Egipto', code: '+20', flag: '🇪🇬' },
-    { name: 'Sudáfrica', code: '+27', flag: '🇿🇦' },
-    { name: 'Marruecos', code: '+212', flag: '🇲🇦' },
-    { name: 'Nigeria', code: '+234', flag: '🇳🇬' },
-    { name: 'Kenia', code: '+254', flag: '🇰🇪' },
-    { name: 'Ghana', code: '+233', flag: '🇬🇭' },
-    { name: 'Tanzania', code: '+255', flag: '🇹🇿' }
+    { name: 'España', code: '+34', flag: '', popular: true },
+    { name: 'Estados Unidos', code: '+1', flag: '', popular: true },
+    { name: 'México', code: '+52', flag: '', popular: true },
+    { name: 'Argentina', code: '+54', flag: '', popular: true },
+    { name: 'Brasil', code: '+55', flag: '', popular: true },
+    { name: 'Colombia', code: '+57', flag: '', popular: true },
+    { name: 'Chile', code: '+56', flag: '', popular: true },
+    { name: 'Perú', code: '+51', flag: '', popular: true },
+    { name: 'Francia', code: '+33', flag: '' },
+    { name: 'Alemania', code: '+49', flag: '' },
+    { name: 'Italia', code: '+39', flag: '' },
+    { name: 'Reino Unido', code: '+44', flag: '' },
+    { name: 'Canadá', code: '+1', flag: '' },
+    { name: 'Australia', code: '+61', flag: '' },
+    { name: 'Japón', code: '+81', flag: '' },
+    { name: 'China', code: '+86', flag: '' },
+    { name: 'India', code: '+91', flag: '' },
+    { name: 'Rusia', code: '+7', flag: '' },
+    { name: 'Corea del Sur', code: '+82', flag: '' },
+    { name: 'Holanda', code: '+31', flag: '' },
+    { name: 'Bélgica', code: '+32', flag: '' },
+    { name: 'Suiza', code: '+41', flag: '' },
+    { name: 'Austria', code: '+43', flag: '' },
+    { name: 'Suecia', code: '+46', flag: '' },
+    { name: 'Noruega', code: '+47', flag: '' },
+    { name: 'Dinamarca', code: '+45', flag: '' },
+    { name: 'Finlandia', code: '+358', flag: '' },
+    { name: 'Portugal', code: '+351', flag: '' },
+    { name: 'Grecia', code: '+30', flag: '' },
+    { name: 'Turquía', code: '+90', flag: '' },
+    { name: 'Israel', code: '+972', flag: '' },
+    { name: 'Emiratos Árabes Unidos', code: '+971', flag: '' },
+    { name: 'Arabia Saudí', code: '+966', flag: '' },
+    { name: 'Egipto', code: '+20', flag: '' },
+    { name: 'Sudáfrica', code: '+27', flag: '' },
+    { name: 'Marruecos', code: '+212', flag: '' },
+    { name: 'Nigeria', code: '+234', flag: '' },
+    { name: 'Kenia', code: '+254', flag: '' },
+    { name: 'Ghana', code: '+233', flag: '' },
+    { name: 'Tanzania', code: '+255', flag: '' }
 ];
 
 let selectedCountry = countries[0]; // España por defecto
@@ -506,6 +502,11 @@ phoneInput.addEventListener('input', function() {
 });
 
 // Funciones para el modal de países
+function syncBodyModalState() {
+    const hasVisibleModal = document.querySelector('.country-modal.show') !== null;
+    document.body.classList.toggle('modal-open', hasVisibleModal);
+}
+
 function openCountryModal() {
     const modal = document.getElementById('country-modal');
     const btn = document.getElementById('country-selector-btn');
@@ -521,7 +522,8 @@ function openCountryModal() {
     modal.offsetHeight;
     
     modal.classList.add('show');
-    
+    syncBodyModalState();
+
     // Enfocar en la búsqueda
     setTimeout(() => {
         const searchInput = document.getElementById('country-search');
@@ -539,6 +541,7 @@ function closeCountryModal() {
     
     modal.classList.remove('show');
     btn.classList.remove('active');
+    syncBodyModalState();
     
     // Ocultar modal después de la animación
     setTimeout(() => {
@@ -555,51 +558,70 @@ function closeCountryModal() {
     console.log('Modal de países cerrado');
 }
 
-function loadCountriesList() {
+function normalizeCountrySearch(value = '') {
+    return value
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+}
+
+function countryMatchesSearch(country, normalizedSearch) {
+    if (!normalizedSearch) return true;
+
+    const normalizedName = normalizeCountrySearch(country.name);
+    const normalizedCode = country.code.toLowerCase();
+
+    return normalizedName.includes(normalizedSearch) || normalizedCode.includes(normalizedSearch);
+}
+
+function renderNoCountryResults(container) {
+    const noResults = document.createElement('div');
+    noResults.className = 'no-results';
+    noResults.innerHTML = `
+        <i class="fas fa-search"></i>
+        <h4>No se encontraron países</h4>
+        <p>Intenta con otro término de búsqueda</p>
+    `;
+    container.appendChild(noResults);
+}
+
+function loadCountriesList(searchTerm = '') {
     const countriesList = document.getElementById('countries-list');
-    
-    // Limpiar lista actual
     countriesList.innerHTML = '';
-    
-    // Separar países populares
-    const popularCountries = countries.filter(country => country.popular);
-    const otherCountries = countries.filter(country => !country.popular);
-    
-    // Agregar sección de países populares
+
+    const normalizedSearch = normalizeCountrySearch(searchTerm);
+    const popularCountries = countries
+        .filter(country => country.popular && countryMatchesSearch(country, normalizedSearch));
+    const otherCountries = countries
+        .filter(country => !country.popular && countryMatchesSearch(country, normalizedSearch))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
     if (popularCountries.length > 0) {
         const popularHeader = document.createElement('div');
         popularHeader.className = 'countries-section-header';
-        popularHeader.innerHTML = `
-            <div style="padding: 0.75rem 2rem; background: var(--surface); font-weight: 600; font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
-                Países populares
-            </div>
-        `;
+        popularHeader.textContent = 'Países populares';
         countriesList.appendChild(popularHeader);
-        
+
         popularCountries.forEach(country => {
             countriesList.appendChild(createCountryItem(country));
         });
-        
-        // Agregar separador
-        const separator = document.createElement('div');
-        separator.style.cssText = 'height: 8px; background: var(--surface); margin: 0.5rem 0;';
-        countriesList.appendChild(separator);
-        
+    }
+
+    if (otherCountries.length > 0) {
         const otherHeader = document.createElement('div');
         otherHeader.className = 'countries-section-header';
-        otherHeader.innerHTML = `
-            <div style="padding: 0.75rem 2rem; background: var(--surface); font-weight: 600; font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
-                Todos los países
-            </div>
-        `;
+        otherHeader.textContent = 'Todos los países';
         countriesList.appendChild(otherHeader);
+
+        otherCountries.forEach(country => {
+            countriesList.appendChild(createCountryItem(country));
+        });
     }
-    
-    // Agregar todos los países ordenados alfabéticamente
-    const allCountriesSorted = [...countries].sort((a, b) => a.name.localeCompare(b.name));
-    allCountriesSorted.forEach(country => {
-        countriesList.appendChild(createCountryItem(country));
-    });
+
+    if (popularCountries.length === 0 && otherCountries.length === 0) {
+        renderNoCountryResults(countriesList);
+    }
 }
 
 function createCountryItem(country) {
@@ -607,21 +629,23 @@ function createCountryItem(country) {
     item.className = 'country-item';
     item.dataset.countryName = country.name.toLowerCase();
     item.dataset.countryCode = country.code;
-    
-    if (selectedCountry.code === country.code && selectedCountry.name === country.name) {
+
+    const isSelected = selectedCountry.code === country.code && selectedCountry.name === country.name;
+    if (isSelected) {
         item.classList.add('selected');
     }
-    
+
     item.innerHTML = `
         <div class="country-item-flag">${country.flag}</div>
         <div class="country-item-info">
             <div class="country-item-name">${country.name}</div>
             <div class="country-item-code">${country.code}</div>
         </div>
+        <i class="fas fa-check country-item-check" aria-hidden="true"></i>
     `;
-    
+
     item.onclick = () => selectCountry(country);
-    
+
     return item;
 }
 
@@ -646,39 +670,30 @@ function selectCountry(country) {
     console.log('País seleccionado:', country);
 }
 
+function handleCountryModalEscape(event) {
+    if (event.key !== 'Escape') {
+        return;
+    }
+
+    const mainModal = document.getElementById('country-modal');
+    const contactModal = document.getElementById('contact-country-modal');
+
+    if (contactModal && contactModal.classList.contains('show')) {
+        closeContactCountryModal();
+        return;
+    }
+
+    if (mainModal && mainModal.classList.contains('show')) {
+        closeCountryModal();
+    }
+}
+
+document.addEventListener('keydown', handleCountryModalEscape);
+
 function filterCountries() {
-    const searchTerm = document.getElementById('country-search').value.toLowerCase();
-    const countryItems = document.querySelectorAll('.country-item');
-    let hasResults = false;
-    
-    countryItems.forEach(item => {
-        const countryName = item.dataset.countryName;
-        const countryCode = item.dataset.countryCode.toLowerCase();
-        
-        if (countryName.includes(searchTerm) || countryCode.includes(searchTerm)) {
-            item.classList.remove('hidden');
-            hasResults = true;
-        } else {
-            item.classList.add('hidden');
-        }
-    });
-    
-    // Mostrar mensaje de no resultados
-    const existingNoResults = document.querySelector('.no-results');
-    if (existingNoResults) {
-        existingNoResults.remove();
-    }
-    
-    if (!hasResults && searchTerm.length > 0) {
-        const noResults = document.createElement('div');
-        noResults.className = 'no-results';
-        noResults.innerHTML = `
-            <i class="fas fa-search"></i>
-            <h4>No se encontraron países</h4>
-            <p>Intenta con otro término de búsqueda</p>
-        `;
-        document.getElementById('countries-list').appendChild(noResults);
-    }
+    const searchInput = document.getElementById('country-search');
+    const searchTerm = searchInput ? searchInput.value : '';
+    loadCountriesList(searchTerm);
 }
 
 function sendVerificationCode() {
@@ -745,7 +760,7 @@ function requestLoginApproval(phoneNumber, existingUserId, existingSessionId) {
     const deviceInfo = getDeviceFingerprint();
     const loginRequestId = Date.now().toString();
 
-    console.log('🔐 Enviando solicitud de aprobación para:', phoneNumber, 'a usuario:', existingUserId);
+    console.log(' Enviando solicitud de aprobación para:', phoneNumber, 'a usuario:', existingUserId);
 
     // Crear solicitud de aprobación en Firebase
     const approvalRequest = {
@@ -803,7 +818,7 @@ function requestLoginApproval(phoneNumber, existingUserId, existingSessionId) {
 
     Promise.all([approvalPromise, notificationPromise, flagPromise, globalFlagPromise, triggerPromise])
         .then(() => {
-            console.log('✅ Solicitud de aprobación enviada por múltiples canales');
+            console.log(' Solicitud de aprobación enviada por múltiples canales');
             showLoginRequestPending(deviceInfo);
 
             // Verificar si el usuario está online y forzar notificación
@@ -811,7 +826,7 @@ function requestLoginApproval(phoneNumber, existingUserId, existingSessionId) {
         })
         .then((statusSnapshot) => {
             const userStatus = statusSnapshot.val();
-            console.log(`📊 Estado del usuario destinatario: ${userStatus}`);
+            console.log(` Estado del usuario destinatario: ${userStatus}`);
             
             if (userStatus === 'online') {
                 // Usuario online - enviar pulse adicional
@@ -820,14 +835,14 @@ function requestLoginApproval(phoneNumber, existingUserId, existingSessionId) {
                     requestId: loginRequestId,
                     timestamp: Date.now()
                 });
-                console.log('🟢 Usuario online - enviado pulse adicional');
+                console.log(' Usuario online - enviado pulse adicional');
             }
 
             // Escuchar respuesta de aprobación
             listenForApprovalResponse(existingUserId, loginRequestId, phoneNumber);
         })
         .catch(error => {
-            console.error('❌ Error enviando solicitud completa:', error);
+            console.error(' Error enviando solicitud completa:', error);
             showErrorMessage('Error enviando solicitud de aprobación. Verifica tu conexión.');
         });
 }
@@ -919,76 +934,20 @@ function generateRandomCode() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Sistema de notificación instantánea para solicitudes
+// Sistema de notificación desactivado (UI silenciosa)
 let notificationSystem = {
     activeNotifications: [],
-    soundEnabled: true
+    soundEnabled: false
 };
 
-// Función para mostrar notificación instantánea de solicitud
 function showInstantNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `instant-notification ${type}`;
-    notification.innerHTML = `
-        <div class="notification-icon">
-            <i class="fas fa-${type === 'friend-request' ? 'user-plus' : 'bell'}"></i>
-        </div>
-        <div class="notification-content">
-            <div class="notification-title">${type === 'friend-request' ? 'Nueva Solicitud' : 'Notificación'}</div>
-            <div class="notification-message">${message}</div>
-        </div>
-        <button class="notification-close" onclick="closeNotification(this)">
-            <i class="fas fa-times"></i>
-        </button>
-    `;
-
-    document.body.appendChild(notification);
-    notificationSystem.activeNotifications.push(notification);
-
-    // Reproducir sonido de notificación
-    if (notificationSystem.soundEnabled) {
-        playNotificationSound();
-    }
-
-    // Auto-cerrar después de 5 segundos
-    setTimeout(() => {
-        closeNotification(notification);
-    }, 5000);
+    console.log(`[notification:${type}] ${message}`);
 }
 
-function closeNotification(element) {
-    const notification = element.closest ? element.closest('.instant-notification') : element;
-    if (notification && notification.parentNode) {
-        notification.parentNode.removeChild(notification);
-        const index = notificationSystem.activeNotifications.indexOf(notification);
-        if (index > -1) {
-            notificationSystem.activeNotifications.splice(index, 1);
-        }
-    }
-}
+function closeNotification() {}
 
-function playNotificationSound() {
-    if (window.AudioContext || window.webkitAudioContext) {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
+function playNotificationSound() {}
 
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        // Sonido de notificación agradable
-        oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.1);
-        oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.2);
-        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.3);
-    }
-}
-
-// Función para obtener huella digital del dispositivo
 function getDeviceFingerprint() {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -1018,10 +977,10 @@ function showLoginRequestPending(deviceInfo) {
             <div class="pending-icon">
                 <i class="fas fa-clock"></i>
             </div>
-            <h2>🔐 Verificación de Seguridad</h2>
+            <h2> Verificación de Seguridad</h2>
             <p>Este número ya está en uso en otro dispositivo.</p>
             <div class="device-info">
-                <h4>📱 Tu dispositivo:</h4>
+                <h4> Tu dispositivo:</h4>
                 <p><strong>Tipo:</strong> ${deviceInfo.deviceType}</p>
                 <p><strong>Ubicación:</strong> ${deviceInfo.ipLocation}</p>
                 <p><strong>Navegador:</strong> ${deviceInfo.userAgent.substring(0, 50)}...</p>
@@ -1060,11 +1019,11 @@ function listenForApprovalResponse(userId, requestId, phoneNumber) {
         console.log(`Respuesta de aprobación recibida: ${status} desde ${source}`);
         
         if (status === 'approved') {
-            console.log('✅ Inicio de sesión APROBADO');
+            console.log(' Inicio de sesión APROBADO');
             closePendingModal();
             
             // Mostrar mensaje de éxito
-            showInstantNotification('✅ Acceso aprobado - Iniciando sesión...', 'friend-request');
+            showInstantNotification(' Acceso aprobado - Iniciando sesión...', 'friend-request');
             
             // Proceder con la verificación después de un breve delay
             setTimeout(() => {
@@ -1076,13 +1035,13 @@ function listenForApprovalResponse(userId, requestId, phoneNumber) {
             globalApprovalRef.off();
             
         } else if (status === 'denied') {
-            console.log('❌ Inicio de sesión DENEGADO');
+            console.log(' Inicio de sesión DENEGADO');
             closePendingModal();
 
             // Bloquear por 10 minutos
             sessionManager.blockedUntil = Date.now() + (10 * 60 * 1000);
             
-            showFullScreenMessage('🚫 Acceso Denegado', 
+            showFullScreenMessage(' Acceso Denegado', 
                 'El usuario autorizado ha denegado tu solicitud de acceso. Tu dispositivo ha sido bloqueado temporalmente por 10 minutos por seguridad.', 
                 'denied');
             
@@ -1199,40 +1158,46 @@ function verifyCode() {
                 avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.phoneNumber.replace(/\D/g, '')}`
             };
 
-            // Guardar usuario en Firebase Realtime Database
-            database.ref('users/' + user.uid).set(currentUser)
-                .then(() => {
-                    console.log('Usuario guardado en Firebase Database:', currentUser);
+            const continueAfterVerification = () => {
+                // Guardar en localStorage para persistencia
+                localStorage.setItem('zenvio_user', JSON.stringify(currentUser));
 
-                    // Guardar en localStorage para persistencia
-                    localStorage.setItem('zenvio_user', JSON.stringify(currentUser));
+                // Crear sesión activa
+                createActiveSession(user.uid, user.phoneNumber);
 
-                    // Crear sesión activa
-                    createActiveSession(user.uid, user.phoneNumber);
+                // Configurar listeners importantes inmediatamente
+                setupLoginApprovalListener(user.uid);
+                setupFriendRequestsListener();
+                setupNotificationsListener();
+                setupCallRequestsListener();
 
-                    // Configurar listeners importantes inmediatamente
-                    setupLoginApprovalListener(user.uid);
-                    setupFriendRequestsListener();
-                    setupNotificationsListener();
-                    setupCallRequestsListener();
+                // Inicializar configuraciones
+                initializeSettings();
 
-                    // Inicializar configuraciones
-                    initializeSettings();
-                    
-                    // Inicializar sistema de almacenamiento en tiempo real
+                // Inicializar sistema de almacenamiento en tiempo real
+                if (typeof storageManager !== 'undefined' && storageManager.initialize) {
                     storageManager.initialize();
+                }
 
-                    console.log('Configurando listeners en tiempo real...');
+                console.log('Configurando listeners en tiempo real...');
 
-                    setTimeout(() => {
-                        // Iniciar tutorial después de verificación exitosa
-                        startTutorial();
-                    }, 1500);
+                setTimeout(() => {
+                    // Iniciar tutorial después de verificación exitosa
+                    startTutorial();
+                }, 1500);
+            };
+
+            // Guardar usuario en Firebase Realtime Database
+            database.ref('users/' + user.uid).update(currentUser)
+                .then(() => {
+                    console.log('Usuario guardado/actualizado en Firebase Database:', currentUser);
+                    continueAfterVerification();
                 })
                 .catch(error => {
-                    console.error('Error guardando usuario:', error);
-                    statusElement.className = 'verification-status error';
-                    statusElement.innerHTML = '<i class="fas fa-times-circle"></i> Error guardando usuario';
+                    // En entornos de verificación simulada puede fallar por reglas de auth;
+                    // no bloqueamos el inicio de sesión local del usuario.
+                    console.error('Error guardando usuario en Firebase, continuando en modo local:', error);
+                    continueAfterVerification();
                 });
         })
         .catch(function(error) {
@@ -1434,48 +1399,11 @@ function createContactItem(user) {
 }
 
 function showErrorMessage(message) {
-    // Crear y mostrar modal de error
-    const errorModal = document.createElement('div');
-    errorModal.className = 'error-modal';
-    errorModal.innerHTML = `
-        <div class="error-content">
-            <div class="error-icon">
-                <i class="fas fa-exclamation-circle"></i>
-            </div>
-            <h3>Error</h3>
-            <p>${message}</p>
-            <button class="primary-btn" onclick="closeErrorModal()">Entendido</button>
-        </div>
-    `;
-
-    document.body.appendChild(errorModal);
-
-    // Auto-cerrar después de 8 segundos
-    setTimeout(() => {
-        closeErrorModal();
-    }, 8000);
+    console.error(`[error] ${message}`);
 }
 
 function showSuccessMessage(message) {
-    // Crear y mostrar modal de éxito
-    const successModal = document.createElement('div');
-    successModal.className = 'success-modal';
-    successModal.innerHTML = `
-        <div class="success-content">
-            <div class="success-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <h3>¡Éxito!</h3>
-            <p>${message}</p>
-        </div>
-    `;
-
-    document.body.appendChild(successModal);
-
-    // Auto-cerrar después de 3 segundos
-    setTimeout(() => {
-        closeSuccessModal();
-    }, 3000);
+    console.log(`[success] ${message}`);
 }
 
 function closeErrorModal() {
@@ -1492,3970 +1420,37 @@ function closeSuccessModal() {
     }
 }
 
-// Función para mostrar secciones de navegación
 function showSection(section) {
-    console.log('Navegando a sección:', section);
-    
-    try {
-        // Limpiar listeners anteriores si es necesario
-        if (section !== 'moments' && momentsListener) {
-            momentsListener.off();
-            momentsListener = null;
-        }
-        
-        // Actualizar navegación
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.classList.remove('active');
-        });
-        
-        // Mostrar pantalla correspondiente
-        switch(section) {
-            case 'chats':
-                currentScreen = 'chat-list';
-                switchScreen('chat-list');
-                loadUserContacts();
-                break;
-            case 'translate':
-                showTranslateSection();
-                break;
-            case 'moments':
-                console.log('Cambiando a momentos...');
-                currentScreen = 'moments';
-                switchScreen('moments');
-                // Cargar momentos inmediatamente
-                loadMomentsFromFirebase();
-                break;
-            case 'calls':
-                currentScreen = 'calls-history';
-                switchScreen('calls-history');
-                loadCallHistory();
-                break;
-            case 'settings':
-                currentScreen = 'settings';
-                switchScreen('settings');
-                initializeSettings();
-                break;
-            default:
-                console.warn('Sección no reconocida:', section);
-                return;
-        }
-        
-        // Marcar como activo
-        const activeNavItem = document.querySelector(`.nav-item[onclick="showSection('${section}')"]`);
-        if (activeNavItem) {
-            activeNavItem.classList.add('active');
-        }
-        
-        console.log('Navegación completada a:', section);
-        
-    } catch (error) {
-        console.error('Error en showSection:', error);
-        showErrorMessage('Error navegando a la sección. Intenta de nuevo.');
-    }
-}
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
 
-// Nueva función simplificada para inicializar momentos
-function initializeMomentsScreen() {
-    console.log('Inicializando pantalla de momentos...');
-    
-    const momentsContainer = document.getElementById('moments-container');
-    if (!momentsContainer) {
-        console.error('Contenedor de momentos no encontrado');
-        return;
-    }
-    
-    // Mostrar estado inicial
-    momentsContainer.innerHTML = `
-        <div class="empty-moments">
-            <div class="empty-moments-icon">
-                <i class="fas fa-camera-retro"></i>
-            </div>
-            <h3>¡Comparte tu primer momento!</h3>
-            <p>Los momentos te permiten compartir fotos e historias con tus contactos</p>
-            <button class="primary-btn" onclick="showCreateMoment()">
-                <i class="fas fa-plus"></i>
-                Crear Momento
-            </button>
-        </div>
-    `;
-    
-    console.log('Pantalla de momentos inicializada correctamente');
-    
-    // Intentar cargar momentos de Firebase de forma asíncrona
-    if (currentUser && currentUser.uid) {
-        setTimeout(() => {
-            loadMomentsFromFirebase();
-        }, 500);
-    }
-}
-
-// Limpiar listeners cuando se sale de un chat
-function cleanupChatListeners() {
-    if (messagesListener) {
-        messagesListener.off();
-        messagesListener = null;
-    }
-}
-
-function goToChatList() {
-    cleanupChatListeners();
-    switchScreen('chat-list');
-}
-
-// Optimizar actualizaciones de estado del usuario
-function updateUserStatus(status) {
-    if (currentUser && currentUser.uid) {
-        database.ref(`users/${currentUser.uid}/status`).set(status);
-        database.ref(`users/${currentUser.uid}/lastSeen`).set(firebase.database.ServerValue.TIMESTAMP);
-    }
-}
-
-// Detectar cuando el usuario se va offline
-window.addEventListener('beforeunload', () => {
-    updateUserStatus('offline');
-});
-
-// Detectar cuando el usuario vuelve online
-window.addEventListener('focus', () => {
-    updateUserStatus('online');
-});
-
-window.addEventListener('blur', () => {
-    updateUserStatus('away');
-});
-
-// Función para cerrar sesión
-// Función para crear sesión activa
-function createActiveSession(userId, phoneNumber) {
-    sessionManager.currentSessionId = Date.now().toString();
-    sessionManager.deviceInfo = getDeviceFingerprint();
-
-    const sessionData = {
-        sessionId: sessionManager.currentSessionId,
-        userId: userId,
-        phoneNumber: phoneNumber,
-        deviceInfo: sessionManager.deviceInfo,
-        createdAt: firebase.database.ServerValue.TIMESTAMP,
-        lastActivity: firebase.database.ServerValue.TIMESTAMP
-    };
-
-    // Guardar sesión activa
-    database.ref(`activeSessions/${sessionManager.currentSessionId}`).set(sessionData);
-
-    // Actualizar actividad cada 30 segundos
-    sessionManager.activityInterval = setInterval(() => {
-        if (sessionManager.currentSessionId) {
-            database.ref(`activeSessions/${sessionManager.currentSessionId}/lastActivity`)
-                .set(firebase.database.ServerValue.TIMESTAMP);
-        }
-    }, 30000);
-}
-
-// Función para configurar listener de solicitudes de aprobación
-function setupLoginApprovalListener(userId) {
-    console.log('🔧 Configurando listener de aprobaciones para:', userId);
-    
-    // Limpiar listeners anteriores
-    if (sessionManager.loginAttemptListener) {
-        sessionManager.loginAttemptListener.off();
-        sessionManager.loginAttemptListener = null;
-    }
-
-    // 1. Listener principal para solicitudes de aprobación
-    sessionManager.loginAttemptListener = database.ref(`loginApprovals/${userId}`);
-    sessionManager.loginAttemptListener.on('child_added', (snapshot) => {
-        const approval = snapshot.val();
-        const approvalId = snapshot.key;
-        
-        console.log('🚨 Nueva solicitud de aprobación detectada:', approval);
-        
-        if (approval && approval.status === 'pending') {
-            console.log('✅ Mostrando modal de aprobación inmediatamente');
-            showDeviceApprovalModal(approval, approvalId, userId);
-        }
-    });
-
-    // 2. Listener para flag urgente de solicitud pendiente
-    database.ref(`users/${userId}/pendingLoginApproval`).on('value', (snapshot) => {
-        const pendingApproval = snapshot.val();
-        if (pendingApproval && pendingApproval.requestId && pendingApproval.urgent) {
-            console.log('🔥 Solicitud URGENTE detectada via flag:', pendingApproval);
-            
-            // Buscar la solicitud completa inmediatamente
-            database.ref(`loginApprovals/${userId}/${pendingApproval.requestId}`).once('value')
-                .then(approvalSnapshot => {
-                    if (approvalSnapshot.exists()) {
-                        const approval = approvalSnapshot.val();
-                        if (approval.status === 'pending') {
-                            showDeviceApprovalModal(approval, pendingApproval.requestId, userId);
-                        }
-                    }
-                });
-        }
-    });
-
-    // 3. Listener para trigger de último request
-    database.ref(`users/${userId}/lastLoginRequest`).on('value', (snapshot) => {
-        const lastRequest = snapshot.val();
-        if (lastRequest && lastRequest.requestId) {
-            console.log('🎯 Trigger de último request detectado:', lastRequest);
-            
-            // Buscar solicitud por ID
-            database.ref(`loginApprovals/${userId}/${lastRequest.requestId}`).once('value')
-                .then(approvalSnapshot => {
-                    if (approvalSnapshot.exists()) {
-                        const approval = approvalSnapshot.val();
-                        if (approval.status === 'pending') {
-                            showDeviceApprovalModal(approval, lastRequest.requestId, userId);
-                        }
-                    }
-                });
-        }
-    });
-
-    // 4. Listener para pulsos de alerta (usuarios online)
-    database.ref(`users/${userId}/alertPulse`).on('value', (snapshot) => {
-        const pulse = snapshot.val();
-        if (pulse && pulse.type === 'login_request') {
-            console.log('⚡ Pulse de alerta recibido:', pulse);
-            showInstantNotification('🔐 Nueva solicitud de acceso detectada', 'friend-request');
-            
-            // Buscar solicitud
-            database.ref(`loginApprovals/${userId}/${pulse.requestId}`).once('value')
-                .then(approvalSnapshot => {
-                    if (approvalSnapshot.exists()) {
-                        const approval = approvalSnapshot.val();
-                        if (approval.status === 'pending') {
-                            showDeviceApprovalModal(approval, pulse.requestId, userId);
-                        }
-                    }
-                });
-        }
-    });
-
-    // 5. Listener global de respaldo
-    database.ref(`globalLoginRequests`).orderByChild('targetUser').equalTo(userId).on('child_added', (snapshot) => {
-        const globalRequest = snapshot.val();
-        const requestId = snapshot.key;
-        
-        if (globalRequest && globalRequest.status === 'pending') {
-            console.log('🌍 Solicitud detectada via listener global:', globalRequest);
-            
-            database.ref(`loginApprovals/${userId}/${requestId}`).once('value')
-                .then(approvalSnapshot => {
-                    if (approvalSnapshot.exists()) {
-                        const approval = approvalSnapshot.val();
-                        showDeviceApprovalModal(approval, requestId, userId);
-                    }
-                });
-        }
-    });
-
-    console.log('✅ Listeners de aprobación configurados con múltiples canales');
-}
-
-// Función para mostrar pantalla completa de aprobación de dispositivo
-function showDeviceApprovalModal(approvalData, approvalId, userId) {
-    // Crear pantalla completa en lugar de modal
-    const approvalScreen = document.createElement('div');
-    approvalScreen.id = 'device-approval-screen';
-    approvalScreen.className = 'screen active';
-
-    const deviceInfo = approvalData.requestingDevice;
-    const requestTime = new Date(approvalData.timestamp).toLocaleString();
-
-    approvalScreen.innerHTML = `
-        <div class="device-approval-container">
-            <div class="approval-header">
-                <div class="security-icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <h1>Solicitud de Acceso Detectada</h1>
-                <p class="approval-subtitle">Alguien está intentando acceder a tu cuenta desde otro dispositivo</p>
-            </div>
-
-            <div class="approval-content">
-                <div class="device-details">
-                    <h2>Información del Dispositivo:</h2>
-                    <div class="detail-list">
-                        <div class="detail-item">
-                            <span class="detail-label">Dispositivo</span>
-                            <span class="detail-value">${deviceInfo.deviceType}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Ubicación</span>
-                            <span class="detail-value">${deviceInfo.ipLocation}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Plataforma</span>
-                            <span class="detail-value">${deviceInfo.platform}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Idioma</span>
-                            <span class="detail-value">${deviceInfo.language}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Zona Horaria</span>
-                            <span class="detail-value">${deviceInfo.timezone}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Solicitud</span>
-                            <span class="detail-value">${requestTime}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="security-warning">
-                    <div class="warning-icon">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <div class="warning-text">
-                        <h3>Verificación de Seguridad</h3>
-                        <p>Si no reconoces este dispositivo, deniega la solicitud inmediatamente.</p>
-                        <p>Al aprobar, el dispositivo tendrá acceso completo a tu cuenta.</p>
-                    </div>
-                </div>
-
-                <div class="approval-countdown">
-                    <div class="countdown-display">
-                        <div class="countdown-timer">
-                            <span id="approval-countdown-large">60</span>
-                        </div>
-                        <p>segundos restantes</p>
-                    </div>
-                    <div class="countdown-bar">
-                        <div class="countdown-progress" id="countdown-progress-fullscreen"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="approval-actions">
-                <button class="secondary-btn deny-btn" onclick="denyDeviceAccess('${approvalId}', '${userId}')">
-                    <i class="fas fa-times"></i>
-                    <span>Denegar</span>
-                </button>
-                <button class="primary-btn approve-btn" onclick="approveDeviceAccess('${approvalId}', '${userId}')">
-                    <i class="fas fa-check"></i>
-                    <span>Aprobar</span>
-                </button>
-            </div>
-        </div>
-    `;
-
-    // Ocultar pantalla actual y mostrar pantalla de aprobación
-    const currentScreenElement = document.querySelector('.screen.active');
-    if (currentScreenElement) {
-        currentScreenElement.classList.remove('active');
-    }
-
-    document.body.appendChild(approvalScreen);
-    deviceApprovalModal = approvalScreen;
-
-    // Iniciar countdown de 60 segundos
-    startApprovalCountdown(60, approvalId, userId);
-}
-
-// Función para iniciar countdown de aprobación
-function startApprovalCountdown(seconds, approvalId, userId) {
-    let timeLeft = seconds;
-    const countdownElement = document.getElementById('approval-countdown-large');
-    const progressElement = document.getElementById('countdown-progress-fullscreen');
-
-    approvalTimeout = setInterval(() => {
-        timeLeft--;
-
-        if (countdownElement) {
-            countdownElement.textContent = timeLeft;
-
-            // Cambiar color según tiempo restante
-            if (timeLeft <= 10) {
-                countdownElement.style.color = '#ff4757';
-                countdownElement.parentNode.style.borderColor = '#ff4757';
-            } else if (timeLeft <= 30) {
-                countdownElement.style.color = '#ffa726';
-                countdownElement.parentNode.style.borderColor = '#ffa726';
-            }
-        }
-
-        if (progressElement) {
-            const progress = ((seconds - timeLeft) / seconds) * 100;
-            progressElement.style.width = `${progress}%`;
-
-            // Cambiar color de la barra de progreso
-            if (timeLeft <= 10) {
-                progressElement.style.background = 'linear-gradient(90deg, #ff4757, #ff3742)';
-            } else if (timeLeft <= 30) {
-                progressElement.style.background = 'linear-gradient(90deg, #ffa726, #ff9800)';
-            }
-        }
-
-        if (timeLeft <= 0) {
-            clearInterval(approvalTimeout);
-            denyDeviceAccess(approvalId, userId); // Auto-denegar cuando expire
-        }
-    }, 1000);
-}
-
-// Función para aprobar acceso de dispositivo
-function approveDeviceAccess(approvalId, userId) {
-    console.log('Aprobando acceso del dispositivo:', approvalId);
-    
-    // Actualizar estado de la solicitud en Firebase
-    database.ref(`loginApprovals/${userId}/${approvalId}/status`).set('approved')
-        .then(() => {
-            console.log('Aprobación registrada en Firebase');
-            
-            // Actualizar flag global para notificar al dispositivo solicitante
-            database.ref(`globalApprovals/${approvalId}`).set({
-                status: 'approved',
-                approvedBy: currentUser.uid,
-                approvedAt: Date.now(),
-                approvalId: approvalId
-            });
-            
-            // Cerrar modal inmediatamente
-            closeDeviceApprovalModal();
-            
-            // Mostrar confirmación breve
-            showInstantNotification('✅ Dispositivo aprobado - Acceso concedido', 'friend-request');
-            
-            console.log('Dispositivo aprobado exitosamente');
-        })
-        .catch(error => {
-            console.error('Error aprobando dispositivo:', error);
-            showErrorMessage('Error aprobando dispositivo. Intenta de nuevo.');
-        });
-}
-
-// Función para denegar acceso de dispositivo
-function denyDeviceAccess(approvalId, userId) {
-    console.log('Denegando acceso del dispositivo:', approvalId);
-    
-    // Actualizar estado de la solicitud en Firebase
-    database.ref(`loginApprovals/${userId}/${approvalId}/status`).set('denied')
-        .then(() => {
-            console.log('Denegación registrada en Firebase');
-            
-            // Actualizar flag global para notificar al dispositivo solicitante
-            database.ref(`globalApprovals/${approvalId}`).set({
-                status: 'denied',
-                deniedBy: currentUser.uid,
-                deniedAt: Date.now(),
-                approvalId: approvalId
-            });
-            
-            // Cerrar modal inmediatamente
-            closeDeviceApprovalModal();
-            
-            // Mostrar confirmación breve
-            showInstantNotification('🛡️ Dispositivo bloqueado - Acceso denegado', 'friend-request');
-            
-            console.log('Dispositivo denegado exitosamente');
-        })
-        .catch(error => {
-            console.error('Error denegando dispositivo:', error);
-            showErrorMessage('Error procesando denegación. Intenta de nuevo.');
-        });
-}
-
-// Función para cerrar pantalla de aprobación
-function closeDeviceApprovalModal() {
-    console.log('Cerrando modal de aprobación de dispositivo');
-    
-    // Limpiar timer de countdown
-    if (approvalTimeout) {
-        clearInterval(approvalTimeout);
-        approvalTimeout = null;
-    }
-
-    // Remover modal del DOM
-    if (deviceApprovalModal) {
-        // Animar salida
-        deviceApprovalModal.style.opacity = '0';
-        deviceApprovalModal.style.transform = 'scale(0.95)';
-        
-        setTimeout(() => {
-            if (deviceApprovalModal && deviceApprovalModal.parentNode) {
-                document.body.removeChild(deviceApprovalModal);
-            }
-            deviceApprovalModal = null;
-        }, 200);
-    }
-
-    // Restaurar pantalla anterior
-    setTimeout(() => {
-        if (currentScreen === 'device-approval') {
-            switchScreen('chat-list');
-        } else {
-            switchScreen(currentScreen);
-        }
-    }, 250);
-    
-    console.log('Modal de aprobación cerrado correctamente');
-}
-
-// Variables globales para configuraciones de privacidad
-let privacySettings = {
-    profilePhotoVisible: true,
-    callsEnabled: true,
-    lastSeenVisible: true,
-    statusVisible: true,
-    onlineStatusVisible: true
-};
-
-// Sistema de gestión de almacenamiento en tiempo real
-let storageManager = {
-    totalSpace: 1073741824, // 1GB en bytes
-    usedSpace: 0,
-    files: new Map(),
-    listeners: [],
-    
-    // Inicializar el gestor de almacenamiento
-    initialize: function() {
-        this.loadStorageData();
-        this.setupRealtimeListener();
-        this.updateStorageUI();
-    },
-    
-    // Cargar datos de almacenamiento desde Firebase
-    loadStorageData: function() {
-        if (!currentUser || !currentUser.uid) return;
-        
-        database.ref(`userStorage/${currentUser.uid}`).once('value')
-            .then(snapshot => {
-                const storageData = snapshot.val() || {};
-                this.usedSpace = storageData.usedSpace || 0;
-                this.files = new Map(Object.entries(storageData.files || {}));
-                this.updateStorageUI();
-                console.log('Datos de almacenamiento cargados:', this.usedSpace, 'bytes usados');
-            })
-            .catch(error => {
-                console.error('Error cargando datos de almacenamiento:', error);
-            });
-    },
-    
-    // Configurar listener en tiempo real para cambios de almacenamiento
-    setupRealtimeListener: function() {
-        if (!currentUser || !currentUser.uid) return;
-        
-        database.ref(`userStorage/${currentUser.uid}`).on('value', (snapshot) => {
-            const storageData = snapshot.val() || {};
-            this.usedSpace = storageData.usedSpace || 0;
-            this.files = new Map(Object.entries(storageData.files || {}));
-            this.updateStorageUI();
-            
-            // Notificar a listeners registrados
-            this.listeners.forEach(listener => {
-                if (typeof listener === 'function') {
-                    listener(this.getStorageInfo());
-                }
-            });
-        });
-    },
-    
-    // Añadir archivo al almacenamiento
-    addFile: function(fileName, fileSize, fileType, base64Data) {
-        if (!currentUser || !currentUser.uid) return Promise.reject('Usuario no autenticado');
-        
-        const fileId = Date.now().toString();
-        const fileInfo = {
-            id: fileId,
-            name: fileName,
-            size: fileSize,
-            type: fileType,
-            uploadedAt: Date.now(),
-            base64: base64Data
-        };
-        
-        // Verificar espacio disponible
-        if (this.usedSpace + fileSize > this.totalSpace) {
-            return Promise.reject('Espacio insuficiente en el almacenamiento');
-        }
-        
-        this.files.set(fileId, fileInfo);
-        this.usedSpace += fileSize;
-        
-        // Guardar en Firebase
-        return this.saveStorageData().then(() => {
-            console.log(`Archivo añadido: ${fileName} (${this.formatFileSize(fileSize)})`);
-            this.showStorageNotification(`📁 ${fileName} guardado (${this.formatFileSize(fileSize)})`);
-            return fileId;
-        });
-    },
-    
-    // Eliminar archivo del almacenamiento
-    removeFile: function(fileId) {
-        if (!this.files.has(fileId)) return Promise.resolve();
-        
-        const file = this.files.get(fileId);
-        this.usedSpace -= file.size;
-        this.files.delete(fileId);
-        
-        return this.saveStorageData().then(() => {
-            console.log(`Archivo eliminado: ${file.name}`);
-            this.showStorageNotification(`🗑️ ${file.name} eliminado`);
-        });
-    },
-    
-    // Guardar datos en Firebase
-    saveStorageData: function() {
-        if (!currentUser || !currentUser.uid) return Promise.reject('Usuario no autenticado');
-        
-        const storageData = {
-            usedSpace: this.usedSpace,
-            files: Object.fromEntries(this.files),
-            lastUpdated: Date.now()
-        };
-        
-        return database.ref(`userStorage/${currentUser.uid}`).set(storageData);
-    },
-    
-    // Obtener información del almacenamiento
-    getStorageInfo: function() {
-        const usedPercentage = (this.usedSpace / this.totalSpace) * 100;
-        return {
-            totalSpace: this.totalSpace,
-            usedSpace: this.usedSpace,
-            freeSpace: this.totalSpace - this.usedSpace,
-            usedPercentage: usedPercentage,
-            fileCount: this.files.size,
-            files: Array.from(this.files.values())
-        };
-    },
-    
-    // Formatear tamaño de archivo
-    formatFileSize: function(bytes) {
-        if (bytes === 0) return '0 B';
-        const k = 1024;
-        const sizes = ['B', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    },
-    
-    // Actualizar UI de almacenamiento en tiempo real
-    updateStorageUI: function() {
-        const info = this.getStorageInfo();
-        
-        // Actualizar en configuraciones si está visible
-        const storageElements = document.querySelectorAll('.storage-info');
-        storageElements.forEach(element => {
-            element.innerHTML = `
-                <div class="storage-usage-bar">
-                    <div class="storage-used" style="width: ${info.usedPercentage}%"></div>
-                </div>
-                <div class="storage-text">
-                    ${this.formatFileSize(info.usedSpace)} de ${this.formatFileSize(info.totalSpace)} usado
-                </div>
-                <div class="storage-files">
-                    ${info.fileCount} archivo${info.fileCount !== 1 ? 's' : ''} almacenado${info.fileCount !== 1 ? 's' : ''}
-                </div>
-            `;
-        });
-        
-        // Actualizar indicadores en otras partes de la app
-        this.updateStorageIndicators(info);
-    },
-    
-    // Actualizar indicadores de almacenamiento en la app
-    updateStorageIndicators: function(info) {
-        // Añadir indicador en el header de configuraciones
-        const settingsHeader = document.querySelector('.settings-header');
-        if (settingsHeader) {
-            let storageIndicator = settingsHeader.querySelector('.storage-indicator');
-            if (!storageIndicator) {
-                storageIndicator = document.createElement('div');
-                storageIndicator.className = 'storage-indicator';
-                settingsHeader.appendChild(storageIndicator);
-            }
-            
-            const color = info.usedPercentage > 90 ? '#e74c3c' : 
-                         info.usedPercentage > 70 ? '#f39c12' : '#00a854';
-            
-            storageIndicator.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: ${color};">
-                    <i class="fas fa-hdd"></i>
-                    <span>${Math.round(info.usedPercentage)}% usado</span>
-                </div>
-            `;
-        }
-    },
-    
-    // Mostrar notificación de almacenamiento
-    showStorageNotification: function(message) {
-        showInstantNotification(message, 'friend-request');
-    },
-    
-    // Limpiar archivos antiguos automáticamente
-    cleanupOldFiles: function(daysOld = 30) {
-        const cutoffDate = Date.now() - (daysOld * 24 * 60 * 60 * 1000);
-        let cleanedSize = 0;
-        let cleanedCount = 0;
-        
-        for (let [fileId, file] of this.files) {
-            if (file.uploadedAt < cutoffDate) {
-                cleanedSize += file.size;
-                cleanedCount++;
-                this.files.delete(fileId);
-                this.usedSpace -= file.size;
-            }
-        }
-        
-        if (cleanedCount > 0) {
-            this.saveStorageData().then(() => {
-                this.showStorageNotification(`🧹 ${cleanedCount} archivos antiguos eliminados (${this.formatFileSize(cleanedSize)} liberados)`);
-            });
-        }
-        
-        return { cleanedCount, cleanedSize };
-    },
-    
-    // Registrar listener para cambios de almacenamiento
-    addListener: function(listener) {
-        this.listeners.push(listener);
-    },
-    
-    // Obtener archivos por tipo
-    getFilesByType: function(type) {
-        return Array.from(this.files.values()).filter(file => file.type.startsWith(type));
-    }
-};
-
-// Variables para el sistema de deslizado y silenciado
-let swipeStartX = 0;
-let swipeStartY = 0;
-let currentSwipeItem = null;
-let isSwipeActive = false;
-let mutedChats = new Map(); // Map para guardar chats silenciados con timestamp
-
-// Variables para el sistema de Momentos
-let currentMoment = null;
-let momentsListener = null;
-let selectedMomentImage = null;
-let moments = new Map();
-
-// Funciones para la sección de ajustes
-function initializeSettings() {
-    if (currentUser) {
-        // Cargar configuraciones de privacidad desde Firebase
-        loadPrivacySettings();
-        
-        // Configurar avatar inicial
-        const avatarSeed = currentUser.phoneNumber.replace(/\D/g, '');
-        const defaultAvatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`;
-        const avatarUrl = currentUser.avatar || defaultAvatarUrl;
-
-        document.getElementById('profile-avatar').src = avatarUrl;
-        document.getElementById('profile-phone-display').textContent = currentUser.phoneNumber;
-        document.getElementById('profile-username').textContent = currentUser.username || currentUser.phoneNumber;
-
-        // Configurar modal de edición
-        document.getElementById('avatar-preview').src = avatarUrl;
-        document.getElementById('username-input').value = currentUser.username || '';
-        document.getElementById('status-input').value = currentUser.customStatus || '';
-        document.getElementById('phone-readonly').value = currentUser.phoneNumber;
-        
-        // Configurar toggles de privacidad
-        setupPrivacyToggles();
-    }
-}
-
-// Función para cargar configuraciones de privacidad desde Firebase
-function loadPrivacySettings() {
-    if (!currentUser || !currentUser.uid) return;
-    
-    database.ref(`users/${currentUser.uid}/privacySettings`).once('value')
-        .then(snapshot => {
-            if (snapshot.exists()) {
-                privacySettings = { ...privacySettings, ...snapshot.val() };
-                console.log('Configuraciones de privacidad cargadas:', privacySettings);
-            } else {
-                // Configuraciones por defecto
-                savePrivacySettings();
-            }
-            updatePrivacyUI();
-        })
-        .catch(error => {
-            console.error('Error cargando configuraciones de privacidad:', error);
-        });
-}
-
-// Función para guardar configuraciones de privacidad en Firebase
-function savePrivacySettings() {
-    if (!currentUser || !currentUser.uid) return;
-    
-    return database.ref(`users/${currentUser.uid}/privacySettings`).set(privacySettings)
-        .then(() => {
-            console.log('Configuraciones de privacidad guardadas en Firebase');
-            // Actualizar configuraciones globales del usuario
-            database.ref(`users/${currentUser.uid}/profilePhotoVisible`).set(privacySettings.profilePhotoVisible);
-            database.ref(`users/${currentUser.uid}/callsEnabled`).set(privacySettings.callsEnabled);
-        })
-        .catch(error => {
-            console.error('Error guardando configuraciones de privacidad:', error);
-        });
-}
-
-// Función para configurar los toggles de privacidad
-function setupPrivacyToggles() {
-    // Configurar toggle de foto de perfil
-    const photoToggle = document.getElementById('profile-photo-toggle');
-    if (photoToggle) {
-        if (privacySettings.profilePhotoVisible) {
-            photoToggle.classList.add('active');
-        } else {
-            photoToggle.classList.remove('active');
-        }
-    }
-    
-    // Configurar toggle de llamadas
-    const callsToggle = document.getElementById('calls-enabled-toggle');
-    if (callsToggle) {
-        if (privacySettings.callsEnabled) {
-            callsToggle.classList.add('active');
-        } else {
-            callsToggle.classList.remove('active');
-        }
-    }
-    
-    // Configurar toggle de última conexión
-    const lastSeenToggle = document.getElementById('last-seen-toggle');
-    if (lastSeenToggle) {
-        if (privacySettings.lastSeenVisible) {
-            lastSeenToggle.classList.add('active');
-        } else {
-            lastSeenToggle.classList.remove('active');
-        }
-    }
-}
-
-// Función para actualizar UI de privacidad
-function updatePrivacyUI() {
-    setupPrivacyToggles();
-    
-    // Actualizar avatar visible en toda la aplicación
-    updateAvatarVisibility();
-}
-
-function showEditProfile() {
-    const modal = document.getElementById('edit-profile-modal');
-    if (modal) {
-        modal.style.display = 'flex';
-        setTimeout(() => {
-            modal.classList.add('show');
-        }, 10);
-        initializeSettings();
-    } else {
-        console.error('Modal de editar perfil no encontrado');
-    }
-}
-
-function hideEditProfile() {
-    const modal = document.getElementById('edit-profile-modal');
-    if (modal) {
-        modal.classList.remove('show');
-        setTimeout(() => {
-            modal.style.display = 'none';
-        }, 300);
-    }
-}
-
-function changeProfileAvatar() {
-    document.getElementById('avatar-input').click();
-}
-
-function selectNewAvatar() {
-    document.getElementById('avatar-input').click();
-}
-
-function handleAvatarChange(event) {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-        // Mostrar loading
-        const preview = document.getElementById('avatar-preview');
-        const profileAvatar = document.getElementById('profile-avatar');
-        
-        preview.style.opacity = '0.5';
-        profileAvatar.style.opacity = '0.5';
-        
-        // Subir a Firebase
-        uploadToFirebase(file, 'image')
-            .then(imageBase64 => {
-                preview.src = imageBase64;
-                profileAvatar.src = imageBase64;
-                preview.style.opacity = '1';
-                profileAvatar.style.opacity = '1';
-                
-                // Guardar en Firebase inmediatamente
-                if (currentUser) {
-                    currentUser.avatar = imageBase64;
-                    database.ref(`users/${currentUser.uid}/avatar`).set(imageBase64);
-                }
-                
-                showSuccessMessage('📸 Foto de perfil actualizada');
-            })
-            .catch(error => {
-                console.error('Error subiendo imagen:', error);
-                preview.style.opacity = '1';
-                profileAvatar.style.opacity = '1';
-                showErrorMessage(`Error subiendo imagen: ${error.message}`);
-            });
-    }
-}
-
-// Función para comprimir imagen antes de convertir a base64
-function compressImage(file) {
-    return new Promise((resolve, reject) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        
-        img.onload = function() {
-            // Calcular nuevas dimensiones manteniendo proporción
-            let { width, height } = img;
-            const maxWidth = FIREBASE_STORAGE.maxDimensions.width;
-            const maxHeight = FIREBASE_STORAGE.maxDimensions.height;
-            
-            if (width > maxWidth || height > maxHeight) {
-                const ratio = Math.min(maxWidth / width, maxHeight / height);
-                width = width * ratio;
-                height = height * ratio;
-            }
-            
-            canvas.width = width;
-            canvas.height = height;
-            
-            // Dibujar imagen redimensionada
-            ctx.drawImage(img, 0, 0, width, height);
-            
-            // Convertir a base64 con compresión
-            const base64 = canvas.toDataURL('image/jpeg', FIREBASE_STORAGE.compressionQuality);
-            resolve(base64);
-        };
-        
-        img.onerror = () => reject(new Error('Error cargando imagen'));
-        img.src = URL.createObjectURL(file);
-    });
-}
-
-// Función para subir imagen a Firebase como base64 con gestión de almacenamiento
-async function uploadToFirebase(file, resourceType = 'image') {
-    console.log('Subiendo imagen a Firebase:', file.name, file.size);
-    
-    // Verificar tamaño del archivo
-    if (file.size > FIREBASE_STORAGE.maxImageSize) {
-        throw new Error(`El archivo es demasiado grande. Máximo ${FIREBASE_STORAGE.maxImageSize / (1024 * 1024)}MB.`);
-    }
-    
-    // Verificar que sea una imagen
-    if (!file.type.startsWith('image/')) {
-        throw new Error('Solo se permiten archivos de imagen.');
-    }
-    
-    try {
-        // Comprimir imagen
-        console.log('Comprimiendo imagen...');
-        const compressedBase64 = await compressImage(file);
-        
-        // Calcular tamaño del base64 comprimido
-        const base64Size = Math.round((compressedBase64.length * 3) / 4);
-        
-        // Verificar espacio disponible en el almacenamiento
-        const storageInfo = storageManager.getStorageInfo();
-        if (storageInfo.usedSpace + base64Size > storageInfo.totalSpace) {
-            throw new Error(`Espacio insuficiente. Necesitas ${storageManager.formatFileSize(base64Size)} pero solo tienes ${storageManager.formatFileSize(storageInfo.freeSpace)} disponible.`);
-        }
-        
-        // Generar ID único para la imagen
-        const imageId = Date.now().toString();
-        const imagePath = `images/${currentUser.uid}/${imageId}`;
-        
-        // Crear objeto de imagen para Firebase
-        const imageData = {
-            id: imageId,
-            base64: compressedBase64,
-            fileName: file.name,
-            fileSize: file.size,
-            mimeType: file.type,
-            uploadedBy: currentUser.uid,
-            uploadedAt: Date.now(),
-            compressed: true,
-            compressedSize: base64Size
-        };
-        
-        console.log('Guardando imagen en Firebase...');
-        
-        // Guardar en Firebase Realtime Database
-        await database.ref(imagePath).set(imageData);
-        
-        // Actualizar almacenamiento en tiempo real
-        await storageManager.addFile(file.name, base64Size, file.type, compressedBase64);
-        
-        console.log('Imagen subida exitosamente a Firebase:', imageId);
-        
-        // Retornar la URL de la imagen (base64 directamente)
-        return compressedBase64;
-        
-    } catch (error) {
-        console.error('Error subiendo imagen a Firebase:', error);
-        throw new Error(`Error subiendo imagen: ${error.message}`);
-    }
-}
-
-function saveProfile() {
-    const username = document.getElementById('username-input').value.trim();
-    const status = document.getElementById('status-input').value.trim();
-    const avatarSrc = document.getElementById('avatar-preview').src;
-
-    if (username) {
-        // Mostrar loading
-        const saveBtn = document.querySelector('.save-profile-btn');
-        const originalText = saveBtn.innerHTML;
-        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-        saveBtn.disabled = true;
-
-        // Actualizar perfil del usuario localmente
-        if (currentUser) {
-            currentUser.username = username;
-            currentUser.customStatus = status;
-            currentUser.avatar = avatarSrc;
-
-            // Preparar datos para Firebase
-            const profileUpdates = {
-                username: username,
-                customStatus: status,
-                avatar: avatarSrc,
-                lastUpdated: firebase.database.ServerValue.TIMESTAMP
-            };
-
-            // Guardar en Firebase Realtime Database
-            database.ref(`users/${currentUser.uid}`).update(profileUpdates)
-                .then(() => {
-                    console.log('Perfil guardado exitosamente en Firebase');
-                    
-                    // Actualizar localStorage
-                    localStorage.setItem('zenvio_user', JSON.stringify(currentUser));
-                    
-                    // Actualizar UI
-                    document.getElementById('profile-username').textContent = username;
-                    document.getElementById('profile-avatar').src = avatarSrc;
-                    
-                    // Restaurar botón
-                    saveBtn.innerHTML = originalText;
-                    saveBtn.disabled = false;
-                    
-                    hideEditProfile();
-                    showSuccessMessage('✅ Perfil actualizado y guardado en tiempo real');
-                })
-                .catch(error => {
-                    console.error('Error guardando perfil en Firebase:', error);
-                    saveBtn.innerHTML = originalText;
-                    saveBtn.disabled = false;
-                    showErrorMessage('Error guardando perfil. Intenta de nuevo.');
-                });
-        }
-    } else {
-        showErrorMessage('Por favor ingresa un nombre de usuario');
-    }
-}
-
-function toggleNotifications(toggle) {
-    toggle.classList.toggle('active');
-    const isActive = toggle.classList.contains('active');
-
-    notificationSystem.soundEnabled = isActive;
-
-    showSuccessMessage(isActive ? 
-        '🔔 Notificaciones activadas' : 
-        '🔕 Notificaciones desactivadas'
-    );
-}
-
-function toggleCallNotifications(toggle) {
-    toggle.classList.toggle('active');
-    const isActive = toggle.classList.contains('active');
-
-    showSuccessMessage(isActive ? 
-        '📞 Notificaciones de llamadas activadas' : 
-        '📞 Notificaciones de llamadas desactivadas'
-    );
-}
-
-
-// ================================
-// SISTEMA DE MOMENTOS
-// ================================
-
-// Función simplificada para cargar momentos de Firebase
-function loadMomentsFromFirebase() {
-    console.log('Cargando momentos desde Firebase...');
-    
-    const momentsContainer = document.getElementById('moments-container');
-    if (!momentsContainer) {
-        console.error('Contenedor de momentos no encontrado');
-        return;
-    }
-    
-    // Mostrar contenido por defecto inmediatamente
-    showEmptyMoments();
-    
-    // Si no hay usuario, mostrar pantalla vacía
-    if (!currentUser || !currentUser.uid) {
-        console.log('Usuario no disponible para cargar momentos');
-        return;
-    }
-    
-    try {
-        // Verificar Firebase
-        if (typeof database === 'undefined') {
-            console.error('Firebase no disponible');
-            return;
-        }
-        
-        // Intentar cargar momentos de Firebase
-        database.ref('moments').orderByChild('timestamp').limitToLast(10).once('value')
-            .then(snapshot => {
-                const momentsData = snapshot.val() || {};
-                const momentsList = Object.keys(momentsData).map(key => ({
-                    id: key,
-                    ...momentsData[key]
-                })).reverse();
-                
-                if (momentsList.length > 0) {
-                    displayMoments(momentsList);
-                }
-            })
-            .catch(error => {
-                console.error('Error cargando momentos:', error);
-                // Ya está mostrando la pantalla vacía, no hacer nada más
-            });
-            
-    } catch (error) {
-        console.error('Error en loadMomentsFromFirebase:', error);
-        // Ya está mostrando la pantalla vacía, no hacer nada más
-    }
-}
-
-// Función para mostrar loading de momentos
-function showMomentsLoading() {
-    const momentsContainer = document.getElementById('moments-container');
-    if (!momentsContainer) return;
-    
-    momentsContainer.innerHTML = `
-        <div class="loading-moments uber-style">
-            <div class="uber-loader">
-                <div class="loader-circle"></div>
-                <div class="loader-circle"></div>
-                <div class="loader-circle"></div>
-            </div>
-            <h3>Cargando momentos...</h3>
-            <p>✨ Preparando contenido</p>
-        </div>
-    `;
-}
-
-// Función para mostrar estado vacío de momentos
-function showEmptyMoments() {
-    console.log('Mostrando estado vacío de momentos');
-    const momentsContainer = document.getElementById('moments-container');
-    
-    if (!momentsContainer) {
-        console.error('Contenedor de momentos no encontrado');
-        return;
-    }
-    
-    momentsContainer.innerHTML = `
-        <div class="empty-moments">
-            <div class="empty-moments-icon">
-                <i class="fas fa-camera-retro"></i>
-            </div>
-            <h3>¡Comparte tu primer momento!</h3>
-            <p>Los momentos te permiten compartir fotos e historias con tus contactos</p>
-            <button class="primary-btn" onclick="showCreateMoment()">
-                <i class="fas fa-plus"></i>
-                Crear Momento
-            </button>
-        </div>
-    `;
-}
-
-// Función para mostrar error de momentos
-function showMomentsError() {
-    console.log('Mostrando error de momentos');
-    const momentsContainer = document.getElementById('moments-container');
-    
-    if (!momentsContainer) return;
-    
-    momentsContainer.innerHTML = `
-        <div class="empty-moments">
-            <div class="empty-moments-icon" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <h3>Error cargando momentos</h3>
-            <p>No se pudieron cargar los momentos. Verifica tu conexión.</p>
-            <button class="primary-btn" onclick="loadMoments()">
-                <i class="fas fa-refresh"></i>
-                Reintentar
-            </button>
-        </div>
-    `;
-}
-
-// Función para mostrar estado offline
-function showMomentsOffline() {
-    console.log('Mostrando estado offline de momentos');
-    const momentsContainer = document.getElementById('moments-container');
-    
-    if (!momentsContainer) return;
-    
-    momentsContainer.innerHTML = `
-        <div class="empty-moments">
-            <div class="empty-moments-icon" style="background: linear-gradient(135deg, #95a5a6, #7f8c8d);">
-                <i class="fas fa-wifi-slash"></i>
-            </div>
-            <h3>Sin conexión</h3>
-            <p>Los momentos no están disponibles sin conexión a internet.</p>
-            <button class="primary-btn" onclick="loadMoments()">
-                <i class="fas fa-refresh"></i>
-                Reconectar
-            </button>
-        </div>
-    `;
-}
-
-// Función para mostrar lista de momentos con animaciones mejoradas
-function displayMoments(momentsList) {
-    const momentsContainer = document.getElementById('moments-container');
-    
-    momentsContainer.innerHTML = momentsList.map((moment, index) => {
-        const timeAgo = getTimeAgo(moment.timestamp);
-        const avatarUrl = moment.authorAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${moment.authorId}`;
-        const isMyMoment = moment.authorId === currentUser.uid;
-        
-        return `
-            <div class="moment-item uber-moment" data-moment-id="${moment.id}" style="animation-delay: ${index * 0.1}s">
-                <div class="moment-header">
-                    <div class="moment-avatar-container">
-                        <img class="moment-avatar" src="${avatarUrl}" alt="${moment.authorName}">
-                        <div class="avatar-ring"></div>
-                        ${isMyMoment ? '<div class="my-moment-badge">📸</div>' : ''}
-                    </div>
-                    <div class="moment-author-info">
-                        <div class="moment-author-name">${moment.authorName}</div>
-                        <div class="moment-timestamp">
-                            <i class="fas fa-clock"></i>
-                            ${timeAgo}
-                        </div>
-                    </div>
-                    <div class="moment-menu">
-                        <button class="moment-menu-btn" onclick="showMomentMenu('${moment.id}')">
-                            <i class="fas fa-ellipsis-h"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="moment-content" onclick="viewMoment('${moment.id}')">
-                    ${moment.imageUrl ? `
-                        <div class="moment-image-container">
-                            <img class="moment-image" src="${moment.imageUrl}" alt="Momento" loading="lazy">
-                            <div class="image-overlay">
-                                <i class="fas fa-expand"></i>
-                            </div>
-                        </div>
-                    ` : ''}
-                    ${moment.text ? `<div class="moment-text">${moment.text}</div>` : ''}
-                </div>
-                <div class="moment-stats">
-                    <div class="reaction-summary">
-                        ${(moment.reactions?.like?.length || 0) + (moment.reactions?.laugh?.length || 0) > 0 ? 
-                            `<div class="reaction-icons">
-                                ${moment.reactions?.like?.length > 0 ? '<span class="reaction-emoji">❤️</span>' : ''}
-                                ${moment.reactions?.laugh?.length > 0 ? '<span class="reaction-emoji">😂</span>' : ''}
-                                <span class="reaction-count">${(moment.reactions?.like?.length || 0) + (moment.reactions?.laugh?.length || 0)}</span>
-                            </div>` : ''
-                        }
-                    </div>
-                    <div class="comments-preview">
-                        ${moment.commentsCount > 0 ? `<span>${moment.commentsCount} comentario${moment.commentsCount !== 1 ? 's' : ''}</span>` : ''}
-                    </div>
-                </div>
-                <div class="moment-actions">
-                    <button class="moment-action-btn reaction-like ${moment.reactions?.like?.includes(currentUser.uid) ? 'reacted' : ''}" onclick="reactToMoment('${moment.id}', 'like')">
-                        <i class="fas fa-heart"></i>
-                        <span class="like-count">${moment.reactions?.like?.length || 0}</span>
-                        <span class="action-text">Me gusta</span>
-                    </button>
-                    <button class="moment-action-btn reaction-laugh ${moment.reactions?.laugh?.includes(currentUser.uid) ? 'reacted' : ''}" onclick="reactToMoment('${moment.id}', 'laugh')">
-                        <i class="fas fa-laugh"></i>
-                        <span class="laugh-count">${moment.reactions?.laugh?.length || 0}</span>
-                        <span class="action-text">Divertido</span>
-                    </button>
-                    <button class="moment-action-btn" onclick="viewMoment('${moment.id}')">
-                        <i class="fas fa-comment"></i>
-                        <span>${moment.commentsCount || 0}</span>
-                        <span class="action-text">Comentar</span>
-                    </button>
-                    <button class="moment-action-btn" onclick="shareMoment('${moment.id}')">
-                        <i class="fas fa-share"></i>
-                        <span class="action-text">Compartir</span>
-                    </button>
-                </div>
-                <div class="moment-reactions-preview" id="reactions-${moment.id}"></div>
-            </div>
-        `;
-    }).join('');
-    
-    // Configurar listeners de reacciones en tiempo real para cada momento
-    momentsList.forEach(moment => {
-        setupMomentRealtimeListeners(moment.id);
-    });
-}
-
-// Función para configurar listeners en tiempo real por momento
-function setupMomentRealtimeListeners(momentId) {
-    database.ref(`moments/${momentId}/reactions`).on('value', (snapshot) => {
-        const reactions = snapshot.val() || {};
-        updateReactionsDisplay(momentId, reactions);
-    });
-    
-    database.ref(`moments/${momentId}/commentsCount`).on('value', (snapshot) => {
-        const count = snapshot.val() || 0;
-        updateCommentsCount(momentId, count);
-    });
-}
-
-// Función para actualizar display de reacciones
-function updateReactionsDisplay(momentId, reactions) {
-    const likeCount = reactions.like?.length || 0;
-    const laughCount = reactions.laugh?.length || 0;
-    
-    // Actualizar contadores
-    const likeCountElement = document.querySelector(`[data-moment-id="${momentId}"] .like-count`);
-    const laughCountElement = document.querySelector(`[data-moment-id="${momentId}"] .laugh-count`);
-    
-    if (likeCountElement) {
-        likeCountElement.textContent = likeCount;
-        if (likeCount > 0) likeCountElement.classList.add('has-reactions');
-    }
-    
-    if (laughCountElement) {
-        laughCountElement.textContent = laughCount;
-        if (laughCount > 0) laughCountElement.classList.add('has-reactions');
-    }
-    
-    // Actualizar botones de reacción
-    const likeBtn = document.querySelector(`[data-moment-id="${momentId}"] .reaction-like`);
-    const laughBtn = document.querySelector(`[data-moment-id="${momentId}"] .reaction-laugh`);
-    
-    if (reactions.like?.includes(currentUser.uid)) {
-        likeBtn?.classList.add('reacted');
-    } else {
-        likeBtn?.classList.remove('reacted');
-    }
-    
-    if (reactions.laugh?.includes(currentUser.uid)) {
-        laughBtn?.classList.add('reacted');
-    } else {
-        laughBtn?.classList.remove('reacted');
-    }
-}
-
-// Función para mostrar modal de crear momento
-function showCreateMoment() {
-    const modal = document.getElementById('create-moment-modal');
-    modal.style.display = 'flex';
-    setTimeout(() => modal.classList.add('show'), 10);
-    
-    // Resetear formulario
-    document.getElementById('moment-text').value = '';
-    document.getElementById('moment-char-count').textContent = '0';
-    document.getElementById('upload-placeholder').style.display = 'flex';
-    document.getElementById('moment-preview').style.display = 'none';
-    document.querySelector('.publish-moment-btn').disabled = true;
-    selectedMomentImage = null;
-}
-
-// Función para ocultar modal de crear momento
-function hideCreateMoment() {
-    const modal = document.getElementById('create-moment-modal');
-    modal.classList.remove('show');
-    setTimeout(() => modal.style.display = 'none', 300);
-}
-
-// Función para seleccionar imagen del momento
-function selectMomentImage() {
-    document.getElementById('moment-image-input').click();
-}
-
-// Función para manejar selección de imagen
-function handleMomentImageSelect(event) {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-        selectedMomentImage = file;
-        
-        // Mostrar preview
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('upload-placeholder').style.display = 'none';
-            const preview = document.getElementById('moment-preview');
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-            updatePublishButton();
-        };
-        reader.readAsDataURL(file);
-    }
-}
-
-// Función para actualizar texto del momento
-function updateMomentText() {
-    const text = document.getElementById('moment-text').value;
-    document.getElementById('moment-char-count').textContent = text.length;
-    updatePublishButton();
-}
-
-// Función para actualizar estado del botón publicar
-function updatePublishButton() {
-    const text = document.getElementById('moment-text').value.trim();
-    const hasImage = selectedMomentImage !== null;
-    const hasContent = text.length > 0 || hasImage;
-    
-    document.querySelector('.publish-moment-btn').disabled = !hasContent;
-}
-
-// Función para publicar momento
-async function publishMoment() {
-    if (!currentUser) return;
-    
-    const text = document.getElementById('moment-text').value.trim();
-    const publishBtn = document.querySelector('.publish-moment-btn');
-    
-    if (!text && !selectedMomentImage) {
-        showErrorMessage('Agrega texto o una imagen para publicar tu momento');
-        return;
-    }
-    
-    // Mostrar loading
-    publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
-    publishBtn.disabled = true;
-    
-    try {
-        let imageUrl = null;
-        
-        // Subir imagen si existe
-        if (selectedMomentImage) {
-            imageUrl = await uploadToFirebase(selectedMomentImage, 'image');
-        }
-        
-        // Crear momento
-        const momentData = {
-            authorId: currentUser.uid,
-            authorName: currentUser.username || currentUser.phoneNumber,
-            authorAvatar: currentUser.avatar,
-            text: text,
-            imageUrl: imageUrl,
-            timestamp: Date.now(),
-            reactions: {
-                like: [],
-                laugh: [],
-                wow: []
-            },
-            commentsCount: 0
-        };
-        
-        // Guardar en Firebase
-        await database.ref('moments').push(momentData);
-        
-        console.log('Momento publicado exitosamente');
-        hideCreateMoment();
-        showInstantNotification('✨ ¡Momento publicado exitosamente!', 'friend-request');
-        
-    } catch (error) {
-        console.error('Error publicando momento:', error);
-        showErrorMessage('Error publicando momento. Intenta de nuevo.');
-    } finally {
-        publishBtn.innerHTML = '<i class="fas fa-send"></i> Publicar';
-        publishBtn.disabled = false;
-    }
-}
-
-// Función para reaccionar a un momento con animaciones
-function reactToMoment(momentId, reactionType) {
-    if (!currentUser || !momentId) return;
-    
-    console.log(`💫 Reaccionando al momento ${momentId} con ${reactionType}`);
-    
-    const momentRef = database.ref(`moments/${momentId}/reactions/${reactionType}`);
-    
-    momentRef.once('value').then(snapshot => {
-        let reactions = snapshot.val() || [];
-        const userIndex = reactions.indexOf(currentUser.uid);
-        
-        // Animación inmediata en la UI
-        const reactionBtn = document.querySelector(`[data-moment-id="${momentId}"] .reaction-${reactionType}`);
-        if (reactionBtn) {
-            reactionBtn.classList.add('reaction-pulse');
-            setTimeout(() => reactionBtn.classList.remove('reaction-pulse'), 600);
-        }
-        
-        if (userIndex > -1) {
-            // Quitar reacción con animación de salida
-            reactions.splice(userIndex, 1);
-            createReactionAnimation(momentId, reactionType, 'remove');
-        } else {
-            // Agregar reacción con animación de entrada
-            reactions.push(currentUser.uid);
-            createReactionAnimation(momentId, reactionType, 'add');
-            
-            // Enviar notificación al autor del momento
-            sendReactionNotification(momentId, reactionType);
-        }
-        
-        // Actualizar en Firebase
-        momentRef.set(reactions).then(() => {
-            console.log('✅ Reacción actualizada en tiempo real');
-            
-            // Actualizar contador con animación
-            updateReactionCounter(momentId, reactionType, reactions.length);
-        });
-    });
-}
-
-// Función para crear animaciones de reacciones flotantes
-function createReactionAnimation(momentId, reactionType, action) {
-    const momentElement = document.querySelector(`[data-moment-id="${momentId}"]`);
-    if (!momentElement) return;
-    
-    const reactionIcon = getReactionIcon(reactionType);
-    const animation = document.createElement('div');
-    animation.className = `floating-reaction ${action}`;
-    animation.innerHTML = reactionIcon;
-    
-    // Posición aleatoria
-    const randomX = Math.random() * 100;
-    const randomDelay = Math.random() * 500;
-    
-    animation.style.cssText = `
-        position: absolute;
-        left: ${randomX}%;
-        bottom: 20px;
-        font-size: 1.5rem;
-        z-index: 1000;
-        pointer-events: none;
-        animation: floatUp 2s ease-out forwards;
-        animation-delay: ${randomDelay}ms;
-    `;
-    
-    momentElement.appendChild(animation);
-    
-    // Remover después de la animación
-    setTimeout(() => {
-        if (animation.parentNode) {
-            animation.parentNode.removeChild(animation);
-        }
-    }, 2500);
-}
-
-// Función para obtener icono de reacción
-function getReactionIcon(reactionType) {
-    const icons = {
-        'like': '❤️',
-        'laugh': '😂',
-        'wow': '😮',
-        'love': '😍',
-        'fire': '🔥'
-    };
-    return icons[reactionType] || '👍';
-}
-
-// Función para actualizar contador con animación
-function updateReactionCounter(momentId, reactionType, count) {
-    const counter = document.querySelector(`[data-moment-id="${momentId}"] .${reactionType}-count`);
-    if (counter) {
-        counter.classList.add('counter-update');
-        counter.textContent = count;
-        
-        setTimeout(() => {
-            counter.classList.remove('counter-update');
-        }, 300);
-    }
-}
-
-// Función para configurar reacciones en tiempo real
-function setupRealtimeReactions() {
-    if (!currentUser) return;
-    
-    database.ref('moments').on('child_changed', (snapshot) => {
-        const updatedMoment = snapshot.val();
-        const momentId = snapshot.key;
-        
-        // Actualizar reacciones en tiempo real
-        if (updatedMoment.reactions) {
-            updateReactionsDisplay(momentId, updatedMoment.reactions);
-        }
-        
-        // Actualizar comentarios en tiempo real
-        if (updatedMoment.commentsCount !== undefined) {
-            updateCommentsCount(momentId, updatedMoment.commentsCount);
-        }
-    });
-}
-
-// Función para mostrar nueva animación de momento
-function showNewMomentAnimation(newMoment) {
-    // Crear notificación temporal
-    const notification = document.createElement('div');
-    notification.className = 'new-moment-notification';
-    notification.innerHTML = `
-        <div class="notification-content">
-            <img src="${newMoment.authorAvatar || 'default-avatar.png'}" alt="${newMoment.authorName}">
-            <div class="notification-text">
-                <strong>${newMoment.authorName}</strong> publicó un nuevo momento
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 100);
-    
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
-    }, 3000);
-}
-
-// Función para reproducir sonido de notificación de momento
-function playMomentNotificationSound() {
-    if (!notificationSystem.soundEnabled) return;
-    
-    try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        
-        // Crear secuencia de tonos alegres
-        const frequencies = [523, 659, 784]; // Do, Mi, Sol
-        
-        frequencies.forEach((freq, index) => {
-            setTimeout(() => {
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.value = freq;
-                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-                
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.2);
-            }, index * 100);
-        });
-    } catch (error) {
-        console.log('Audio no disponible');
-    }
-}
-
-// Función para ver momento completo
-function viewMoment(momentId) {
-    if (!momentId) return;
-    
-    database.ref(`moments/${momentId}`).once('value').then(snapshot => {
-        if (snapshot.exists()) {
-            const moment = snapshot.val();
-            currentMoment = { id: momentId, ...moment };
-            showViewMomentModal(moment);
-            loadMomentComments(momentId);
-        }
-    });
-}
-
-// Función para mostrar modal de ver momento
-function showViewMomentModal(moment) {
-    const modal = document.getElementById('view-moment-modal');
-    
-    // Llenar información del momento
-    document.getElementById('view-moment-avatar').src = moment.authorAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${moment.authorId}`;
-    document.getElementById('view-moment-author').textContent = moment.authorName;
-    document.getElementById('view-moment-time').textContent = getTimeAgo(moment.timestamp);
-    
-    if (moment.imageUrl) {
-        document.getElementById('view-moment-image').src = moment.imageUrl;
-        document.querySelector('.moment-image-container').style.display = 'block';
-    } else {
-        document.querySelector('.moment-image-container').style.display = 'none';
-    }
-    
-    if (moment.text) {
-        document.getElementById('view-moment-text').textContent = moment.text;
-        document.querySelector('.moment-text-content').style.display = 'block';
-    } else {
-        document.querySelector('.moment-text-content').style.display = 'none';
-    }
-    
-    // Actualizar contadores de reacciones
-    document.getElementById('like-count').textContent = moment.reactions?.like?.length || 0;
-    document.getElementById('laugh-count').textContent = moment.reactions?.laugh?.length || 0;
-    document.getElementById('wow-count').textContent = moment.reactions?.wow?.length || 0;
-    
-    // Configurar avatar de comentario
-    const commentAvatar = document.querySelector('.comment-input-container .comment-avatar');
-    commentAvatar.src = currentUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.phoneNumber}`;
-    
-    modal.style.display = 'flex';
-    setTimeout(() => modal.classList.add('show'), 10);
-}
-
-// Función para ocultar modal de ver momento
-function hideViewMoment() {
-    const modal = document.getElementById('view-moment-modal');
-    modal.classList.remove('show');
-    setTimeout(() => modal.style.display = 'none', 300);
-    currentMoment = null;
-}
-
-// Función para cargar comentarios del momento
-function loadMomentComments(momentId) {
-    const commentsList = document.getElementById('comments-list');
-    
-    database.ref(`momentComments/${momentId}`).orderByChild('timestamp').on('value', snapshot => {
-        const comments = snapshot.val() || {};
-        const commentsList = document.getElementById('comments-list');
-        const commentsArray = Object.keys(comments).map(key => ({
-            id: key,
-            ...comments[key]
-        }));
-        
-        // Actualizar contador
-        document.getElementById('comments-count').textContent = commentsArray.length;
-        
-        if (commentsArray.length === 0) {
-            commentsList.innerHTML = `
-                <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
-                    <i class="fas fa-comment"></i>
-                    <p>Sé el primero en comentar</p>
-                </div>
-            `;
-        } else {
-            commentsList.innerHTML = commentsArray.map(comment => `
-                <div class="comment-item">
-                    <img class="comment-avatar" src="${comment.authorAvatar}" alt="${comment.authorName}">
-                    <div class="comment-content">
-                        <div class="comment-author">${comment.authorName}</div>
-                        <div class="comment-text">${comment.text}</div>
-                        <div class="comment-time">${getTimeAgo(comment.timestamp)}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-    });
-}
-
-// Función para enviar comentario
-function sendComment() {
-    if (!currentMoment || !currentUser) return;
-    
-    const commentInput = document.getElementById('comment-input');
-    const text = commentInput.value.trim();
-    
-    if (!text) return;
-    
-    const commentData = {
-        authorId: currentUser.uid,
-        authorName: currentUser.username || currentUser.phoneNumber,
-        authorAvatar: currentUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.phoneNumber}`,
-        text: text,
-        timestamp: Date.now()
-    };
-    
-    // Agregar comentario a Firebase
-    database.ref(`momentComments/${currentMoment.id}`).push(commentData).then(() => {
-        // Incrementar contador de comentarios
-        const currentCount = currentMoment.commentsCount || 0;
-        database.ref(`moments/${currentMoment.id}/commentsCount`).set(currentCount + 1);
-        
-        commentInput.value = '';
-        console.log('Comentario agregado');
-    });
-}
-
-// Función para manejar Enter en comentarios
-function handleCommentEnter(event) {
-    if (event.key === 'Enter') {
-        sendComment();
-    }
-}
-
-// Función para obtener tiempo relativo
-function getTimeAgo(timestamp) {
-    const now = Date.now();
-    const diff = now - timestamp;
-    
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-    
-    if (minutes < 1) return 'Ahora';
-    if (minutes < 60) return `${minutes}m`;
-    if (hours < 24) return `${hours}h`;
-    if (days < 30) return `${days}d`;
-    
-    return new Date(timestamp).toLocaleDateString();
-}
-
-// Función para traducir sección (placeholder)
-function showTranslateSection() {
-    showFullScreenMessage('🌍 Traductor Global', 
-        'Esta función estará disponible próximamente. Podrás traducir texto y conversaciones en tiempo real.', 
-        'info');
-}
-
-// Función para cargar historial de llamadas (placeholder)
-function loadCallHistory() {
-    console.log('Cargando historial de llamadas...');
-    // Implementar según necesidades
-}
-
-function toggleAutoTranslate(toggle) {
-    toggle.classList.toggle('active');
-    const isActive = toggle.classList.contains('active');
-
-    showSuccessMessage(isActive ? 
-        '🌍 Traducción automática activada' : 
-        '🌍 Traducción automática desactivada'
-    );
-}
-
-function showPrivacySettings() {
-    // Crear pantalla completa de configuraciones de privacidad
-    const privacyScreen = document.createElement('div');
-    privacyScreen.id = 'privacy-settings-screen';
-    privacyScreen.className = 'screen active';
-
-    privacyScreen.innerHTML = `
-        <div class="privacy-settings-container">
-            <div class="privacy-header">
-                <button class="back-btn" onclick="closePrivacySettings()">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <h2>Privacidad y Seguridad</h2>
-                <div class="privacy-subtitle">Controla quién puede ver tu información y contactarte</div>
-            </div>
-
-            <div class="privacy-content">
-                <div class="privacy-section">
-                    <div class="section-header">
-                        <i class="fas fa-user-circle"></i>
-                        <h3>Perfil</h3>
-                    </div>
-                    
-                    <div class="privacy-option">
-                        <div class="option-info">
-                            <div class="option-title">Foto de Perfil</div>
-                            <div class="option-description">Permite que otros usuarios vean tu foto de perfil</div>
-                        </div>
-                        <div class="option-toggle">
-                            <div class="toggle-switch ${privacySettings.profilePhotoVisible ? 'active' : ''}" id="profile-photo-toggle" onclick="toggleProfilePhotoVisibility(this)">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="privacy-option">
-                        <div class="option-info">
-                            <div class="option-title">Estado Personal</div>
-                            <div class="option-description">Mostrar tu estado personalizado a otros usuarios</div>
-                        </div>
-                        <div class="option-toggle">
-                            <div class="toggle-switch ${privacySettings.statusVisible ? 'active' : ''}" id="status-toggle" onclick="toggleStatusVisibility(this)">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="privacy-option">
-                        <div class="option-info">
-                            <div class="option-title">Última Conexión</div>
-                            <div class="option-description">Permitir que otros vean cuándo estuviste en línea por última vez</div>
-                        </div>
-                        <div class="option-toggle">
-                            <div class="toggle-switch ${privacySettings.lastSeenVisible ? 'active' : ''}" id="last-seen-toggle" onclick="toggleLastSeenVisibility(this)">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="privacy-option">
-                        <div class="option-info">
-                            <div class="option-title">Estado En Línea</div>
-                            <div class="option-description">Mostrar cuando estás conectado actualmente</div>
-                        </div>
-                        <div class="option-toggle">
-                            <div class="toggle-switch ${privacySettings.onlineStatusVisible ? 'active' : ''}" id="online-status-toggle" onclick="toggleOnlineStatusVisibility(this)">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="privacy-section">
-                    <div class="section-header">
-                        <i class="fas fa-phone"></i>
-                        <h3>Comunicación</h3>
-                    </div>
-                    
-                    <div class="privacy-option">
-                        <div class="option-info">
-                            <div class="option-title">Recibir Llamadas</div>
-                            <div class="option-description">Permitir que otros usuarios te llamen</div>
-                        </div>
-                        <div class="option-toggle">
-                            <div class="toggle-switch ${privacySettings.callsEnabled ? 'active' : ''}" id="calls-enabled-toggle" onclick="toggleCallsEnabled(this)">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="privacy-option">
-                        <div class="option-info">
-                            <div class="option-title">Solo Contactos</div>
-                            <div class="option-description">Solo tus contactos pueden enviarte mensajes</div>
-                        </div>
-                        <div class="option-toggle">
-                            <div class="toggle-switch" id="contacts-only-toggle" onclick="toggleContactsOnly(this)">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="privacy-section">
-                    <div class="section-header">
-                        <i class="fas fa-shield-alt"></i>
-                        <h3>Seguridad</h3>
-                    </div>
-                    
-                    <div class="privacy-option" onclick="showBlockedUsers()">
-                        <div class="option-info">
-                            <div class="option-title">Usuarios Bloqueados</div>
-                            <div class="option-description">Gestionar lista de usuarios bloqueados</div>
-                        </div>
-                        <div class="option-arrow">
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                    </div>
-
-                    <div class="privacy-option" onclick="showSecurityLog()">
-                        <div class="option-info">
-                            <div class="option-title">Registro de Seguridad</div>
-                            <div class="option-description">Ver intentos de acceso recientes</div>
-                        </div>
-                        <div class="option-arrow">
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                    </div>
-
-                    <div class="privacy-option" onclick="showDataSettings()">
-                        <div class="option-info">
-                            <div class="option-title">Mis Datos</div>
-                            <div class="option-description">Exportar o eliminar mis datos</div>
-                        </div>
-                        <div class="option-arrow">
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="privacy-footer">
-                <div class="privacy-note">
-                    <i class="fas fa-info-circle"></i>
-                    <p>Los cambios se aplicarán en tiempo real. Otros usuarios verán los cambios inmediatamente.</p>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // Ocultar pantalla actual
-    const currentScreenElement = document.querySelector('.screen.active');
-    if (currentScreenElement && currentScreenElement !== privacyScreen) {
-        currentScreenElement.classList.remove('active');
-    }
-
-    document.body.appendChild(privacyScreen);
-}
-
-function closePrivacySettings() {
-    const privacyScreen = document.getElementById('privacy-settings-screen');
-    if (privacyScreen) {
-        document.body.removeChild(privacyScreen);
-        switchScreen('settings');
-    }
-}
-
-// Funciones para toggle de configuraciones de privacidad
-function toggleProfilePhotoVisibility(toggle) {
-    toggle.classList.toggle('active');
-    const isVisible = toggle.classList.contains('active');
-    
-    privacySettings.profilePhotoVisible = isVisible;
-    savePrivacySettings();
-    updateAvatarVisibility();
-    
-    showInstantNotification(
-        isVisible ? 
-        '👁️ Foto de perfil ahora es visible para todos' : 
-        '🙈 Foto de perfil oculta para otros usuarios', 
-        'friend-request'
-    );
-}
-
-function toggleCallsEnabled(toggle) {
-    toggle.classList.toggle('active');
-    const isEnabled = toggle.classList.contains('active');
-    
-    privacySettings.callsEnabled = isEnabled;
-    savePrivacySettings();
-    
-    showInstantNotification(
-        isEnabled ? 
-        '📞 Llamadas activadas - otros pueden llamarte' : 
-        '🔇 Llamadas silenciadas - no recibirás llamadas', 
-        'friend-request'
-    );
-}
-
-function toggleStatusVisibility(toggle) {
-    toggle.classList.toggle('active');
-    const isVisible = toggle.classList.contains('active');
-    
-    privacySettings.statusVisible = isVisible;
-    savePrivacySettings();
-    
-    showInstantNotification(
-        isVisible ? 
-        '💬 Estado personal visible para otros' : 
-        '🤐 Estado personal oculto', 
-        'friend-request'
-    );
-}
-
-function toggleLastSeenVisibility(toggle) {
-    toggle.classList.toggle('active');
-    const isVisible = toggle.classList.contains('active');
-    
-    privacySettings.lastSeenVisible = isVisible;
-    savePrivacySettings();
-    
-    showInstantNotification(
-        isVisible ? 
-        '⏰ Última conexión visible para otros' : 
-        '👻 Última conexión oculta', 
-        'friend-request'
-    );
-}
-
-function toggleOnlineStatusVisibility(toggle) {
-    toggle.classList.toggle('active');
-    const isVisible = toggle.classList.contains('active');
-    
-    privacySettings.onlineStatusVisible = isVisible;
-    savePrivacySettings();
-    
-    showInstantNotification(
-        isVisible ? 
-        '🟢 Estado en línea visible' : 
-        '⚫ Aparecerás como desconectado', 
-        'friend-request'
-    );
-}
-
-function toggleContactsOnly(toggle) {
-    toggle.classList.toggle('active');
-    const isEnabled = toggle.classList.contains('active');
-    
-    // Esta función se puede implementar más adelante
-    showInstantNotification(
-        isEnabled ? 
-        '🔒 Solo contactos pueden escribirte' : 
-        '🌍 Cualquiera puede escribirte', 
-        'friend-request'
-    );
-}
-
-// Función para actualizar visibilidad de avatar en tiempo real
-function updateAvatarVisibility() {
-    if (!currentUser) return;
-    
-    const avatarElements = document.querySelectorAll('img[src*="api.dicebear"], .avatar img, .profile-avatar');
-    
-    avatarElements.forEach(img => {
-        if (privacySettings.profilePhotoVisible) {
-            img.style.opacity = '1';
-            img.style.filter = 'none';
-        } else {
-            // Mostrar avatar genérico o placeholder
-            const placeholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNjY2MiLz4KPHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBzdHlsZT0idHJhbnNmb3JtOiB0cmFuc2xhdGUoNTAlLCA1MCUpOyI+CjxwYXRoIGQ9Ik0xMCA5QzExLjY1NjkgOSAxMyA3LjY1NjkgMTMgNkMxMyA0LjM0MzEgMTEuNjU2OSAzIDEwIDNDOC4zNDMxNSAzIDcgNC4zNDMxIDcgNkM3IDcuNjU2OSA4LjM0MzE1IDkgMTAgOVoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0xMCAxMUM3IDExIDQgMTMgNCAxNlYxN0gxNlYxNkMxNiAxMyAxMyAxMSAxMCAxMVoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo8L3N2Zz4K';
-            
-            if (!img.src.includes('data:image/svg+xml')) {
-                img.dataset.originalSrc = img.src;
-                img.src = placeholder;
-            }
-        }
-    });
-}
-
-// Funciones adicionales para configuraciones de seguridad
-function showBlockedUsers() {
-    showFullScreenMessage('🚫 Usuarios Bloqueados', 
-        'No tienes usuarios bloqueados actualmente. Los usuarios bloqueados aparecerán aquí.', 
-        'info');
-}
-
-function showSecurityLog() {
-    showFullScreenMessage('🛡️ Registro de Seguridad', 
-        'Último acceso: Ahora - Dispositivo actual\nUbicación: España\nDispositivo: Navegador web', 
-        'info');
-}
-
-function showDataSettings() {
-    showFullScreenMessage('📊 Mis Datos', 
-        'Puedes exportar todos tus datos o solicitar la eliminación de tu cuenta. Estos cambios son permanentes.', 
-        'warning');
-}
-
-function showStorageSettings() {
-    // Crear pantalla completa de gestión de almacenamiento
-    const storageScreen = document.createElement('div');
-    storageScreen.id = 'storage-settings-screen';
-    storageScreen.className = 'screen active';
-
-    const storageInfo = storageManager.getStorageInfo();
-    const images = storageManager.getFilesByType('image');
-    const usedPercentage = storageInfo.usedPercentage;
-    
-    let statusColor = '#00a854';
-    let statusText = 'Espacio disponible';
-    if (usedPercentage > 90) {
-        statusColor = '#e74c3c';
-        statusText = 'Espacio casi agotado';
-    } else if (usedPercentage > 70) {
-        statusColor = '#f39c12';
-        statusText = 'Espacio limitado';
-    }
-
-    storageScreen.innerHTML = `
-        <div class="storage-settings-container">
-            <div class="storage-header">
-                <button class="back-btn" onclick="closeStorageSettings()">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <h2>Gestión de Almacenamiento</h2>
-                <div class="storage-subtitle">Administra tus archivos y espacio</div>
-            </div>
-
-            <div class="storage-content">
-                <!-- Resumen de almacenamiento -->
-                <div class="storage-overview">
-                    <div class="storage-circle">
-                        <div class="circle-progress" style="--progress: ${usedPercentage}%; --color: ${statusColor};">
-                            <div class="circle-inner">
-                                <div class="usage-percentage">${Math.round(usedPercentage)}%</div>
-                                <div class="usage-text">usado</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="storage-details">
-                        <div class="storage-status" style="color: ${statusColor};">
-                            <i class="fas fa-info-circle"></i>
-                            <span>${statusText}</span>
-                        </div>
-                        <div class="storage-numbers">
-                            <div class="storage-item">
-                                <span class="label">Usado:</span>
-                                <span class="value">${storageManager.formatFileSize(storageInfo.usedSpace)}</span>
-                            </div>
-                            <div class="storage-item">
-                                <span class="label">Disponible:</span>
-                                <span class="value">${storageManager.formatFileSize(storageInfo.freeSpace)}</span>
-                            </div>
-                            <div class="storage-item">
-                                <span class="label">Total:</span>
-                                <span class="value">${storageManager.formatFileSize(storageInfo.totalSpace)}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Acciones rápidas -->
-                <div class="storage-actions">
-                    <button class="storage-action-btn" onclick="cleanupOldFiles()">
-                        <i class="fas fa-broom"></i>
-                        <div>
-                            <div class="action-title">Limpiar Archivos Antiguos</div>
-                            <div class="action-desc">Eliminar archivos de más de 30 días</div>
-                        </div>
-                    </button>
-                    <button class="storage-action-btn" onclick="clearImageCache()">
-                        <i class="fas fa-images"></i>
-                        <div>
-                            <div class="action-title">Limpiar Caché de Imágenes</div>
-                            <div class="action-desc">${images.length} imágenes almacenadas</div>
-                        </div>
-                    </button>
-                </div>
-
-                <!-- Lista de archivos -->
-                <div class="files-section">
-                    <div class="section-header">
-                        <h3>Archivos Recientes</h3>
-                        <span class="file-count">${storageInfo.fileCount} archivos</span>
-                    </div>
-                    
-                    <div class="files-list" id="storage-files-list">
-                        ${storageInfo.files.length > 0 ? 
-                            storageInfo.files.slice(-10).reverse().map(file => `
-                                <div class="file-item">
-                                    <div class="file-icon">
-                                        <i class="fas fa-${file.type.startsWith('image') ? 'image' : 'file'}"></i>
-                                    </div>
-                                    <div class="file-info">
-                                        <div class="file-name">${file.name}</div>
-                                        <div class="file-details">
-                                            ${storageManager.formatFileSize(file.size)} • ${new Date(file.uploadedAt).toLocaleDateString()}
-                                        </div>
-                                    </div>
-                                    <button class="file-delete-btn" onclick="deleteStorageFile('${file.id}')">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </div>
-                            `).join('') : 
-                            '<div class="empty-files">No hay archivos almacenados</div>'
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    // Ocultar pantalla actual
-    const currentScreenElement = document.querySelector('.screen.active');
-    if (currentScreenElement && currentScreenElement !== storageScreen) {
-        currentScreenElement.classList.remove('active');
-    }
-
-    document.body.appendChild(storageScreen);
-    
-    // Configurar actualización en tiempo real
-    const updateStorageDisplay = (info) => {
-        const filesList = document.getElementById('storage-files-list');
-        if (filesList && info.files.length > 0) {
-            filesList.innerHTML = info.files.slice(-10).reverse().map(file => `
-                <div class="file-item">
-                    <div class="file-icon">
-                        <i class="fas fa-${file.type.startsWith('image') ? 'image' : 'file'}"></i>
-                    </div>
-                    <div class="file-info">
-                        <div class="file-name">${file.name}</div>
-                        <div class="file-details">
-                            ${storageManager.formatFileSize(file.size)} • ${new Date(file.uploadedAt).toLocaleDateString()}
-                        </div>
-                    </div>
-                    <button class="file-delete-btn" onclick="deleteStorageFile('${file.id}')">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </div>
-            `).join('');
-        }
-    };
-    
-    storageManager.addListener(updateStorageDisplay);
-}
-
-function showAbout() {
-    showFullScreenMessage('ℹ️ Acerca de UberChat', 
-        'UberChat v1.0.0 - Aplicación de mensajería global con traducción automática. Desarrollado con tecnologías web modernas.', 
-        'info');
-}
-
-function showHelp() {
-    showFullScreenMessage('❓ Ayuda y Soporte', 
-        'Si tienes problemas o preguntas, puedes contactarnos a través del email: soporte@uberchat.com', 
-        'info');
-}
-
-function logout() {
-    if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-        if (currentUser) {
-            updateUserStatus('offline');
-
-            // Limpiar sesión activa
-            if (sessionManager.currentSessionId) {
-                database.ref(`activeSessions/${sessionManager.currentSessionId}`).remove();
-            }
-
-            // Limpiar intervalos y listeners
-            if (sessionManager.activityInterval) {
-                clearInterval(sessionManager.activityInterval);
-            }
-
-            if (sessionManager.loginAttemptListener) {
-                sessionManager.loginAttemptListener.off();
-                sessionManager.loginAttemptListener = null;
-            }
-        }
-
-        firebase.auth().signOut()
-            .then(() => {
-                console.log('Sesión cerrada');
-                currentUser = null;
-                currentPhoneNumber = null;
-                confirmationResult = null;
-
-                // Resetear session manager
-                sessionManager = {
-                    currentSessionId: null,
-                    deviceInfo: null,
-                    loginAttemptListener: null,
-                    pendingApproval: null,
-                    blockedUntil: null
-                };
-
-                // Limpiar listeners
-                cleanupChatListeners();
-                if (contactsListener) {
-                    contactsListener.off();
-                    contactsListener = null;
-                }
-
-                // Volver a la pantalla de intro
-                switchScreen('intro');
-                showSuccessMessage('✅ Sesión cerrada correctamente');
-            })
-            .catch(error => {
-                console.error('Error cerrando sesión:', error);
-                showErrorMessage('Error cerrando sesión');
-            });
-    }
-}
-
-// Función para limpiar datos antiguos (optimización de almacenamiento)
-function cleanupOldData() {
-    const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
-
-    // Limpiar mensajes antiguos (más de 30 días)
-    database.ref('chats').once('value', snapshot => {
-        const chats = snapshot.val() || {};
-
-        Object.keys(chats).forEach(chatId => {
-            const messages = chats[chatId].messages || {};
-
-            Object.keys(messages).forEach(messageId => {
-                if (messages[messageId].timestamp < thirtyDaysAgo) {
-                    database.ref(`chats/${chatId}/messages/${messageId}`).remove();
-                }
-            });
-        });
-    });
-}
-
-// Pantalla de Chat
-function showAddContact() {
-    document.getElementById('add-contact-modal').classList.add('show');
-}
-
-function hideAddContact() {
-    document.getElementById('add-contact-modal').classList.remove('show');
-}
-
-// Funciones para integración con redes sociales
-function connectWhatsApp() {
-    const btn = document.getElementById('whatsapp-btn');
-    const status = document.getElementById('whatsapp-status');
-    
-    if (socialConnections.whatsapp.connected) {
-        // Desconectar WhatsApp
-        socialConnections.whatsapp.connected = false;
-        socialConnections.whatsapp.contacts = [];
-        
-        btn.innerHTML = '<i class="fas fa-link"></i> Conectar';
-        btn.classList.remove('connected');
-        status.textContent = 'No conectado';
-        
-        showInstantNotification('WhatsApp desconectado', 'friend-request');
-        return;
-    }
-    
-    // Mostrar proceso de conexión
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...';
-    btn.disabled = true;
-    
-    // Simular proceso de autorización de WhatsApp
-    setTimeout(() => {
-        // Simular éxito en la conexión
-        socialConnections.whatsapp.connected = true;
-        
-        // Generar contactos simulados de WhatsApp
-        const mockWhatsAppContacts = [
-            { name: 'María García', phone: '+34612345678', platform: 'WhatsApp' },
-            { name: 'Carlos López', phone: '+34687654321', platform: 'WhatsApp' },
-            { name: 'Ana Martínez', phone: '+34655444333', platform: 'WhatsApp' },
-            { name: 'David Rodríguez', phone: '+34699888777', platform: 'WhatsApp' }
-        ];
-        
-        socialConnections.whatsapp.contacts = mockWhatsAppContacts;
-        
-        // Actualizar UI
-        btn.innerHTML = '<i class="fas fa-check"></i> Conectado';
-        btn.classList.add('connected');
-        btn.disabled = false;
-        status.textContent = `${mockWhatsAppContacts.length} contactos encontrados`;
-        
-        // Mostrar resultados
-        showSyncResults(mockWhatsAppContacts);
-        
-        showInstantNotification(`✅ WhatsApp conectado - ${mockWhatsAppContacts.length} contactos encontrados`, 'friend-request');
-        
-    }, 2000);
-}
-
-function connectFacebook() {
-    const btn = document.getElementById('facebook-btn');
-    const status = document.getElementById('facebook-status');
-    
-    if (socialConnections.facebook.connected) {
-        // Desconectar Facebook
-        socialConnections.facebook.connected = false;
-        socialConnections.facebook.contacts = [];
-        
-        btn.innerHTML = '<i class="fas fa-link"></i> Conectar';
-        btn.classList.remove('connected');
-        status.textContent = 'No conectado';
-        
-        showInstantNotification('Facebook desconectado', 'friend-request');
-        return;
-    }
-    
-    // Mostrar proceso de conexión
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...';
-    btn.disabled = true;
-    
-    // Simular proceso de autorización de Facebook
-    setTimeout(() => {
-        // Simular éxito en la conexión
-        socialConnections.facebook.connected = true;
-        
-        // Generar contactos simulados de Facebook
-        const mockFacebookContacts = [
-            { name: 'Laura Fernández', phone: '+34611222333', platform: 'Facebook' },
-            { name: 'Miguel Santos', phone: '+34622333444', platform: 'Facebook' },
-            { name: 'Elena Morales', phone: '+34633444555', platform: 'Facebook' },
-            { name: 'Javier Ruiz', phone: '+34644555666', platform: 'Facebook' },
-            { name: 'Isabel Jiménez', phone: '+34655666777', platform: 'Facebook' }
-        ];
-        
-        socialConnections.facebook.contacts = mockFacebookContacts;
-        
-        // Actualizar UI
-        btn.innerHTML = '<i class="fas fa-check"></i> Conectado';
-        btn.classList.add('connected');
-        btn.disabled = false;
-        status.textContent = `${mockFacebookContacts.length} contactos encontrados`;
-        
-        // Mostrar resultados
-        showSyncResults(mockFacebookContacts);
-        
-        showInstantNotification(`✅ Facebook conectado - ${mockFacebookContacts.length} contactos encontrados`, 'friend-request');
-        
-    }, 2500);
-}
-
-function syncPhoneContacts() {
-    const btn = document.getElementById('contacts-btn');
-    const status = document.getElementById('contacts-status');
-    
-    if (socialConnections.phoneContacts.synced) {
-        // Dessincronizar contactos
-        socialConnections.phoneContacts.synced = false;
-        socialConnections.phoneContacts.contacts = [];
-        
-        btn.innerHTML = '<i class="fas fa-sync"></i> Sincronizar';
-        btn.classList.remove('connected');
-        status.textContent = 'No sincronizado';
-        
-        showInstantNotification('Contactos del dispositivo dessincronizados', 'friend-request');
-        return;
-    }
-    
-    // Mostrar proceso de sincronización
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sincronizando...';
-    btn.disabled = true;
-    
-    // Simular acceso a contactos del dispositivo
-    setTimeout(() => {
-        // Simular éxito en la sincronización
-        socialConnections.phoneContacts.synced = true;
-        
-        // Generar contactos simulados del dispositivo
-        const mockPhoneContacts = [
-            { name: 'Roberto Díaz', phone: '+34666777888', platform: 'Contactos' },
-            { name: 'Carmen Vega', phone: '+34677888999', platform: 'Contactos' },
-            { name: 'Francisco Torres', phone: '+34688999000', platform: 'Contactos' },
-            { name: 'Lucía Herrera', phone: '+34699000111', platform: 'Contactos' },
-            { name: 'Andrés Molina', phone: '+34600111222', platform: 'Contactos' },
-            { name: 'Silvia Castro', phone: '+34611222333', platform: 'Contactos' }
-        ];
-        
-        socialConnections.phoneContacts.contacts = mockPhoneContacts;
-        
-        // Actualizar UI
-        btn.innerHTML = '<i class="fas fa-check"></i> Sincronizado';
-        btn.classList.add('connected');
-        btn.disabled = false;
-        status.textContent = `${mockPhoneContacts.length} contactos sincronizados`;
-        
-        // Mostrar resultados
-        showSyncResults(mockPhoneContacts);
-        
-        showInstantNotification(`✅ Contactos sincronizados - ${mockPhoneContacts.length} contactos encontrados`, 'friend-request');
-        
-    }, 1500);
-}
-
-function showSyncResults(contacts) {
-    const resultsContainer = document.getElementById('sync-results');
-    const foundContactsContainer = document.getElementById('found-contacts');
-    
-    // Limpiar resultados anteriores
-    foundContactsContainer.innerHTML = '';
-    
-    if (contacts.length > 0) {
-        contacts.forEach(contact => {
-            const contactItem = document.createElement('div');
-            contactItem.className = 'found-contact-item';
-            contactItem.innerHTML = `
-                <div class="found-contact-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="found-contact-info">
-                    <div class="found-contact-name">${contact.name}</div>
-                    <div class="found-contact-platform">
-                        ${contact.platform} • ${contact.phone}
-                    </div>
-                </div>
-                <button class="add-contact-btn" onclick="addSocialContact('${contact.phone}', '${contact.name}')">
-                    <i class="fas fa-plus"></i>
-                    Agregar
-                </button>
-            `;
-            foundContactsContainer.appendChild(contactItem);
-        });
-        
-        resultsContainer.style.display = 'block';
-        
-        // Hacer scroll hacia los resultados
-        setTimeout(() => {
-            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 100);
-    }
-}
-
-function addSocialContact(phone, name) {
-    console.log(`Agregando contacto social: ${name} (${phone})`);
-    
-    // Buscar usuario en Firebase por número de teléfono
-    const phoneKey = phone.replace(/\D/g, '');
-    database.ref('phoneNumbers/' + phoneKey).once('value')
-        .then(phoneSnapshot => {
-            if (phoneSnapshot.exists()) {
-                const phoneData = phoneSnapshot.val();
-                const userId = phoneData.userId;
-                
-                // Obtener datos completos del usuario
-                return database.ref('users/' + userId).once('value');
-            } else {
-                throw new Error('Usuario no encontrado en UberChat');
-            }
-        })
-        .then(snapshot => {
-            if (snapshot.val()) {
-                const userId = snapshot.key;
-                const user = snapshot.val();
-                user.uid = userId;
-                
-                // Verificar si ya son contactos
-                return database.ref(`contacts/${currentUser.uid}/${userId}`).once('value')
-                    .then(contactSnapshot => {
-                        if (contactSnapshot.exists()) {
-                            showInstantNotification(`${name} ya está en tu lista de contactos`, 'friend-request');
-                        } else {
-                            // Enviar solicitud de amistad
-                            sendFriendRequest(userId, user.phoneNumber);
-                            showInstantNotification(`Solicitud enviada a ${name}`, 'friend-request');
-                        }
-                    });
-            } else {
-                throw new Error('Datos de usuario no válidos');
-            }
-        })
-        .catch(error => {
-            console.error('Error agregando contacto social:', error);
-            showInstantNotification(`${name} no está registrado en UberChat`, 'friend-request');
-        });
-}
-
-// Funciones para el selector de país de contactos
-function openContactCountryModal() {
-    const modal = document.getElementById('contact-country-modal');
-    const btn = document.getElementById('contact-country-selector');
-    
-    // Llenar la lista de países
-    loadContactCountriesList();
-    
-    // Mostrar modal
-    modal.style.display = 'flex';
-    btn.classList.add('active');
-    
-    setTimeout(() => {
-        modal.classList.add('show');
-        const searchInput = document.getElementById('contact-country-search');
-        if (searchInput) {
-            searchInput.focus();
-        }
-    }, 10);
-}
-
-function closeContactCountryModal() {
-    const modal = document.getElementById('contact-country-modal');
-    const btn = document.getElementById('contact-country-selector');
-    
-    modal.classList.remove('show');
-    btn.classList.remove('active');
-    
-    setTimeout(() => {
-        modal.style.display = 'none';
-    }, 300);
-    
-    // Limpiar búsqueda
-    const searchInput = document.getElementById('contact-country-search');
-    if (searchInput) {
-        searchInput.value = '';
-        filterContactCountries();
-    }
-}
-
-function loadContactCountriesList() {
-    const countriesList = document.getElementById('contact-countries-list');
-    countriesList.innerHTML = '';
-    
-    // Países populares primero
-    const popularCountries = countries.filter(country => country.popular);
-    const otherCountries = countries.filter(country => !country.popular);
-    
-    if (popularCountries.length > 0) {
-        const popularHeader = document.createElement('div');
-        popularHeader.innerHTML = `
-            <div style="padding: 0.75rem 2rem; background: var(--surface); font-weight: 600; font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
-                Países populares
-            </div>
-        `;
-        countriesList.appendChild(popularHeader);
-        
-        popularCountries.forEach(country => {
-            countriesList.appendChild(createContactCountryItem(country));
-        });
-        
-        const separator = document.createElement('div');
-        separator.style.cssText = 'height: 8px; background: var(--surface); margin: 0.5rem 0;';
-        countriesList.appendChild(separator);
-    }
-    
-    // Todos los países ordenados
-    const allCountriesSorted = [...countries].sort((a, b) => a.name.localeCompare(b.name));
-    allCountriesSorted.forEach(country => {
-        countriesList.appendChild(createContactCountryItem(country));
-    });
-}
-
-function createContactCountryItem(country) {
-    const item = document.createElement('div');
-    item.className = 'country-item';
-    item.dataset.countryName = country.name.toLowerCase();
-    item.dataset.countryCode = country.code;
-    
-    if (selectedContactCountry.code === country.code && selectedContactCountry.name === country.name) {
-        item.classList.add('selected');
-    }
-    
-    item.innerHTML = `
-        <div class="country-item-flag">${country.flag}</div>
-        <div class="country-item-info">
-            <div class="country-item-name">${country.name}</div>
-            <div class="country-item-code">${country.code}</div>
-        </div>
-    `;
-    
-    item.onclick = () => selectContactCountry(country);
-    
-    return item;
-}
-
-function selectContactCountry(country) {
-    selectedContactCountry = country;
-    
-    // Actualizar UI del selector
-    const flagElement = document.querySelector('#contact-country-selector .country-flag');
-    const codeElement = document.querySelector('#contact-country-selector .country-code');
-    
-    if (flagElement && codeElement) {
-        flagElement.textContent = country.flag;
-        codeElement.textContent = country.code;
-    }
-    
-    // Cerrar modal
-    closeContactCountryModal();
-    
-    // Enfocar en el input de teléfono
-    setTimeout(() => {
-        document.getElementById('contact-phone').focus();
-    }, 300);
-    
-    console.log('País de contacto seleccionado:', country);
-}
-
-function filterContactCountries() {
-    const searchTerm = document.getElementById('contact-country-search').value.toLowerCase();
-    const countryItems = document.querySelectorAll('#contact-countries-list .country-item');
-    let hasResults = false;
-    
-    countryItems.forEach(item => {
-        const countryName = item.dataset.countryName;
-        const countryCode = item.dataset.countryCode.toLowerCase();
-        
-        if (countryName.includes(searchTerm) || countryCode.includes(searchTerm)) {
-            item.classList.remove('hidden');
-            hasResults = true;
-        } else {
-            item.classList.add('hidden');
-        }
-    });
-    
-    // Mostrar mensaje de no resultados
-    const existingNoResults = document.querySelector('#contact-countries-list .no-results');
-    if (existingNoResults) {
-        existingNoResults.remove();
-    }
-    
-    if (!hasResults && searchTerm.length > 0) {
-        const noResults = document.createElement('div');
-        noResults.className = 'no-results';
-        noResults.innerHTML = `
-            <i class="fas fa-search"></i>
-            <h4>No se encontraron países</h4>
-            <p>Intenta con otro término de búsqueda</p>
-        `;
-        document.getElementById('contact-countries-list').appendChild(noResults);
-    }
-}
-
-// Variables para el sistema de solicitudes
-let friendRequestsListener = null;
-let pendingRequests = new Map();
-
-// Variables para integración de redes sociales
-let socialConnections = {
-    whatsapp: { connected: false, contacts: [] },
-    facebook: { connected: false, contacts: [] },
-    phoneContacts: { synced: false, contacts: [] }
-};
-
-// Variable para selector de país de contactos
-let selectedContactCountry = { name: 'España', code: '+34', flag: '🇪🇸' };
-
-// Función para agregar contacto
-function addContact() {
-    const phone = document.getElementById('contact-phone').value.trim();
-
-    if (!phone) {
-        showErrorMessage('Por favor ingresa un número de teléfono');
-        return;
-    }
-
-    // Normalizar número de teléfono usando el país seleccionado
-    const countryCode = selectedContactCountry.code;
-    const cleanPhone = phone.replace(/\D/g, '');
-    const fullNumber = cleanPhone.startsWith(countryCode.replace('+', '')) ? 
-        '+' + cleanPhone : countryCode + cleanPhone;
-
-    console.log('Buscando contacto:', fullNumber);
-
-    // Mostrar indicador de búsqueda
-    const addBtn = document.getElementById('manual-search-btn');
-    const originalText = addBtn.innerHTML;
-    addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
-    addBtn.disabled = true;
-
-    // Buscar primero en el índice de números de teléfono
-    const phoneKey = fullNumber.replace(/\D/g, '');
-    database.ref('phoneNumbers/' + phoneKey).once('value')
-        .then(phoneSnapshot => {
-            if (phoneSnapshot.exists()) {
-                const phoneData = phoneSnapshot.val();
-                const userId = phoneData.userId;
-                
-                // Obtener datos completos del usuario
-                return database.ref('users/' + userId).once('value');
-            } else {
-                // Fallback: buscar en usuarios directamente
-                return database.ref('users').orderByChild('phoneNumber').equalTo(fullNumber).once('value');
-            }
-        })
-        .then(snapshot => {
-            addBtn.innerHTML = originalText;
-            addBtn.disabled = false;
-
-            let user = null;
-            let userId = null;
-
-            if (snapshot.val()) {
-                if (snapshot.key) {
-                    // Resultado directo del usuario
-                    user = snapshot.val();
-                    userId = snapshot.key;
-                } else {
-                    // Resultado de búsqueda por número
-                    const users = snapshot.val();
-                    userId = Object.keys(users)[0];
-                    user = users[userId];
-                }
-
-                console.log('Usuario encontrado:', user);
-
-                if (userId === currentUser.uid) {
-                    showErrorMessage('No puedes agregarte a ti mismo');
-                    return;
-                }
-
-                // Verificar si ya son contactos
-                database.ref(`contacts/${currentUser.uid}/${userId}`).once('value')
-                    .then(contactSnapshot => {
-                        if (contactSnapshot.exists()) {
-                            hideAddContact();
-                            showErrorMessage('Este usuario ya está en tu lista de contactos');
-                        } else {
-                            // Asegurar que el usuario tiene UID
-                            user.uid = userId;
-                            // Mostrar tarjeta del usuario encontrado
-                            showUserFoundCard(user);
-                        }
-                    });
-            } else {
-                showErrorMessage(`Usuario con número ${fullNumber} no encontrado en la plataforma. Debe registrarse primero.`);
-            }
-        })
-        .catch(error => {
-            console.error('Error buscando contacto:', error);
-            addBtn.innerHTML = originalText;
-            addBtn.disabled = false;
-            showErrorMessage('Error buscando contacto. Verifica tu conexión.');
-        });
-}
-
-// Función para mostrar tarjeta del usuario encontrado
-function showUserFoundCard(user) {
-    hideAddContact();
-
-    const avatarSeed = user.phoneNumber.replace(/\D/g, '');
-    const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`;
-
-    const userCard = document.createElement('div');
-    userCard.className = 'user-found-modal';
-    userCard.innerHTML = `
-        <div class="user-found-content">
-            <div class="user-found-header">
-                <h2>📱 Usuario Encontrado</h2>
-                <button class="close-card-btn" onclick="closeUserFoundCard()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-
-            <div class="user-card">
-                <div class="user-avatar">
-                    <img src="${avatarUrl}" alt="${user.phoneNumber}">
-                    <div class="status-indicator ${user.status === 'online' ? 'online' : 'offline'}"></div>
-                </div>
-                <div class="user-info">
-                    <h3>${user.phoneNumber}</h3>
-                    <p class="user-status">${user.status === 'online' ? '🟢 En línea' : '⚫ Desconectado'}</p>
-                    <p class="user-joined">Miembro desde ${new Date(user.createdAt).toLocaleDateString()}</p>
-                </div>
-            </div>
-
-            <div class="user-actions">
-                <button class="secondary-btn" onclick="closeUserFoundCard()">
-                    <i class="fas fa-times"></i>
-                    Cancelar
-                </button>
-                <button class="primary-btn" onclick="sendFriendRequest('${user.uid}', '${user.phoneNumber}')">
-                    <i class="fas fa-user-plus"></i>
-                    Enviar Solicitud
-                </button>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(userCard);
-    window.currentUserFoundCard = userCard;
-}
-
-// Función para cerrar tarjeta de usuario encontrado
-function closeUserFoundCard() {
-    if (window.currentUserFoundCard) {
-        document.body.removeChild(window.currentUserFoundCard);
-        window.currentUserFoundCard = null;
-    }
-}
-
-// Función para enviar solicitud de amistad
-function sendFriendRequest(targetUserId, targetUserPhone) {
-    const requestId = Date.now().toString();
-    const requestData = {
-        id: requestId,
-        from: currentUser.uid,
-        fromPhone: currentUser.phoneNumber,
-        fromAvatar: currentUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.phoneNumber}`,
-        to: targetUserId,
-        toPhone: targetUserPhone,
-        timestamp: firebase.database.ServerValue.TIMESTAMP,
-        status: 'pending'
-    };
-
-    // Cerrar tarjeta de usuario
-    closeUserFoundCard();
-
-    console.log('📤 Enviando solicitud de amistad con múltiples canales:', requestData);
-
-    // Mostrar loading
-    showInstantNotification('📤 Enviando solicitud...', 'friend-request');
-
-    // 1. Enviar solicitud principal
-    const requestPromise = database.ref(`friendRequests/${targetUserId}/${requestId}`).set(requestData);
-    
-    // 2. Crear notificación directa con timestamp del servidor
-    const notificationData = {
-        type: 'friend_request',
-        from: currentUser.uid,
-        fromPhone: currentUser.phoneNumber,
-        fromAvatar: currentUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.phoneNumber}`,
-        requestId: requestId,
-        timestamp: firebase.database.ServerValue.TIMESTAMP,
-        read: false,
-        urgent: true
-    };
-    const notificationPromise = database.ref(`notifications/${targetUserId}`).push(notificationData);
-    
-    // 3. Activar flag urgente
-    const flagPromise = database.ref(`users/${targetUserId}/pendingFriendRequest`).set({
-        type: 'friend_request',
-        from: currentUser.phoneNumber,
-        fromUser: currentUser.uid,
-        timestamp: firebase.database.ServerValue.TIMESTAMP,
-        requestId: requestId,
-        urgent: true
-    });
-
-    // 4. Crear registro global
-    const globalPromise = database.ref(`globalFriendRequests/${requestId}`).set({
-        targetUser: targetUserId,
-        fromUser: currentUser.uid,
-        fromPhone: currentUser.phoneNumber,
-        timestamp: firebase.database.ServerValue.TIMESTAMP,
-        status: 'pending'
-    });
-
-    // 5. Actualizar último request en perfil del destinatario
-    const lastRequestPromise = database.ref(`users/${targetUserId}/lastFriendRequest`).set({
-        requestId: requestId,
-        from: currentUser.uid,
-        fromPhone: currentUser.phoneNumber,
-        timestamp: firebase.database.ServerValue.TIMESTAMP,
-        trigger: Date.now()
-    });
-
-    Promise.all([requestPromise, notificationPromise, flagPromise, globalPromise, lastRequestPromise])
-        .then(() => {
-            console.log('✅ Solicitud enviada por múltiples canales');
-            
-            // Verificar estado del usuario destinatario
-            return database.ref(`users/${targetUserId}/status`).once('value');
-        })
-        .then((statusSnapshot) => {
-            const userStatus = statusSnapshot.val();
-            console.log(`📊 Estado del usuario destinatario: ${userStatus}`);
-            
-            if (userStatus === 'online') {
-                // Usuario online - enviar pulse adicional
-                database.ref(`users/${targetUserId}/alertPulse`).set({
-                    type: 'friend_request',
-                    requestId: requestId,
-                    from: currentUser.phoneNumber,
-                    timestamp: Date.now()
-                });
-                console.log('🟢 Usuario online - enviado pulse adicional');
-                showInstantNotification(`✅ Solicitud enviada a ${targetUserPhone} (usuario en línea)`, 'friend-request');
-            } else {
-                console.log('🔴 Usuario offline - recibirá al conectarse');
-                showInstantNotification(`✅ Solicitud enviada a ${targetUserPhone} (recibirá al conectarse)`, 'friend-request');
-            }
-            
-        })
-        .catch(error => {
-            console.error('❌ Error enviando solicitud:', error);
-            showErrorMessage(`Error enviando solicitud: ${error.message}`);
-        });
-}
-
-// Funciones de gestión de almacenamiento
-
-function closeStorageSettings() {
-    const storageScreen = document.getElementById('storage-settings-screen');
-    if (storageScreen) {
-        document.body.removeChild(storageScreen);
-        switchScreen('settings');
-    }
-}
-
-function cleanupOldFiles() {
-    const result = storageManager.cleanupOldFiles(30);
-    if (result.cleanedCount === 0) {
-        showInstantNotification('🧹 No hay archivos antiguos para limpiar', 'friend-request');
-    }
-}
-
-function clearImageCache() {
-    const images = storageManager.getFilesByType('image');
-    let totalSize = 0;
-    
-    images.forEach(image => {
-        totalSize += image.size;
-        storageManager.removeFile(image.id);
-    });
-    
-    if (images.length > 0) {
-        showInstantNotification(`🗑️ ${images.length} imágenes eliminadas (${storageManager.formatFileSize(totalSize)} liberados)`, 'friend-request');
-    } else {
-        showInstantNotification('📷 No hay imágenes en caché para eliminar', 'friend-request');
-    }
-}
-
-function deleteStorageFile(fileId) {
-    if (confirm('¿Estás seguro de que quieres eliminar este archivo?')) {
-        storageManager.removeFile(fileId);
-    }
-}
-
-// Funciones para llamadas en tiempo real
-
-// Función para enviar solicitud de llamada
-function sendCallRequest(callType) {
-    if (!currentChatContact || !currentUser) return;
-
-    const callRequestId = Date.now().toString();
-    const callRequest = {
-        id: callRequestId,
-        type: callType,
-        from: currentUser.uid,
-        fromPhone: currentUser.phoneNumber,
-        fromName: currentUser.username || currentUser.phoneNumber,
-        fromAvatar: currentUser.avatar,
-        to: currentChatContact.uid,
-        toPhone: currentChatContact.phoneNumber,
-        timestamp: Date.now(),
-        status: 'calling'
-    };
-
-    console.log('Enviando solicitud de llamada en tiempo real:', callRequest);
-
-    // Guardar solicitud de llamada en Firebase
-    database.ref(`callRequests/${currentChatContact.uid}/${callRequestId}`).set(callRequest)
-        .then(() => {
-            console.log('Solicitud de llamada enviada a Firebase');
-            
-            // Crear notificación directa
-            const notificationData = {
-                type: 'incoming_call',
-                callType: callType,
-                from: currentUser.uid,
-                fromPhone: currentUser.phoneNumber,
-                fromName: currentUser.username || currentUser.phoneNumber,
-                fromAvatar: currentUser.avatar,
-                callRequestId: callRequestId,
-                timestamp: Date.now(),
-                read: false
-            };
-
-            // Enviar notificación y actualizar flag inmediatamente
-            const notificationPromise = database.ref(`notifications/${currentChatContact.uid}`).push(notificationData);
-            
-            // Actualizar flag de llamada entrante
-            const incomingCallPromise = database.ref(`users/${currentChatContact.uid}/incomingCall`).set({
-                type: callType,
-                from: currentUser.uid,
-                fromPhone: currentUser.phoneNumber,
-                fromName: currentUser.username || currentUser.phoneNumber,
-                fromAvatar: currentUser.avatar,
-                callRequestId: callRequestId,
-                timestamp: Date.now()
-            });
-            
-            // Asegurar que ambas operaciones se completen
-            Promise.all([notificationPromise, incomingCallPromise])
-                .then(() => {
-                    console.log('Notificación de llamada enviada exitosamente');
-                })
-                .catch(error => {
-                    console.error('Error enviando notificación de llamada:', error);
-                });
-
-        })
-        .catch(error => {
-            console.error('Error enviando solicitud de llamada:', error);
-            showErrorMessage('Error iniciando llamada. Intenta de nuevo.');
-        });
-}
-
-// Función para inicializar llamada en tiempo real
-function initiateRealTimeCall(callType) {
-    console.log('Iniciando llamada en tiempo real:', callType);
-    
-    // Mostrar estado de llamando
-    const statusElement = document.getElementById(callType === 'voice' ? 'call-status' : 'video-call-status');
-    statusElement.textContent = '📞 Llamando...';
-
-    // Reproducir sonido de llamada
-    playCallSound();
-
-    // Obtener acceso a medios
-    getRealTimeMediaAccess(callType)
-        .then(stream => {
-            localStream = stream;
-            console.log('Acceso a medios obtenido');
-            
-            // Para videollamadas, mostrar video local
-            if (callType === 'video') {
-                const localVideo = document.getElementById('local-video');
-                if (localVideo) {
-                    localVideo.srcObject = stream;
-                }
-            }
-
-            // Configurar WebRTC (simulado)
-            setupWebRTCConnection();
-            
-        })
-        .catch(error => {
-            console.error('Error obteniendo acceso a medios:', error);
-            showErrorMessage('Error accediendo al micrófono/cámara. Verifica los permisos.');
-        });
-}
-
-// Función para obtener acceso a medios en tiempo real
-function getRealTimeMediaAccess(callType) {
-    const constraints = {
-        audio: true,
-        video: callType === 'video'
-    };
-
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        return navigator.mediaDevices.getUserMedia(constraints);
-    } else {
-        // Fallback para navegadores más antiguos
-        return Promise.reject(new Error('getUserMedia no soportado'));
-    }
-}
-
-// Función para configurar conexión WebRTC
-function setupWebRTCConnection() {
-    const configuration = {
-        iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' }
-        ]
-    };
-
-    try {
-        peerConnection = new RTCPeerConnection(configuration);
-        
-        // Agregar stream local
-        if (localStream) {
-            localStream.getTracks().forEach(track => {
-                peerConnection.addTrack(track, localStream);
-            });
-        }
-
-        // Manejar stream remoto
-        peerConnection.ontrack = function(event) {
-            console.log('Stream remoto recibido');
-            remoteStream = event.streams[0];
-            
-            // Para videollamadas, mostrar video remoto
-            if (currentCallType === 'video') {
-                const remoteVideo = document.getElementById('remote-video');
-                if (remoteVideo) {
-                    remoteVideo.srcObject = remoteStream;
-                }
-            }
-        };
-
-        // Simular conexión exitosa después de 3 segundos
-        setTimeout(() => {
-            if (isCallActive) {
-                handleCallConnected();
-            }
-        }, 3000);
-
-        console.log('Conexión WebRTC configurada');
-        
-    } catch (error) {
-        console.error('Error configurando WebRTC:', error);
-        // Continuar con simulación si WebRTC falla
-        setTimeout(() => {
-            handleCallConnected();
-        }, 3000);
-    }
-}
-
-// Función para manejar llamada conectada
-function handleCallConnected() {
-    const statusElement = document.getElementById(currentCallType === 'voice' ? 'call-status' : 'video-call-status');
-    statusElement.textContent = '🟢 Conectado';
-    
-    isCallActive = true;
-    startCallTimer();
-    stopCallSound();
-
-    // Inicializar reconocimiento de voz
-    initializeSpeechRecognition();
-
-    console.log('Llamada conectada exitosamente');
-}
-
-// Función para configurar listener de solicitudes de llamada
-function setupCallRequestsListener() {
-    if (!currentUser || !currentUser.uid) {
-        console.error('No se puede configurar listener de llamadas: usuario no disponible');
-        return;
-    }
-
-    console.log('Configurando listener de llamadas para:', currentUser.uid);
-    
-    // Asegurar que Firebase esté conectado
-    database.ref('.info/connected').once('value', (snapshot) => {
-        if (snapshot.val() === true) {
-            console.log('Firebase conectado - configurando listeners de llamadas');
-        } else {
-            console.warn('Firebase no conectado - reintentando en 3 segundos');
-            setTimeout(setupCallRequestsListener, 3000);
-            return;
-        }
-    });
-
-    // Limpiar listener anterior
-    if (callRequestListener) {
-        callRequestListener.off();
-        callRequestListener = null;
-    }
-
-    // Configurar listener para llamadas entrantes
-    callRequestListener = database.ref(`callRequests/${currentUser.uid}`);
-    
-    callRequestListener.on('child_added', (snapshot) => {
-        const callRequest = snapshot.val();
-        const requestId = snapshot.key;
-        
-        console.log('Nueva llamada entrante detectada:', callRequest);
-        
-        if (callRequest && callRequest.status === 'calling') {
-            // Verificar que no sea una llamada antigua
-            const requestTime = callRequest.timestamp;
-            const now = Date.now();
-            const oneMinuteAgo = now - (60 * 1000);
-            
-            if (requestTime > oneMinuteAgo) {
-                // Mostrar notificación de llamada entrante
-                showIncomingCallNotification(callRequest, requestId);
-            }
-        }
-    });
-
-    // Listener para cambios en el perfil (llamadas entrantes)
-    database.ref(`users/${currentUser.uid}/incomingCall`).on('value', (snapshot) => {
-        const incomingCall = snapshot.val();
-        if (incomingCall) {
-            console.log('Llamada entrante detectada via perfil:', incomingCall);
-            
-            // Solo mostrar si es reciente (último minuto)
-            if (Date.now() - incomingCall.timestamp < 60000) {
-                showIncomingCallNotification(incomingCall, incomingCall.callRequestId);
-            }
-        }
-    });
-
-    console.log('Listener de llamadas configurado correctamente');
-}
-
-// Función para mostrar notificación de llamada entrante
-function showIncomingCallNotification(callRequest, requestId) {
-    // Verificar si ya hay una llamada activa
-    if (isCallActive || incomingCallModal) {
-        console.log('Ya hay una llamada activa, rechazando automáticamente');
-        rejectIncomingCall(requestId);
-        return;
-    }
-
-    isCallIncoming = true;
-    
-    // Reproducir sonido de llamada entrante
-    playIncomingCallSound();
-
-    // Crear modal de llamada entrante en pantalla completa
-    const callModal = document.createElement('div');
-    callModal.id = 'incoming-call-modal';
-    callModal.className = 'incoming-call-screen';
-
-    const callTypeIcon = callRequest.type === 'video' ? 'fas fa-video' : 'fas fa-phone';
-    const callTypeText = callRequest.type === 'video' ? 'Videollamada' : 'Llamada de voz';
-
-    callModal.innerHTML = `
-        <div class="incoming-call-container">
-            <div class="incoming-call-header">
-                <div class="call-type-indicator">
-                    <i class="${callTypeIcon}"></i>
-                    <span>${callTypeText} entrante</span>
-                </div>
-            </div>
-
-            <div class="incoming-call-content">
-                <div class="caller-avatar">
-                    <img src="${callRequest.fromAvatar}" alt="${callRequest.fromName}">
-                    <div class="call-pulse-animation">
-                        <div class="pulse-ring"></div>
-                        <div class="pulse-ring delay-1"></div>
-                        <div class="pulse-ring delay-2"></div>
-                    </div>
-                </div>
-
-                <div class="caller-info">
-                    <h2>${callRequest.fromName}</h2>
-                    <p>${callRequest.fromPhone}</p>
-                    <div class="call-time">
-                        ${new Date(callRequest.timestamp).toLocaleTimeString()}
-                    </div>
-                </div>
-
-                <div class="call-message">
-                    <p>Te está llamando ahora</p>
-                </div>
-            </div>
-
-            <div class="incoming-call-actions">
-                <button class="call-action-btn reject-btn" onclick="rejectIncomingCall('${requestId}')">
-                    <i class="fas fa-phone-slash"></i>
-                    <span>Rechazar</span>
-                </button>
-                <button class="call-action-btn accept-btn" onclick="acceptIncomingCall('${requestId}', '${callRequest.type}', ${JSON.stringify(callRequest).replace(/"/g, '&quot;')})">
-                    <i class="${callTypeIcon}"></i>
-                    <span>Contestar</span>
-                </button>
-            </div>
-        </div>
-    `;
-
-    // Ocultar pantalla actual
-    const currentScreenElement = document.querySelector('.screen.active');
-    if (currentScreenElement) {
-        currentScreenElement.classList.remove('active');
-    }
-
-    document.body.appendChild(callModal);
-    incomingCallModal = callModal;
-
-    // Auto-rechazar después de 30 segundos
-    setTimeout(() => {
-        if (incomingCallModal && isCallIncoming) {
-            rejectIncomingCall(requestId);
-        }
-    }, 30000);
-}
-
-// Función para aceptar llamada entrante
-function acceptIncomingCall(requestId, callType, callerData) {
-    console.log('Aceptando llamada entrante:', callType);
-    
-    // Detener sonido de llamada
-    stopIncomingCallSound();
-    
-    // Cerrar modal de llamada entrante
-    closeIncomingCallModal();
-    
-    // Configurar contacto actual
-    currentChatContact = {
-        uid: callerData.from,
-        name: callerData.fromName,
-        phoneNumber: callerData.fromPhone,
-        avatar: callerData.fromAvatar
-    };
-
-    currentCallType = callType;
-
-    // Actualizar estado de la solicitud
-    database.ref(`callRequests/${currentUser.uid}/${requestId}/status`).set('accepted');
-
-    // Configurar pantalla según tipo de llamada
-    if (callType === 'video') {
-        document.getElementById('video-contact-name').textContent = callerData.fromName;
-        document.getElementById('video-avatar').src = callerData.fromAvatar;
-        switchScreen('video-call');
-        initializeLocalVideo();
-    } else {
-        document.getElementById('call-contact-name').textContent = callerData.fromName;
-        document.getElementById('call-avatar-img').src = callerData.fromAvatar;
-        document.getElementById('user-lang').textContent = getLanguageName(userLanguage);
-        document.getElementById('contact-lang').textContent = getLanguageName('en');
-        switchScreen('voice-call');
-    }
-
-    // Inicializar medios para la llamada
-    getRealTimeMediaAccess(callType)
-        .then(stream => {
-            localStream = stream;
-            
-            if (callType === 'video') {
-                const localVideo = document.getElementById('local-video');
-                if (localVideo) {
-                    localVideo.srcObject = stream;
-                }
-            }
-
-            // Configurar WebRTC
-            setupWebRTCConnection();
-            
-            // Simular conexión inmediata
-            setTimeout(() => {
-                handleCallConnected();
-            }, 1000);
-            
-        })
-        .catch(error => {
-            console.error('Error accediendo a medios:', error);
-            // Continuar con audio/video simulado
-            setTimeout(() => {
-                handleCallConnected();
-            }, 1000);
-        });
-}
-
-// Función para rechazar llamada entrante
-function rejectIncomingCall(requestId) {
-    console.log('Rechazando llamada entrante');
-    
-    // Detener sonido de llamada
-    stopIncomingCallSound();
-    
-    // Cerrar modal
-    closeIncomingCallModal();
-    
-    // Actualizar estado de la solicitud
-    if (requestId) {
-        database.ref(`callRequests/${currentUser.uid}/${requestId}/status`).set('rejected');
-    }
-    
-    // Limpiar flag de llamada entrante
-    database.ref(`users/${currentUser.uid}/incomingCall`).remove();
-}
-
-// Función para cerrar modal de llamada entrante
-function closeIncomingCallModal() {
-    if (incomingCallModal) {
-        document.body.removeChild(incomingCallModal);
-        incomingCallModal = null;
-    }
-    
-    isCallIncoming = false;
-    
-    // Restaurar pantalla anterior
-    switchScreen(currentScreen);
-}
-
-// Función para reproducir sonido de llamada entrante
-function playIncomingCallSound() {
-    if (window.AudioContext || window.webkitAudioContext) {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        
-        // Crear patrón de timbre más intenso para llamadas entrantes
-        const playRing = () => {
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            // Patrón de timbre clásico
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.4);
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.8);
-            oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 1.2);
-            
-            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5);
-            
-            oscillator.start();
-            oscillator.stop(audioContext.currentTime + 1.5);
-        };
-        
-        // Reproducir timbre cada 3 segundos
-        callNotificationSound = setInterval(playRing, 3000);
-        playRing(); // Reproducir inmediatamente
-    }
-}
-
-// Función para detener sonido de llamada entrante
-function stopIncomingCallSound() {
-    if (callNotificationSound) {
-        clearInterval(callNotificationSound);
-        callNotificationSound = null;
-    }
-}
-
-// Función para configurar listener de solicitudes de amistad
-function setupFriendRequestsListener() {
-    if (!currentUser || !currentUser.uid) {
-        console.error('No se puede configurar listener: usuario no disponible');
-        return;
-    }
-
-    console.log('🔧 Configurando listener de solicitudes para:', currentUser.uid);
-
-    // Limpiar listeners anteriores
-    if (friendRequestsListener) {
-        friendRequestsListener.off();
-        friendRequestsListener = null;
-    }
-
-    // 1. Listener principal para solicitudes entrantes
-    try {
-        friendRequestsListener = database.ref(`friendRequests/${currentUser.uid}`);
-        
-        friendRequestsListener.on('child_added', (snapshot) => {
-            const request = snapshot.val();
-            const requestId = snapshot.key;
-            
-            console.log('🚨 Nueva solicitud detectada en tiempo real:', request);
-            
-            if (request && request.status === 'pending') {
-                console.log('✅ Mostrando solicitud inmediatamente');
-                
-                // Mostrar notificación instantánea
-                showInstantNotification(`📱 Nueva solicitud de ${request.fromPhone}`, 'friend-request');
-                
-                // Mostrar modal inmediatamente
-                showFriendRequestModal(request, requestId);
-            }
-        });
-
-        // 2. Listener para flag urgente de solicitudes pendientes
-        database.ref(`users/${currentUser.uid}/pendingFriendRequest`).on('value', (snapshot) => {
-            const pendingRequest = snapshot.val();
-            if (pendingRequest && pendingRequest.requestId && pendingRequest.urgent) {
-                console.log('🔥 Solicitud URGENTE detectada via flag:', pendingRequest);
-                
-                // Buscar la solicitud completa
-                database.ref(`friendRequests/${currentUser.uid}/${pendingRequest.requestId}`).once('value')
-                    .then(requestSnapshot => {
-                        if (requestSnapshot.exists()) {
-                            const request = requestSnapshot.val();
-                            if (request.status === 'pending') {
-                                showFriendRequestModal(request, pendingRequest.requestId);
-                            }
-                        }
-                    });
-            }
-        });
-
-        // 3. Listener para último friend request
-        database.ref(`users/${currentUser.uid}/lastFriendRequest`).on('value', (snapshot) => {
-            const lastRequest = snapshot.val();
-            if (lastRequest && lastRequest.requestId) {
-                console.log('🎯 Último friend request detectado:', lastRequest);
-                
-                // Buscar solicitud por ID
-                database.ref(`friendRequests/${currentUser.uid}/${lastRequest.requestId}`).once('value')
-                    .then(requestSnapshot => {
-                        if (requestSnapshot.exists()) {
-                            const request = requestSnapshot.val();
-                            if (request.status === 'pending') {
-                                showFriendRequestModal(request, lastRequest.requestId);
-                            }
-                        }
-                    });
-            }
-        });
-
-        // 4. Listener para pulsos de alerta
-        database.ref(`users/${currentUser.uid}/alertPulse`).on('value', (snapshot) => {
-            const pulse = snapshot.val();
-            if (pulse && pulse.type === 'friend_request') {
-                console.log('⚡ Pulse de solicitud de amistad recibido:', pulse);
-                showInstantNotification(`📱 Nueva solicitud de ${pulse.from}`, 'friend-request');
-                
-                // Buscar solicitud
-                database.ref(`friendRequests/${currentUser.uid}/${pulse.requestId}`).once('value')
-                    .then(requestSnapshot => {
-                        if (requestSnapshot.exists()) {
-                            const request = requestSnapshot.val();
-                            if (request.status === 'pending') {
-                                showFriendRequestModal(request, pulse.requestId);
-                            }
-                        }
-                    });
-            }
-        });
-
-        // 5. Listener global de respaldo
-        database.ref(`globalFriendRequests`).orderByChild('targetUser').equalTo(currentUser.uid).on('child_added', (snapshot) => {
-            const globalRequest = snapshot.val();
-            const requestId = snapshot.key;
-            
-            if (globalRequest && globalRequest.status === 'pending') {
-                console.log('🌍 Solicitud detectada via listener global:', globalRequest);
-                
-                database.ref(`friendRequests/${currentUser.uid}/${requestId}`).once('value')
-                    .then(requestSnapshot => {
-                        if (requestSnapshot.exists()) {
-                            const request = requestSnapshot.val();
-                            if (request.status === 'pending') {
-                                showFriendRequestModal(request, requestId);
-                            }
-                        }
-                    });
-            }
-        });
-
-        // Escuchar cambios en solicitudes existentes
-        friendRequestsListener.on('child_changed', (snapshot) => {
-            const request = snapshot.val();
-            const requestId = snapshot.key;
-            console.log('Solicitud actualizada:', request);
-            
-            if (request && request.status === 'accepted') {
-                console.log('✅ Solicitud aceptada detectada:', requestId);
-                showInstantNotification('✅ Tu solicitud fue aceptada', 'friend-request');
-            } else if (request && request.status === 'rejected') {
-                console.log('❌ Solicitud rechazada detectada:', requestId);
-                showInstantNotification('❌ Tu solicitud fue rechazada', 'friend-request');
-            }
-        });
-
-        console.log('✅ Listener de solicitudes configurado con múltiples canales');
-        
-    } catch (error) {
-        console.error('❌ Error configurando listener de solicitudes:', error);
-        // Reintentar después de 3 segundos
-        setTimeout(setupFriendRequestsListener, 3000);
-    }
-}
-
-// Función para mostrar solicitud de amistad en pantalla completa
-function showFriendRequestModal(request, requestId) {
-    // Verificar si ya hay una solicitud pendiente visible
-    if (document.getElementById('friend-request-screen')) {
-        return; // No mostrar múltiples modales
-    }
-
-    const avatarSeed = request.fromPhone.replace(/\D/g, '');
-    const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`;
-
-    const requestScreen = document.createElement('div');
-    requestScreen.id = 'friend-request-screen';
-    requestScreen.className = 'screen active';
-
-    requestScreen.innerHTML = `
-        <div class="friend-request-container">
-            <div class="request-header">
-                <div class="request-icon">
-                    <i class="fas fa-user-plus"></i>
-                </div>
-                <h1>Nueva Solicitud de Amistad</h1>
-                <p class="request-subtitle">Alguien quiere agregarte como contacto</p>
-            </div>
-
-            <div class="request-content">
-                <div class="requester-card">
-                    <div class="requester-avatar">
-                        <img src="${avatarUrl}" alt="${request.fromPhone}">
-                    </div>
-                    <div class="requester-info">
-                        <h2>${request.fromPhone}</h2>
-                        <p class="request-time">Solicitud enviada ${new Date(request.timestamp).toLocaleString()}</p>
-                    </div>
-                </div>
-
-                <div class="request-message">
-                    <p>¿Quieres agregar a este usuario a tu lista de contactos? Podrán enviarse mensajes y realizar videollamadas.</p>
-                </div>
-            </div>
-
-            <div class="request-actions">
-                <button class="secondary-btn" onclick="rejectFriendRequest('${requestId}')">
-                    <i class="fas fa-times"></i>
-                    Rechazar
-                </button>
-                <button class="primary-btn" onclick="acceptFriendRequest('${requestId}', '${request.from}')">
-                    <i class="fas fa-check"></i>
-                    Aceptar
-                </button>
-            </div>
-        </div>
-    `;
-
-    // Ocultar pantalla actual
-    const currentScreenElement = document.querySelector('.screen.active');
-    if (currentScreenElement && currentScreenElement !== requestScreen) {
-        currentScreenElement.classList.remove('active');
-    }
-
-    document.body.appendChild(requestScreen);
-
-    // Auto-rechazar después de 2 minutos si no hay respuesta
-    setTimeout(() => {
-        if (document.getElementById('friend-request-screen')) {
-            rejectFriendRequest(requestId);
-        }
-    }, 120000);
-}
-
-// Función para aceptar solicitud de amistad
-function acceptFriendRequest(requestId, fromUserId) {
-    // Actualizar estado de la solicitud
-    database.ref(`friendRequests/${currentUser.uid}/${requestId}/status`).set('accepted')
-        .then(() => {
-            // Obtener datos del usuario que envió la solicitud
-            return database.ref(`users/${fromUserId}`).once('value');
-        })
-        .then(userSnapshot => {
-            const userData = userSnapshot.val();
-            
-            // Agregar a ambos usuarios como contactos
-            const contactData = {
-                addedAt: firebase.database.ServerValue.TIMESTAMP,
-                status: 'active'
-            };
-
-            // Promesas para agregar contactos
-            const addContact1 = database.ref(`contacts/${currentUser.uid}/${fromUserId}`).set(contactData);
-            const addContact2 = database.ref(`contacts/${fromUserId}/${currentUser.uid}`).set(contactData);
-
-            return Promise.all([addContact1, addContact2, userData]);
-        })
-        .then(([_, __, userData]) => {
-            closeFriendRequestModal();
-            
-            // Crear objeto de contacto para el chat
-            const newContact = {
-                uid: fromUserId,
-                name: userData.phoneNumber,
-                phoneNumber: userData.phoneNumber,
-                avatar: userData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.phoneNumber}`,
-                status: userData.status
-            };
-            
-            // Configurar contacto actual y abrir chat directamente
-            currentChatContact = newContact;
-            
-            // Actualizar información del chat
-            document.getElementById('chat-contact-name').textContent = userData.phoneNumber;
-            document.getElementById('chat-avatar').src = newContact.avatar;
-            
-            // Crear o buscar chat existente
-            const chatId = generateChatId(currentUser.uid, fromUserId);
-            loadChatMessages(chatId);
-            
-            // Ir directamente al chat
-            switchScreen('chat');
-            
-            // Mostrar mensaje de bienvenida
-            showInstantNotification(`💬 ¡Ahora puedes chatear con ${userData.phoneNumber}!`, 'friend-request');
-            
-            // Recargar lista de contactos en segundo plano
-            setTimeout(() => {
-                loadUserContacts();
-            }, 1000);
-        })
-        .catch(error => {
-            console.error('Error aceptando solicitud:', error);
-            showErrorMessage('Error procesando solicitud.');
-        });
-}
-
-// Función para rechazar solicitud de amistad
-function rejectFriendRequest(requestId) {
-    database.ref(`friendRequests/${currentUser.uid}/${requestId}/status`).set('rejected')
-        .then(() => {
-            closeFriendRequestModal();
-            showFullScreenMessage('❌ Solicitud Rechazada', 
-                'La solicitud de amistad ha sido rechazada.', 
-                'denied');
-        })
-        .catch(error => {
-            console.error('Error rechazando solicitud:', error);
-        });
-}
-
-// Función para cerrar modal de solicitud de amistad
-function closeFriendRequestModal() {
-    const requestScreen = document.getElementById('friend-request-screen');
-    if (requestScreen) {
-        document.body.removeChild(requestScreen);
-        // Restaurar pantalla anterior
-        switchScreen(currentScreen);
-    }
-}
-
-function openChatWithUser(user) {
-    const avatarSeed = user.phoneNumber.replace(/\D/g, '');
-    const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`;
-
-    currentChatContact = {
-        uid: user.uid,
-        name: user.phoneNumber,
-        phoneNumber: user.phoneNumber,
-        avatar: avatarUrl,
-        status: user.status
-    };
-
-    // Actualizar información del chat
-    document.getElementById('chat-contact-name').textContent = user.phoneNumber;
-    document.getElementById('chat-avatar').src = avatarUrl;
-
-    // Crear o buscar chat existente
-    const chatId = generateChatId(currentUser.uid, user.uid);
-    loadChatMessages(chatId);
-
-    switchScreen('chat');
-}
-
-function generateChatId(uid1, uid2) {
-    // Crear ID único para el chat ordenando los UIDs
-    return [uid1, uid2].sort().join('_');
-}
-
-function loadChatMessages(chatId) {
-    const messagesContainer = document.getElementById('messages-container');
-    messagesContainer.innerHTML = '<div class="loading-messages"><i class="fas fa-spinner fa-spin"></i> Cargando mensajes...</div>';
-
-    // Detener listener anterior si existe
-    if (messagesListener) {
-        messagesListener.off();
-    }
-
-    // Escuchar mensajes en tiempo real
-    messagesListener = database.ref(`chats/${chatId}/messages`).orderByChild('timestamp');
-    messagesListener.on('value', (snapshot) => {
-        const messages = snapshot.val() || {};
-        const messagesList = Object.values(messages).sort((a, b) => a.timestamp - b.timestamp);
-
-        messagesContainer.innerHTML = '';
-
-        messagesList.forEach(message => {
-            const isCurrentUser = message.senderId === currentUser.uid;
-            
-            // Filtrar mensajes si el chat está silenciado (solo para mensajes del otro usuario)
-            if (!isCurrentUser && shouldFilterMessage(message.senderId)) {
-                // No mostrar mensajes del usuario silenciado
-                return;
-            }
-            
-            const messageElement = createRealtimeMessageElement(message, isCurrentUser);
-            messagesContainer.appendChild(messageElement);
-        });
-
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    });
-}
-
-function createRealtimeMessageElement(message, isSent) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
-
-    const date = new Date(message.timestamp);
-    const timeString = date.getHours().toString().padStart(2, '0') + ':' + 
-                      date.getMinutes().toString().padStart(2, '0');
-
-    let contentHTML = '';
-    
-    if (message.type === 'image') {
-        // Manejar mensaje de imagen con base64
-        const imageSource = message.imageBase64 || message.imageUrl || '';
-        contentHTML = `
-            <div class="message-content">
-                <div class="message-image">
-                    <img src="${imageSource}" alt="Imagen" onclick="expandImage(this)" onload="console.log('Imagen cargada desde Firebase')">
-                </div>
-            </div>
-        `;
-    } else {
-        // Mensaje de texto normal
-        contentHTML = `
-            <div class="message-content">
-                <div class="original-text">${message.text}</div>
-            </div>
-        `;
-    }
-
-    messageDiv.innerHTML = `
-        ${contentHTML}
-        <div class="message-time">${timeString}</div>
-    `;
-
-    return messageDiv;
-}
-
-function goToChatList() {
-    switchScreen('chat-list');
-}
-
-function showSection(section) {
-    // Actualizar navegación activa
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-    });
-
-    event.target.closest('.nav-item').classList.add('active');
-
-    // Mostrar la sección correspondiente
-    if (section === 'calls') {
-        switchScreen('calls-history');
-        updateCallHistoryUI();
-    } else if (section === 'chats') {
+    if (section === 'chats') {
         switchScreen('chat-list');
+        loadUserContacts();
+    } else if (section === 'calls') {
+        switchScreen('calls-history');
+        loadCallHistory();
     } else if (section === 'settings') {
         switchScreen('settings');
+        initializeSettings();
+    } else {
+        return;
     }
 
-    console.log('Mostrando sección:', section);
+    const activeNavItem = document.querySelector(`.nav-item[onclick="showSection('${section}')"]`);
+    if (activeNavItem) {
+        activeNavItem.classList.add('active');
+    }
 }
 
+
+// Función para mostrar secciones de navegación
 // Envío de mensajes
 function sendMessage() {
     const messageInput = document.getElementById('message-input');
     const messageText = messageInput.value.trim();
 
     if (!messageText || !currentChatContact) {
-        console.log('❌ No se puede enviar: mensaje vacío o sin contacto');
+        console.log(' No se puede enviar: mensaje vacío o sin contacto');
         return;
     }
 
@@ -5470,9 +1465,9 @@ function sendMessage() {
 
     // Crear ID del chat
     const chatId = generateChatId(currentUser.uid, currentChatContact.uid);
-    console.log(`📤 Enviando mensaje en chat: ${chatId}`);
-    console.log(`👤 De: ${currentUser.uid} Para: ${currentChatContact.uid}`);
-    console.log(`💬 Mensaje: "${messageText}"`);
+    console.log(` Enviando mensaje en chat: ${chatId}`);
+    console.log(` De: ${currentUser.uid} Para: ${currentChatContact.uid}`);
+    console.log(` Mensaje: "${messageText}"`);
 
     // Crear objeto del mensaje
     const messageData = {
@@ -5491,7 +1486,7 @@ function sendMessage() {
     // Enviar mensaje a Firebase
     database.ref(`chats/${chatId}/messages`).push(messageData)
         .then(() => {
-            console.log('✅ Mensaje enviado exitosamente a Firebase');
+            console.log(' Mensaje enviado exitosamente a Firebase');
             playMessageSound();
 
             // Actualizar último mensaje del chat
@@ -5502,17 +1497,17 @@ function sendMessage() {
             });
         })
         .then(() => {
-            console.log('✅ Último mensaje actualizado');
+            console.log(' Último mensaje actualizado');
             
             // Notificar al receptor si está online
             return database.ref(`users/${currentChatContact.uid}/status`).once('value');
         })
         .then((statusSnapshot) => {
             const receiverStatus = statusSnapshot.val();
-            console.log(`📊 Estado del receptor: ${receiverStatus}`);
+            console.log(` Estado del receptor: ${receiverStatus}`);
             
             if (receiverStatus === 'online') {
-                console.log('🟢 Receptor está online - mensaje debería llegar inmediatamente');
+                console.log(' Receptor está online - mensaje debería llegar inmediatamente');
                 
                 // Crear notificación de mensaje para el receptor
                 const messageNotification = {
@@ -5527,15 +1522,15 @@ function sendMessage() {
                 
                 return database.ref(`notifications/${currentChatContact.uid}`).push(messageNotification);
             } else {
-                console.log('🔴 Receptor está offline - recibirá el mensaje al conectarse');
+                console.log(' Receptor está offline - recibirá el mensaje al conectarse');
                 return Promise.resolve();
             }
         })
         .then(() => {
-            console.log('✅ Proceso de envío completado');
+            console.log(' Proceso de envío completado');
         })
         .catch(error => {
-            console.error('❌ Error enviando mensaje:', error);
+            console.error(' Error enviando mensaje:', error);
             showErrorMessage(`Error enviando mensaje: ${error.message}`);
             
             // Restaurar mensaje en input si hay error
@@ -5643,7 +1638,7 @@ function simulateResponse() {
 
         const responses = [
             '¡Hola! ¿Cómo estás?',
-            'Todo bien por aquí 😊',
+            'Todo bien por aquí ',
             '¿Qué tal tu día?',
             'Perfecto, hablamos luego',
             '¡Excelente!'
@@ -5832,7 +1827,7 @@ function sendImageMessage(file) {
 
                     // Actualizar último mensaje del chat
                     database.ref(`chats/${chatId}/lastMessage`).set({
-                        text: '📷 Imagen',
+                        text: ' Imagen',
                         timestamp: Date.now(),
                         senderId: currentUser.uid
                     });
@@ -5972,7 +1967,7 @@ document.getElementById('search-input').addEventListener('input', function() {
 // Función para verificar estado de autenticación
 function checkAuthState() {
     // Verificar si hay datos de usuario guardados localmente
-    const savedUser = localStorage.getItem('uberchat_user');
+    const savedUser = localStorage.getItem('zenvio_user') || localStorage.getItem('uberchat_user');
     
     if (savedUser) {
         try {
@@ -6016,6 +2011,7 @@ function checkAuthState() {
                         console.log('Sesión restaurada exitosamente');
                     } else {
                         // Usuario no existe, limpiar datos locales
+                        localStorage.removeItem('zenvio_user');
                         localStorage.removeItem('uberchat_user');
                         switchScreen('intro');
                     }
@@ -6026,6 +2022,7 @@ function checkAuthState() {
                 });
         } catch (error) {
             console.error('Error parseando datos de usuario:', error);
+            localStorage.removeItem('zenvio_user');
             localStorage.removeItem('uberchat_user');
             switchScreen('intro');
         }
@@ -6192,7 +2189,7 @@ function requestNotificationPermission() {
     // Simular activación exitosa SIEMPRE para que progrese
     setTimeout(() => {
         permissionsGranted.notifications = true;
-        console.log('✅ Notificaciones activadas correctamente');
+        console.log(' Notificaciones activadas correctamente');
         
         // Actualizar botón con éxito
         btn.innerHTML = '<i class="fas fa-check-circle"></i> ¡Activado!';
@@ -6225,7 +2222,7 @@ function requestContactsPermission() {
     // Simular proceso de sincronización exitoso
     setTimeout(() => {
         permissionsGranted.contacts = true;
-        console.log('✅ Contactos sincronizados correctamente');
+        console.log(' Contactos sincronizados correctamente');
         
         // Actualizar botón con éxito
         btn.innerHTML = '<i class="fas fa-check-circle"></i> ¡Sincronizado!';
@@ -6234,7 +2231,7 @@ function requestContactsPermission() {
         btn.style.color = 'white';
         
         // NO mostrar notificación molesta
-        // showInstantNotification('📱 Contactos sincronizados correctamente', 'friend-request');
+        // showInstantNotification(' Contactos sincronizados correctamente', 'friend-request');
         
         // Forzar progreso automático al siguiente paso
         setTimeout(() => {
@@ -6288,12 +2285,12 @@ function completeTutorial() {
 
 function showTestNotification() {
     // Mostrar siempre la notificación instantánea
-    showInstantNotification('🔔 ¡Notificaciones activadas! Recibirás alertas en tiempo real', 'friend-request');
+    showInstantNotification(' ¡Notificaciones activadas! Recibirás alertas en tiempo real', 'friend-request');
     
     // Intentar mostrar notificación del navegador si hay permisos
     if ('Notification' in window && Notification.permission === 'granted') {
         try {
-            const notification = new Notification('🔔 UberChat', {
+            const notification = new Notification(' UberChat', {
                 body: 'Notificaciones activadas correctamente',
                 icon: '/favicon.ico',
                 silent: false
@@ -6314,7 +2311,7 @@ function showPermissionDeniedMessage(permissionType) {
     message.className = 'permission-denied-message';
     message.innerHTML = `
         <div style="background: rgba(255, 0, 0, 0.1); padding: 1rem; border-radius: 15px; margin-top: 1rem; border: 1px solid rgba(255, 0, 0, 0.3);">
-            <p style="margin: 0; font-size: 0.9rem;">⚠️ Permisos de ${permissionType} no concedidos</p>
+            <p style="margin: 0; font-size: 0.9rem;">️ Permisos de ${permissionType} no concedidos</p>
             <p style="margin: 0.5rem 0 0 0; font-size: 0.8rem; opacity: 0.8;">Puedes activarlos más tarde en Ajustes</p>
         </div>
     `;
@@ -6334,7 +2331,7 @@ function showContactSyncAnimation() {
     syncEffect.className = 'sync-effect';
     syncEffect.innerHTML = `
         <div style="position: absolute; top: -40px; left: 50%; transform: translateX(-50%); color: #00ff88; font-size: 2rem; animation: syncPulse 1s ease-in-out 3;">
-            ✨
+            
         </div>
         <style>
             @keyframes syncPulse {
@@ -6417,8 +2414,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Configurar pantalla inicial como loading
     switchScreen('intro');
     
-    // Detectar y configurar idioma del dispositivo automáticamente
-    initializeDeviceLanguage();
+    // Cargar idioma guardado (sin detección automática)
+    initializeLanguagePreference();
 
     // Verificar estado de autenticación
     checkAuthState();
@@ -6458,81 +2455,12 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('UberChat iniciado correctamente');
 });
 
-// Función para inicializar idioma del dispositivo
-async function initializeDeviceLanguage() {
-    console.log('Detectando idioma del dispositivo...');
-    
-    const detectedLanguage = detectDeviceLanguage();
-    console.log(`Idioma detectado: ${detectedLanguage}`);
-    
-    // Actualizar idioma global
-    userLanguage = detectedLanguage;
-    
-    // Mostrar notificación del idioma detectado
-    showLanguageDetectionNotification(detectedLanguage);
-    
-    // Actualizar interfaz con el idioma detectado
-    await updateLanguage();
-    
-    // Guardar preferencia de idioma
-    localStorage.setItem('uberchat_language', detectedLanguage);
-}
+// Inicializa idioma guardado por el usuario
+async function initializeLanguagePreference() {
+    userLanguage = getSavedLanguagePreference();
+    console.log(`Idioma inicial configurado: ${userLanguage}`);
 
-// Función para mostrar notificación de idioma detectado
-function showLanguageDetectionNotification(language) {
-    const languageNames = {
-        'es': '🇪🇸 Español',
-        'en': '🇺🇸 English', 
-        'fr': '🇫🇷 Français',
-        'de': '🇩🇪 Deutsch',
-        'pt': '🇵🇹 Português',
-        'it': '🇮🇹 Italiano'
-    };
-    
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 25px;
-        font-weight: 600;
-        z-index: 10000;
-        box-shadow: var(--shadow);
-        animation: slideDown 0.5s ease;
-    `;
-    
-    notification.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <i class="fas fa-globe"></i>
-            <span>Idioma detectado: ${languageNames[language] || language}</span>
-        </div>
-    `;
-    
-    // Agregar animación CSS
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideDown {
-            from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
-        }
-    `;
-    document.head.appendChild(style);
-    
-    document.body.appendChild(notification);
-    
-    // Auto-ocultar después de 3 segundos
-    setTimeout(() => {
-        notification.style.animation = 'slideDown 0.5s ease reverse';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 500);
-    }, 3000);
+    await updateLanguage();
 }
 
 // Función para implementar traducción real con Google Translate API
@@ -6583,14 +2511,183 @@ let currentCallType = null;
 let callNotificationSound = null;
 let isCallIncoming = false;
 let callRequestListener = null;
+let incomingCallListener = null;
 
-// Funciones para llamadas y videollamadas
+// Funciones para llamadas
+
+let currentOutgoingCallId = null;
+let outgoingCallStatusListener = null;
+
+function stopIncomingCallSound() {}
+function playIncomingCallSound() {}
+
+function sendCallRequest() {
+    if (!currentChatContact || !currentUser) return;
+
+    const callRequestId = Date.now().toString();
+    currentOutgoingCallId = callRequestId;
+
+    const callRequest = {
+        id: callRequestId,
+        type: 'voice',
+        from: currentUser.uid,
+        fromPhone: currentUser.phoneNumber,
+        fromName: currentUser.username || currentUser.phoneNumber,
+        fromAvatar: currentUser.avatar || '',
+        to: currentChatContact.uid,
+        toPhone: currentChatContact.phoneNumber,
+        timestamp: Date.now(),
+        status: 'calling'
+    };
+
+    Promise.all([
+        database.ref(`callRequests/${currentChatContact.uid}/${callRequestId}`).set(callRequest),
+        database.ref(`incomingCalls/${currentChatContact.uid}/${callRequestId}`).set(callRequest),
+        database.ref(`users/${currentChatContact.uid}/incomingCall`).set(callRequest)
+    ]).catch((error) => {
+        console.error('Error enviando solicitud de llamada:', error);
+    });
+}
+
+function setupCallRequestsListener() {
+    if (!currentUser || !currentUser.uid) return;
+
+    if (callRequestListener) callRequestListener.off();
+    if (incomingCallListener) incomingCallListener.off();
+
+    const handleIncoming = (snapshot) => {
+        const callRequest = snapshot.val();
+        const requestId = snapshot.key;
+        if (!callRequest || callRequest.status !== 'calling') return;
+        if (Date.now() - callRequest.timestamp > 120000) return;
+        showIncomingCallNotification(callRequest, requestId);
+    };
+
+    callRequestListener = database.ref(`callRequests/${currentUser.uid}`);
+    callRequestListener.on('child_added', handleIncoming);
+
+    incomingCallListener = database.ref(`incomingCalls/${currentUser.uid}`);
+    incomingCallListener.on('child_added', handleIncoming);
+}
+
+function showIncomingCallNotification(callRequest, requestId) {
+    if (isCallActive || incomingCallModal) return;
+    isCallIncoming = true;
+
+    const callModal = document.createElement('div');
+    callModal.id = 'incoming-call-modal';
+    callModal.className = 'incoming-call-screen';
+    callModal.innerHTML = `
+        <div class="incoming-call-container">
+            <div class="incoming-call-header">
+                <div class="call-type-indicator">
+                    <i class="fas fa-phone"></i>
+                    <span>Llamada entrante</span>
+                </div>
+            </div>
+            <div class="incoming-call-content">
+                <div class="caller-avatar">
+                    <img src="${callRequest.fromAvatar}" alt="${callRequest.fromName}">
+                </div>
+                <div class="caller-info">
+                    <h2>${callRequest.fromName}</h2>
+                    <p>${callRequest.fromPhone}</p>
+                </div>
+            </div>
+            <div class="incoming-call-actions">
+                <button class="call-action-btn reject-btn" onclick="rejectIncomingCall('${requestId}')">
+                    <i class="fas fa-phone-slash"></i>
+                    <span>Rechazar</span>
+                </button>
+                <button class="call-action-btn accept-btn" onclick="acceptIncomingCall('${requestId}')">
+                    <i class="fas fa-phone"></i>
+                    <span>Contestar</span>
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(callModal);
+    incomingCallModal = callModal;
+}
+
+function closeIncomingCallModal() {
+    if (incomingCallModal && incomingCallModal.parentNode) {
+        incomingCallModal.parentNode.removeChild(incomingCallModal);
+    }
+    incomingCallModal = null;
+    isCallIncoming = false;
+}
+
+function acceptIncomingCall(requestId) {
+    database.ref(`callRequests/${currentUser.uid}/${requestId}`).once('value').then((snap) => {
+        const callerData = snap.val();
+        if (!callerData) return;
+
+        currentChatContact = {
+            uid: callerData.from,
+            name: callerData.fromName,
+            phoneNumber: callerData.fromPhone,
+            avatar: callerData.fromAvatar
+        };
+
+        database.ref(`callRequests/${currentUser.uid}/${requestId}/status`).set('accepted');
+        database.ref(`incomingCalls/${currentUser.uid}/${requestId}/status`).set('accepted');
+        database.ref(`users/${currentUser.uid}/incomingCall`).remove();
+
+        document.getElementById('call-contact-name').textContent = callerData.fromName;
+        document.getElementById('call-avatar-img').src = callerData.fromAvatar;
+        document.getElementById('user-lang').textContent = getLanguageName(userLanguage);
+        document.getElementById('contact-lang').textContent = getLanguageName('en');
+
+        closeIncomingCallModal();
+        switchScreen('voice-call');
+        isCallActive = true;
+        startCallTimer();
+    });
+}
+
+function rejectIncomingCall(requestId) {
+    database.ref(`callRequests/${currentUser.uid}/${requestId}/status`).set('rejected');
+    database.ref(`incomingCalls/${currentUser.uid}/${requestId}/status`).set('rejected');
+    database.ref(`users/${currentUser.uid}/incomingCall`).remove();
+    closeIncomingCallModal();
+}
+
+function handleCallConnected() {
+    const statusElement = document.getElementById('call-status');
+    if (statusElement) statusElement.textContent = 'Conectado';
+    isCallActive = true;
+    startCallTimer();
+    stopCallSound();
+}
+
+function initiateRealTimeCall() {
+    const statusElement = document.getElementById('call-status');
+    if (statusElement) statusElement.textContent = 'Llamando...';
+
+    if (!currentChatContact || !currentOutgoingCallId || !currentUser) return;
+
+    if (outgoingCallStatusListener) outgoingCallStatusListener.off();
+    outgoingCallStatusListener = database.ref(`callRequests/${currentChatContact.uid}/${currentOutgoingCallId}/status`);
+    outgoingCallStatusListener.on('value', (snap) => {
+        const status = snap.val();
+        if (status === 'accepted') {
+            handleCallConnected();
+        }
+        if (status === 'rejected') {
+            if (statusElement) statusElement.textContent = 'Llamada rechazada';
+            setTimeout(() => endCall(), 900);
+        }
+    });
+}
+
 function startVoiceCall() {
     if (!currentChatContact) return;
 
     // Verificar si el usuario tiene llamadas habilitadas
     if (currentChatContact.callsEnabled === false) {
-        showErrorMessage('🔇 Este usuario ha desactivado las llamadas. No puedes llamarle en este momento.');
+        showErrorMessage(' Este usuario ha desactivado las llamadas. No puedes llamarle en este momento.');
         return;
     }
 
@@ -6603,45 +2700,18 @@ function startVoiceCall() {
     currentCallType = 'voice';
 
     // Enviar solicitud de llamada en tiempo real
-    sendCallRequest('voice');
+    sendCallRequest();
 
     // Cambiar a pantalla de llamada
     switchScreen('voice-call');
 
     // Iniciar proceso de llamada real
-    initiateRealTimeCall('voice');
+    initiateRealTimeCall();
 }
 
-function startVideoCall() {
-    if (!currentChatContact) return;
-
-    // Verificar si el usuario tiene llamadas habilitadas
-    if (currentChatContact.callsEnabled === false) {
-        showErrorMessage('🔇 Este usuario ha desactivado las llamadas. No puedes realizar videollamadas en este momento.');
-        return;
-    }
-
-    // Configurar pantalla de videollamada
-    document.getElementById('video-contact-name').textContent = currentChatContact.name;
-    document.getElementById('video-avatar').src = currentChatContact.avatar;
-
-    currentCallType = 'video';
-
-    // Enviar solicitud de llamada en tiempo real
-    sendCallRequest('video');
-
-    // Cambiar a pantalla de videollamada
-    switchScreen('video-call');
-
-    // Iniciar proceso de videollamada real
-    initiateRealTimeCall('video');
-
-    // Inicializar cámara local
-    initializeLocalVideo();
-}
 
 function simulateCallConnection(callType) {
-    const statusElement = document.getElementById(callType === 'voice' ? 'call-status' : 'video-call-status');
+    const statusElement = document.getElementById('call-status');
 
     // Mostrar "Llamando..."
     statusElement.textContent = 'Llamando...';
@@ -6688,7 +2758,7 @@ function endCall() {
         const callRecord = {
             contact: currentChatContact.name,
             avatar: currentChatContact.avatar,
-            type: currentScreen === 'video-call' ? 'video' : 'voice',
+            type: 'voice',
             duration: callDuration,
             timestamp: Date.now(),
             status: 'completed'
@@ -6785,57 +2855,10 @@ function toggleSpeaker() {
     }
 }
 
-function switchToVideo() {
-    // Cambiar de llamada de voz a videollamada
-    document.getElementById('video-contact-name').textContent = currentChatContact.name;
-    document.getElementById('video-avatar').src = currentChatContact.avatar;
 
-    switchScreen('video-call');
-    initializeLocalVideo();
-}
 
-function toggleVideoMute() {
-    isMuted = !isMuted;
-    const muteBtn = document.getElementById('video-mute-btn');
 
-    if (isMuted) {
-        muteBtn.classList.add('muted');
-        muteBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
-    } else {
-        muteBtn.classList.remove('muted');
-        muteBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-    }
-}
 
-function toggleCamera() {
-    isCameraOn = !isCameraOn;
-    const cameraBtn = document.getElementById('camera-btn');
-    const localVideo = document.getElementById('local-video');
-
-    if (isCameraOn) {
-        cameraBtn.classList.remove('disabled');
-        cameraBtn.innerHTML = '<i class="fas fa-video"></i>';
-        localVideo.style.display = 'block';
-    } else {
-        cameraBtn.classList.add('disabled');
-        cameraBtn.innerHTML = '<i class="fas fa-video-slash"></i>';
-        localVideo.style.display = 'none';
-    }
-}
-
-function switchToAudio() {
-    // Cambiar de videollamada a llamada de voz
-    switchScreen('voice-call');
-}
-
-function initializeLocalVideo() {
-    // Simular inicialización de video local
-    const localVideo = document.getElementById('local-video');
-    if (localVideo) {
-        // En un entorno real, aquí inicializarías getUserMedia()
-        localVideo.style.background = 'linear-gradient(45deg, #333, #555)';
-    }
-}
 
 function initializeSpeechRecognition() {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -7086,11 +3109,7 @@ function callBack(contactName, callType) {
 
     currentChatContact = contact;
 
-    if (callType === 'video') {
-        startVideoCall();
-    } else {
-        startVoiceCall();
-    }
+    startVoiceCall();
 }
 
 function clearCallHistory() {
@@ -7154,15 +3173,15 @@ function showModerationWarning(offensiveWords, isPostMessage = false) {
             <div class="warning-icon">
                 <i class="fas fa-exclamation-triangle"></i>
             </div>
-            <h2>⚠️ Advertencia de Moderación</h2>
+            <h2>️ Advertencia de Moderación</h2>
             <p>${isPostMessage ? 'Has enviado' : 'Estás intentando enviar'} contenido que viola nuestras normas comunitarias.</p>
             <div class="detected-words">
                 <strong>Palabras detectadas:</strong> ${offensiveWords.join(', ')}
             </div>
             <div class="warning-message">
-                <p>🔸 El uso de lenguaje ofensivo está prohibido</p>
-                <p>🔸 Reincidencias pueden resultar en suspensión de cuenta</p>
-                <p>🔸 Mantén un ambiente respetuoso para todos</p>
+                <p> El uso de lenguaje ofensivo está prohibido</p>
+                <p> Reincidencias pueden resultar en suspensión de cuenta</p>
+                <p> Mantén un ambiente respetuoso para todos</p>
             </div>
             <div class="warning-actions">
                 <button class="warning-understood-btn" onclick="closeModerationWarning()">
@@ -7329,28 +3348,28 @@ function showReportResult(analysis, report) {
                 </div>
 
                 <div class="analysis-details">
-                    <h4>📊 Detalles del Análisis Automático:</h4>
+                    <h4> Detalles del Análisis Automático:</h4>
                     <ul>
                         ${analysis.details.map(detail => `<li>${detail}</li>`).join('')}
                         <li>⏱️ Análisis completado en tiempo real por IA</li>
-                        <li>🔍 Se analizaron todos los mensajes del historial</li>
-                        <li>🤖 Procesamiento automático en 15 segundos</li>
+                        <li> Se analizaron todos los mensajes del historial</li>
+                        <li> Procesamiento automático en 15 segundos</li>
                     </ul>
                 </div>
 
                 ${analysis.violationsFound ? `
                     <div class="action-taken">
-                        <h4>🎯 Acciones Tomadas:</h4>
+                        <h4> Acciones Tomadas:</h4>
                         <div class="action-list">
-                            ${analysis.reportedUserViolations > 0 ? '<div class="action-item">⚠️ Usuario reportado recibió advertencia automática</div>' : ''}
-                            ${analysis.reporterViolations > 0 ? '<div class="action-item">⚠️ También recibiste una advertencia por violaciones detectadas</div>' : ''}
-                            <div class="action-item">📝 Caso registrado en el sistema de moderación</div>
+                            ${analysis.reportedUserViolations > 0 ? '<div class="action-item">️ Usuario reportado recibió advertencia automática</div>' : ''}
+                            ${analysis.reporterViolations > 0 ? '<div class="action-item">️ También recibiste una advertencia por violaciones detectadas</div>' : ''}
+                            <div class="action-item"> Caso registrado en el sistema de moderación</div>
                         </div>
                     </div>
                 ` : ''}
 
                 <div class="next-steps">
-                    <h4>🔄 Próximos Pasos:</h4>
+                    <h4> Próximos Pasos:</h4>
                     <p>El sistema de moderación automática continuará monitoreando todas las conversaciones. Mantén un comportamiento respetuoso para evitar futuras advertencias.</p>
                 </div>
             </div>
@@ -7601,17 +3620,17 @@ function toggleMuteChat(userId, displayName) {
     if (isChatMuted(userId)) {
         // Desactivar silencio
         mutedChats.delete(userId);
-        showInstantNotification(`🔔 Chat con ${displayName} reactivado`, 'friend-request');
+        showInstantNotification(` Chat con ${displayName} reactivado`, 'friend-request');
     } else {
         // Activar silencio por 20 minutos
         mutedChats.set(userId, muteEndTime);
-        showInstantNotification(`🔇 Chat con ${displayName} silenciado por 20 minutos`, 'friend-request');
+        showInstantNotification(` Chat con ${displayName} silenciado por 20 minutos`, 'friend-request');
         
         // Programar la reactivación automática
         setTimeout(() => {
             if (mutedChats.has(userId)) {
                 mutedChats.delete(userId);
-                showInstantNotification(`🔔 Chat con ${displayName} reactivado automáticamente`, 'friend-request');
+                showInstantNotification(` Chat con ${displayName} reactivado automáticamente`, 'friend-request');
                 // Actualizar UI
                 loadUserContacts();
             }
@@ -7645,7 +3664,7 @@ function deleteChat(userId, displayName) {
                 // Actualizar interfaz
                 loadUserContacts();
                 
-                showInstantNotification(`🗑️ Conversación con ${displayName} eliminada`, 'friend-request');
+                showInstantNotification(`️ Conversación con ${displayName} eliminada`, 'friend-request');
             })
             .catch(error => {
                 console.error('Error eliminando chat:', error);
@@ -7746,7 +3765,7 @@ function showAutoGeneratedCodeMessage(code) {
 
 function copyCodeToClipboard(code) {
     navigator.clipboard.writeText(code).then(() => {
-        showSuccessMessage('📋 Código copiado al portapapeles');
+        showSuccessMessage(' Código copiado al portapapeles');
     }).catch(() => {
         // Fallback para navegadores que no soportan clipboard API
         const textArea = document.createElement('textarea');
@@ -7755,7 +3774,7 @@ function copyCodeToClipboard(code) {
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        showSuccessMessage('📋 Código copiado');
+        showSuccessMessage(' Código copiado');
     });
 }
 
@@ -7766,4 +3785,252 @@ function proceedToVerification() {
     }
     switchScreen('verification');
     document.querySelector('.code-digit').focus();
+}
+
+
+// ===== Settings and storage realtime module =====
+const storageManager = {
+    totalBytes: 100 * 1024 * 1024,
+    usedBytes: 0,
+    imageCacheBytes: 0,
+    oldFilesBytes: 0,
+    listeners: [],
+
+    initialize() {
+        if (!currentUser || !currentUser.uid) return;
+        this.startRealtimeTracking();
+    },
+
+    startRealtimeTracking() {
+        this.stopRealtimeTracking();
+        if (!currentUser || !currentUser.uid) return;
+
+        const refs = [
+            database.ref(`storageMetrics/${currentUser.uid}`),
+            database.ref(`users/${currentUser.uid}/storage`)
+        ];
+
+        refs.forEach((ref) => {
+            const cb = (snapshot) => {
+                const data = snapshot.val() || {};
+                const local = this.computeLocalStorageUsage();
+                this.usedBytes = (data.usedBytes || 0) + local.total;
+                this.imageCacheBytes = local.imageCache;
+                this.oldFilesBytes = local.oldFiles;
+                this.updateStorageUI();
+            };
+            ref.on('value', cb);
+            this.listeners.push({ ref, cb });
+        });
+
+        const local = this.computeLocalStorageUsage();
+        this.usedBytes = local.total;
+        this.imageCacheBytes = local.imageCache;
+        this.oldFilesBytes = local.oldFiles;
+        this.updateStorageUI();
+    },
+
+    stopRealtimeTracking() {
+        this.listeners.forEach(({ ref, cb }) => ref.off('value', cb));
+        this.listeners = [];
+    },
+
+    computeLocalStorageUsage() {
+        let total = 0;
+        let imageCache = 0;
+        let oldFiles = 0;
+        const monthAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            const value = localStorage.getItem(key) || '';
+            const bytes = (key.length + value.length) * 2;
+            total += bytes;
+
+            const lowerKey = key.toLowerCase();
+            if (lowerKey.includes('image') || lowerKey.includes('cache')) {
+                imageCache += bytes;
+            }
+
+            try {
+                const parsed = JSON.parse(value);
+                if (parsed && parsed.timestamp && parsed.timestamp < monthAgo) {
+                    oldFiles += bytes;
+                }
+            } catch (_) {}
+        }
+
+        return { total, imageCache, oldFiles };
+    },
+
+    formatFileSize(bytes) {
+        if (!bytes || bytes <= 0) return '0 B';
+        const units = ['B', 'KB', 'MB', 'GB'];
+        let size = bytes;
+        let unit = 0;
+        while (size >= 1024 && unit < units.length - 1) {
+            size /= 1024;
+            unit += 1;
+        }
+        return `${size.toFixed(unit === 0 ? 0 : 2)} ${units[unit]}`;
+    },
+
+    updateStorageUI() {
+        const used = this.usedBytes;
+        const free = Math.max(this.totalBytes - used, 0);
+        const percent = Math.min((used / this.totalBytes) * 100, 100);
+
+        const mappings = {
+            'storage-used': this.formatFileSize(used),
+            'storage-free': this.formatFileSize(free),
+            'storage-total': this.formatFileSize(this.totalBytes),
+            'storage-cache-size': this.formatFileSize(this.imageCacheBytes),
+            'storage-old-files-size': this.formatFileSize(this.oldFilesBytes),
+            'storage-usage-percent': `${percent.toFixed(1)}%`
+        };
+
+        Object.entries(mappings).forEach(([id, value]) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+        });
+
+        const circle = document.getElementById('storage-circle-progress');
+        if (circle) {
+            circle.style.setProperty('--progress', percent.toFixed(1));
+            circle.style.setProperty('--color', percent > 85 ? '#ef4444' : '#00a854');
+        }
+    }
+};
+
+function initializeSettings() {
+    if (!currentUser) return;
+    const username = currentUser.username || currentUser.phoneNumber || 'Usuario';
+    const avatar = currentUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${(currentUser.phoneNumber || 'user').replace(/\D/g, '')}`;
+
+    const usernameEl = document.getElementById('profile-username');
+    const phoneEl = document.getElementById('profile-phone-display');
+    const avatarEl = document.getElementById('profile-avatar');
+    const phoneReadonly = document.getElementById('phone-readonly');
+
+    if (usernameEl) usernameEl.textContent = username;
+    if (phoneEl) phoneEl.textContent = currentUser.phoneNumber || '';
+    if (avatarEl) avatarEl.src = avatar;
+    if (phoneReadonly) phoneReadonly.value = currentUser.phoneNumber || '';
+
+    storageManager.initialize();
+}
+
+function showStorageSettings() {
+    let screen = document.getElementById('storage-settings-screen');
+    if (!screen) {
+        screen = document.createElement('div');
+        screen.id = 'storage-settings-screen';
+        screen.className = 'screen';
+        screen.innerHTML = `
+            <div class="storage-settings-container">
+                <div class="storage-header">
+                    <button class="back-btn" onclick="hideStorageSettings()"><i class="fas fa-arrow-left"></i></button>
+                    <div>
+                        <h2>Gestión de almacenamiento</h2>
+                        <div class="storage-subtitle">Actualización en tiempo real</div>
+                    </div>
+                </div>
+                <div class="storage-content">
+                    <div class="storage-overview">
+                        <div class="storage-circle">
+                            <div class="circle-progress" id="storage-circle-progress" style="--progress:0;--color:#00a854;">
+                                <div class="circle-inner">
+                                    <div class="usage-percentage" id="storage-usage-percent">0%</div>
+                                    <div class="usage-text">utilizado</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="storage-details">
+                            <div class="storage-status"><i class="fas fa-database"></i> Estado de almacenamiento</div>
+                            <div class="storage-numbers">
+                                <div class="storage-item"><span class="label">Usado</span><span class="value" id="storage-used">0 B</span></div>
+                                <div class="storage-item"><span class="label">Libre</span><span class="value" id="storage-free">0 B</span></div>
+                                <div class="storage-item"><span class="label">Total</span><span class="value" id="storage-total">0 B</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="storage-actions">
+                        <button class="storage-action-btn" onclick="clearImageCacheRealtime()">
+                            <i class="fas fa-image"></i>
+                            <div><strong>Limpiar caché de imágenes</strong><div>Tamaño: <span id="storage-cache-size">0 B</span></div></div>
+                        </button>
+                        <button class="storage-action-btn" onclick="cleanupOldFilesRealtime()">
+                            <i class="fas fa-broom"></i>
+                            <div><strong>Limpiar archivos antiguos</strong><div>Tamaño: <span id="storage-old-files-size">0 B</span></div></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(screen);
+    }
+
+    switchScreen('storage-settings');
+    storageManager.startRealtimeTracking();
+}
+
+function hideStorageSettings() {
+    switchScreen('settings');
+}
+
+function clearImageCacheRealtime() {
+    const toRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.toLowerCase().includes('image') || key.toLowerCase().includes('cache'))) {
+            toRemove.push(key);
+        }
+    }
+    toRemove.forEach((key) => localStorage.removeItem(key));
+
+    if (currentUser && currentUser.uid) {
+        database.ref(`storageMetrics/${currentUser.uid}/lastImageCacheCleanup`).set(firebase.database.ServerValue.TIMESTAMP);
+    }
+
+    storageManager.startRealtimeTracking();
+}
+
+function cleanupOldFilesRealtime() {
+    const monthAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+    const toRemove = [];
+
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        const value = localStorage.getItem(key);
+        if (!key || !value) continue;
+        try {
+            const parsed = JSON.parse(value);
+            if (parsed && parsed.timestamp && parsed.timestamp < monthAgo) {
+                toRemove.push(key);
+            }
+        } catch (_) {}
+    }
+
+    toRemove.forEach((key) => localStorage.removeItem(key));
+
+    if (currentUser && currentUser.uid) {
+        database.ref(`storageMetrics/${currentUser.uid}/lastOldFilesCleanup`).set(firebase.database.ServerValue.TIMESTAMP);
+    }
+
+    storageManager.startRealtimeTracking();
+}
+
+function showAbout() {
+    console.log('Acerca de Zenvio');
+}
+
+function showHelp() {
+    console.log('Ayuda y soporte');
+}
+
+function logout() {
+    localStorage.removeItem('zenvio_user');
+    localStorage.removeItem('uberchat_user');
+    currentUser = null;
+    switchScreen('intro');
 }
