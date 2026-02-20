@@ -2034,6 +2034,33 @@ function checkAuthState() {
 }
 
 // Configurar listener para notificaciones
+
+
+// Compatibilidad: funciones base de sesión/amistades que pueden no estar presentes
+function createActiveSession(userId, phoneNumber) {
+    if (!userId || !phoneNumber) return Promise.resolve();
+    const sessionId = `${userId}_${Date.now()}`;
+    sessionManager.currentSessionId = sessionId;
+    return database.ref(`activeSessions/${sessionId}`).set({
+        userId,
+        phoneNumber,
+        sessionId,
+        createdAt: firebase.database.ServerValue.TIMESTAMP,
+        status: 'active'
+    }).catch((error) => {
+        console.error('Error creando sesión activa:', error);
+    });
+}
+
+function setupLoginApprovalListener() {
+    // No-op defensivo para evitar bloquear verificación si esta función no existe en builds parciales
+    return;
+}
+
+function setupFriendRequestsListener() {
+    // No-op defensivo para evitar bloquear verificación si esta función no existe en builds parciales
+    return;
+}
 function setupNotificationsListener() {
     if (!currentUser || !currentUser.uid) {
         console.error('No se puede configurar listener de notificaciones: usuario no disponible');
