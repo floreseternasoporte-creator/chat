@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zenvio - Mensajería Global</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Ctext y=%2750%27 x=%278%27 font-size=%2748%27%3E%F0%9F%93%A8%3C/text%3E%3C/svg%3E">
     <link href="style.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -83,10 +84,14 @@
             <div id="country-modal" class="country-modal" onclick="closeCountryModal()">
                 <div class="country-modal-content" onclick="event.stopPropagation()">
                     <div class="country-modal-header">
-                        <button class="modal-close-btn" onclick="closeCountryModal()">
+                        <div class="modal-grabber" aria-hidden="true"></div>
+                        <div class="country-modal-title-group">
+                            <h3>Selecciona tu país</h3>
+                            <p>Elige el código para tu número</p>
+                        </div>
+                        <button class="modal-close-btn" onclick="closeCountryModal()" aria-label="Cerrar selector de país">
                             <i class="fas fa-times"></i>
                         </button>
-                        <h3>Selecciona tu país</h3>
                     </div>
 
                     <div class="country-search-container">
