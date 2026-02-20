@@ -434,8 +434,6 @@ document.getElementById('language-select').addEventListener('change', async func
         // Actualizar interfaz en tiempo real
         await updateLanguage();
         
-        // Mostrar confirmación
-        showInstantNotification(`🌍 Idioma cambiado a: ${this.options[this.selectedIndex].text}`, 'friend-request');
     }
 });
 
