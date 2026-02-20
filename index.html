@@ -516,10 +516,14 @@
     <div id="contact-country-modal" class="country-modal" onclick="closeContactCountryModal()">
         <div class="country-modal-content" onclick="event.stopPropagation()">
             <div class="country-modal-header">
-                <button class="modal-close-btn" onclick="closeContactCountryModal()">
+                <div class="modal-grabber" aria-hidden="true"></div>
+                <div class="country-modal-title-group">
+                    <h3>Selecciona el país</h3>
+                    <p>Busca por nombre o prefijo</p>
+                </div>
+                <button class="modal-close-btn" onclick="closeContactCountryModal()" aria-label="Cerrar selector de país">
                     <i class="fas fa-times"></i>
                 </button>
-                <h3>Selecciona el país</h3>
             </div>
 
             <div class="country-search-container">

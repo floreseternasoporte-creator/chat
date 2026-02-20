@@ -553,19 +553,45 @@ function closeCountryModal() {
     console.log('Modal de países cerrado');
 }
 
-function loadCountriesList() {
-    const countriesList = document.getElementById('countries-list');
+function normalizeCountrySearch(value = '') {
+    return value
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '')
+        .trim();
+}
 
-    // Limpiar lista actual
+function countryMatchesSearch(country, normalizedSearch) {
+    if (!normalizedSearch) return true;
+
+    const normalizedName = normalizeCountrySearch(country.name);
+    const normalizedCode = country.code.toLowerCase();
+
+    return normalizedName.includes(normalizedSearch) || normalizedCode.includes(normalizedSearch);
+}
+
+function renderNoCountryResults(container) {
+    const noResults = document.createElement('div');
+    noResults.className = 'no-results';
+    noResults.innerHTML = `
+        <i class="fas fa-search"></i>
+        <h4>No se encontraron países</h4>
+        <p>Intenta con otro término de búsqueda</p>
+    `;
+    container.appendChild(noResults);
+}
+
+function loadCountriesList(searchTerm = '') {
+    const countriesList = document.getElementById('countries-list');
     countriesList.innerHTML = '';
 
-    // Separar países populares
-    const popularCountries = countries.filter(country => country.popular);
+    const normalizedSearch = normalizeCountrySearch(searchTerm);
+    const popularCountries = countries
+        .filter(country => country.popular && countryMatchesSearch(country, normalizedSearch));
     const otherCountries = countries
-        .filter(country => !country.popular)
+        .filter(country => !country.popular && countryMatchesSearch(country, normalizedSearch))
         .sort((a, b) => a.name.localeCompare(b.name));
 
-    // Agregar sección de países populares
     if (popularCountries.length > 0) {
         const popularHeader = document.createElement('div');
         popularHeader.className = 'countries-section-header';
@@ -575,17 +601,22 @@ function loadCountriesList() {
         popularCountries.forEach(country => {
             countriesList.appendChild(createCountryItem(country));
         });
+    }
 
+    if (otherCountries.length > 0) {
         const otherHeader = document.createElement('div');
         otherHeader.className = 'countries-section-header';
         otherHeader.textContent = 'Todos los países';
         countriesList.appendChild(otherHeader);
+
+        otherCountries.forEach(country => {
+            countriesList.appendChild(createCountryItem(country));
+        });
     }
 
-    // Agregar países no populares ordenados alfabéticamente
-    otherCountries.forEach(country => {
-        countriesList.appendChild(createCountryItem(country));
-    });
+    if (popularCountries.length === 0 && otherCountries.length === 0) {
+        renderNoCountryResults(countriesList);
+    }
 }
 
 function createCountryItem(country) {
@@ -643,38 +674,9 @@ function handleCountryModalEscape(event) {
 document.addEventListener('keydown', handleCountryModalEscape);
 
 function filterCountries() {
-    const searchTerm = document.getElementById('country-search').value.toLowerCase();
-    const countryItems = document.querySelectorAll('.country-item');
-    let hasResults = false;
-    
-    countryItems.forEach(item => {
-        const countryName = item.dataset.countryName;
-        const countryCode = item.dataset.countryCode.toLowerCase();
-        
-        if (countryName.includes(searchTerm) || countryCode.includes(searchTerm)) {
-            item.classList.remove('hidden');
-            hasResults = true;
-        } else {
-            item.classList.add('hidden');
-        }
-    });
-    
-    // Mostrar mensaje de no resultados
-    const existingNoResults = document.querySelector('.no-results');
-    if (existingNoResults) {
-        existingNoResults.remove();
-    }
-    
-    if (!hasResults && searchTerm.length > 0) {
-        const noResults = document.createElement('div');
-        noResults.className = 'no-results';
-        noResults.innerHTML = `
-            <i class="fas fa-search"></i>
-            <h4>No se encontraron países</h4>
-            <p>Intenta con otro término de búsqueda</p>
-        `;
-        document.getElementById('countries-list').appendChild(noResults);
-    }
+    const searchInput = document.getElementById('country-search');
+    const searchTerm = searchInput ? searchInput.value : '';
+    loadCountriesList(searchTerm);
 }
 
 function sendVerificationCode() {
@@ -4115,6 +4117,7 @@ function openContactCountryModal() {
     // Mostrar modal
     modal.style.display = 'flex';
     btn.classList.add('active');
+    document.body.classList.add('modal-open');
     
     setTimeout(() => {
         modal.classList.add('show');
@@ -4145,37 +4148,42 @@ function closeContactCountryModal() {
     }
 }
 
-function loadContactCountriesList() {
+function loadContactCountriesList(searchTerm = '') {
     const countriesList = document.getElementById('contact-countries-list');
     countriesList.innerHTML = '';
-    
-    // Países populares primero
-    const popularCountries = countries.filter(country => country.popular);
-    const otherCountries = countries.filter(country => !country.popular);
-    
+
+    const normalizedSearch = normalizeCountrySearch(searchTerm);
+    const popularCountries = countries
+        .filter(country => country.popular && countryMatchesSearch(country, normalizedSearch));
+    const otherCountries = countries
+        .filter(country => !country.popular && countryMatchesSearch(country, normalizedSearch))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
     if (popularCountries.length > 0) {
         const popularHeader = document.createElement('div');
-        popularHeader.innerHTML = `
-            <div style="padding: 0.75rem 2rem; background: var(--surface); font-weight: 600; font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">
-                Países populares
-            </div>
-        `;
+        popularHeader.className = 'countries-section-header';
+        popularHeader.textContent = 'Países populares';
         countriesList.appendChild(popularHeader);
-        
+
         popularCountries.forEach(country => {
             countriesList.appendChild(createContactCountryItem(country));
         });
-        
-        const separator = document.createElement('div');
-        separator.style.cssText = 'height: 8px; background: var(--surface); margin: 0.5rem 0;';
-        countriesList.appendChild(separator);
     }
-    
-    // Todos los países ordenados
-    const allCountriesSorted = [...countries].sort((a, b) => a.name.localeCompare(b.name));
-    allCountriesSorted.forEach(country => {
-        countriesList.appendChild(createContactCountryItem(country));
-    });
+
+    if (otherCountries.length > 0) {
+        const otherHeader = document.createElement('div');
+        otherHeader.className = 'countries-section-header';
+        otherHeader.textContent = 'Todos los países';
+        countriesList.appendChild(otherHeader);
+
+        otherCountries.forEach(country => {
+            countriesList.appendChild(createContactCountryItem(country));
+        });
+    }
+
+    if (popularCountries.length === 0 && otherCountries.length === 0) {
+        renderNoCountryResults(countriesList);
+    }
 }
 
 function createContactCountryItem(country) {
@@ -4183,21 +4191,22 @@ function createContactCountryItem(country) {
     item.className = 'country-item';
     item.dataset.countryName = country.name.toLowerCase();
     item.dataset.countryCode = country.code;
-    
+
     if (selectedContactCountry.code === country.code && selectedContactCountry.name === country.name) {
         item.classList.add('selected');
     }
-    
+
     item.innerHTML = `
         <div class="country-item-flag">${country.flag}</div>
         <div class="country-item-info">
             <div class="country-item-name">${country.name}</div>
             <div class="country-item-code">${country.code}</div>
         </div>
+        <i class="fas fa-check country-item-check" aria-hidden="true"></i>
     `;
-    
+
     item.onclick = () => selectContactCountry(country);
-    
+
     return item;
 }
 
@@ -4225,38 +4234,9 @@ function selectContactCountry(country) {
 }
 
 function filterContactCountries() {
-    const searchTerm = document.getElementById('contact-country-search').value.toLowerCase();
-    const countryItems = document.querySelectorAll('#contact-countries-list .country-item');
-    let hasResults = false;
-    
-    countryItems.forEach(item => {
-        const countryName = item.dataset.countryName;
-        const countryCode = item.dataset.countryCode.toLowerCase();
-        
-        if (countryName.includes(searchTerm) || countryCode.includes(searchTerm)) {
-            item.classList.remove('hidden');
-            hasResults = true;
-        } else {
-            item.classList.add('hidden');
-        }
-    });
-    
-    // Mostrar mensaje de no resultados
-    const existingNoResults = document.querySelector('#contact-countries-list .no-results');
-    if (existingNoResults) {
-        existingNoResults.remove();
-    }
-    
-    if (!hasResults && searchTerm.length > 0) {
-        const noResults = document.createElement('div');
-        noResults.className = 'no-results';
-        noResults.innerHTML = `
-            <i class="fas fa-search"></i>
-            <h4>No se encontraron países</h4>
-            <p>Intenta con otro término de búsqueda</p>
-        `;
-        document.getElementById('contact-countries-list').appendChild(noResults);
-    }
+    const searchInput = document.getElementById('contact-country-search');
+    const searchTerm = searchInput ? searchInput.value : '';
+    loadContactCountriesList(searchTerm);
 }
 
 // Variables para el sistema de solicitudes
