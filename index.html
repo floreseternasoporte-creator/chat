@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zenvio - Mensajería Global</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%2722%27 fill=%27%23111827%27/%3E%3C/svg%3E">
     <link href="style.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -31,26 +32,33 @@
     <!-- Pantalla de Introducción -->
     <div id="intro-screen" class="screen">
         <div class="intro-container">
-            <div class="logo">
-                <i class="fas fa-paper-plane"></i>
-                <h1>Zenvio</h1>
+            <div class="intro-shell">
+                <div class="intro-top-badge">Movilidad + Mensajería Global</div>
+                <div class="logo intro-logo">
+                    <div class="intro-logo-icon"><i class="fas fa-paper-plane"></i></div>
+                    <h1>Zenvio</h1>
+                </div>
+                <p class="intro-text">Conecta con el mundo sin barreras de idioma</p>
+
+                <div class="language-selector intro-language-selector">
+                    <label for="language-select">Selecciona tu idioma:</label>
+                    <select id="language-select">
+                        <option value="es">Español</option>
+                        <option value="en">English</option>
+                        <option value="fr">Français</option>
+                        <option value="de">Deutsch</option>
+                        <option value="pt">Português</option>
+                        <option value="it">Italiano</option>
+                    </select>
+                </div>
+
+                <div class="intro-actions">
+                    <button class="primary-btn intro-primary-btn" onclick="goToRegister()">
+                        <span>Comenzar</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
             </div>
-            <p class="intro-text">Conecta con el mundo sin barreras de idioma</p>
-            <div class="language-selector">
-                <label>Selecciona tu idioma:</label>
-                <select id="language-select">
-                    <option value="es">Español</option>
-                    <option value="en">English</option>
-                    <option value="fr">Français</option>
-                    <option value="de">Deutsch</option>
-                    <option value="pt">Português</option>
-                    <option value="it">Italiano</option>
-                </select>
-            </div>
-            <button class="primary-btn" onclick="goToRegister()">
-                <span>Comenzar</span>
-                <i class="fas fa-arrow-right"></i>
-            </button>
         </div>
     </div>
 
@@ -68,7 +76,7 @@
                 <div class="country-phone-wrapper">
                     <button class="country-selector-btn" id="country-selector-btn" onclick="openCountryModal()">
                         <div class="selected-country">
-                            <span class="country-flag">🇪🇸</span>
+                            <span class="country-flag"></span>
                             <span class="country-code">+34</span>
                         </div>
                         <i class="fas fa-chevron-down"></i>
@@ -83,10 +91,14 @@
             <div id="country-modal" class="country-modal" onclick="closeCountryModal()">
                 <div class="country-modal-content" onclick="event.stopPropagation()">
                     <div class="country-modal-header">
-                        <button class="modal-close-btn" onclick="closeCountryModal()">
+                        <div class="modal-grabber" aria-hidden="true"></div>
+                        <div class="country-modal-title-group">
+                            <h3>Selecciona tu país</h3>
+                            <p>Elige el código para tu número</p>
+                        </div>
+                        <button class="modal-close-btn" onclick="closeCountryModal()" aria-label="Cerrar selector de país">
                             <i class="fas fa-times"></i>
                         </button>
-                        <h3>Selecciona tu país</h3>
                     </div>
 
                     <div class="country-search-container">
@@ -120,12 +132,12 @@
                 <p>Ingresa el código de 6 dígitos que enviamos a <span id="phone-display"></span></p>
             </div>
             <div class="code-input-container">
-                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 0)">
-                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 1)">
-                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 2)">
-                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 3)">
-                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 4)">
-                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 5)">
+                <input type="text" maxlength="1" class="code-digit" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" oninput="handleCodeInput(this, 0)">
+                <input type="text" maxlength="1" class="code-digit" inputmode="numeric" pattern="[0-9]*" oninput="handleCodeInput(this, 1)">
+                <input type="text" maxlength="1" class="code-digit" inputmode="numeric" pattern="[0-9]*" oninput="handleCodeInput(this, 2)">
+                <input type="text" maxlength="1" class="code-digit" inputmode="numeric" pattern="[0-9]*" oninput="handleCodeInput(this, 3)">
+                <input type="text" maxlength="1" class="code-digit" inputmode="numeric" pattern="[0-9]*" oninput="handleCodeInput(this, 4)">
+                <input type="text" maxlength="1" class="code-digit" inputmode="numeric" pattern="[0-9]*" oninput="handleCodeInput(this, 5)">
             </div>
             <div id="verification-status" class="verification-status"></div>
             <button class="text-btn" onclick="resendCode()">Reenviar código</button>
@@ -253,8 +265,8 @@
                         <p>Habla en cualquier idioma</p>
                     </div>
                     <div class="tutorial-feature-card">
-                        <i class="fas fa-video"></i>
-                        <h3>Videollamadas HD</h3>
+                        <i class="fas fa-phone"></i>
+                        <h3>Llamadas HD</h3>
                         <p>Conexión de alta calidad</p>
                     </div>
                     <div class="tutorial-feature-card">
@@ -315,15 +327,38 @@
                 <i class="fas fa-comments"></i>
                 <span>Chats</span>
             </div>
-            <div class="nav-item" onclick="showSection('translate')">
-                <i class="fas fa-language"></i>
-                <span>Traducir</span>
-            </div>
-            <div class="nav-item" onclick="showSection('moments')">
-                <i class="fas fa-camera"></i>
-                <span>Momentos</span>
-            </div>
             <div class="nav-item" onclick="showSection('calls')">
+                <i class="fas fa-phone"></i>
+                <span>Llamadas</span>
+            </div>
+            <div class="nav-item" onclick="showSection('settings')">
+                <i class="fas fa-cog"></i>
+                <span>Ajustes</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla de Historial de Llamadas -->
+    <div id="calls-history-screen" class="screen">
+        <div class="calls-header">
+            <h2>Llamadas</h2>
+            <button class="clear-calls-btn" onclick="clearCallHistory()">Limpiar</button>
+        </div>
+
+        <div class="calls-list" id="calls-list">
+            <div class="empty-state">
+                <i class="fas fa-phone-slash"></i>
+                <h3>Sin historial de llamadas</h3>
+                <p>Tus llamadas aparecerán aquí</p>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="showSection('chats')">
+                <i class="fas fa-comments"></i>
+                <span>Chats</span>
+            </div>
+            <div class="nav-item active" onclick="showSection('calls')">
                 <i class="fas fa-phone"></i>
                 <span>Llamadas</span>
             </div>
@@ -352,9 +387,6 @@
                     </div>
                 </div>
                 <div class="chat-actions">
-                    <button class="action-btn" onclick="startVideoCall()">
-                        <i class="fas fa-video"></i>
-                    </button>
                     <button class="action-btn" onclick="startVoiceCall()">
                         <i class="fas fa-phone"></i>
                     </button>
@@ -412,7 +444,6 @@
             </div>
         </div>
     </div>
-
     <!-- Pantalla para agregar contacto -->
     <div id="add-contact-modal" class="modal">
         <div class="modal-content">
@@ -423,55 +454,15 @@
                 <h3>Agregar Contactos</h3>
             </div>
             <div class="modal-body">
-                <!-- Sección de integración con redes sociales -->
-                <div class="social-integration-section">
-                    <h4>🌐 Conectar Redes Sociales</h4>
-                    <p class="section-description">Vincula tus cuentas para encontrar automáticamente a tus amigos</p>
-
-                    <div class="social-platforms">
-                        <div class="social-platform facebook" onclick="connectFacebook()">
-                            <div class="platform-icon">
-                                <i class="fab fa-facebook"></i>
-                            </div>
-                            <div class="platform-info">
-                                <h5>Facebook</h5>
-                                <p id="facebook-status">No conectado</p>
-                            </div>
-                            <div class="platform-action">
-                                <button class="connect-btn" id="facebook-btn">
-                                    <i class="fas fa-link"></i>
-                                    Conectar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="sync-results" id="sync-results" style="display: none;">
-                        <div class="results-header">
-                            <i class="fas fa-users"></i>
-                            <h5>Contactos Encontrados</h5>
-                        </div>
-                        <div class="found-contacts" id="found-contacts"></div>
-                    </div>
-                </div>
-
-                <!-- Divider -->
-                <div class="section-divider">
-                    <hr>
-                    <span>O</span>
-                    <hr>
-                </div>
-
-                <!-- Sección de búsqueda manual -->
                 <div class="manual-search-section">
-                    <h4>🔍 Búsqueda Manual</h4>
+                    <h4>Busqueda Manual</h4>
                     <p class="section-description">Busca usuarios por su número de teléfono registrado</p>
 
                     <div class="search-input-container">
                         <div class="country-phone-wrapper">
                             <button class="country-selector-btn" id="contact-country-selector" onclick="openContactCountryModal()">
                                 <div class="selected-country">
-                                    <span class="country-flag">🇪🇸</span>
+                                    <span class="country-flag"></span>
                                     <span class="country-code">+34</span>
                                 </div>
                                 <i class="fas fa-chevron-down"></i>
@@ -482,27 +473,13 @@
                         </div>
                     </div>
 
-                    <div class="search-suggestions" id="search-suggestions">
-                        <div class="suggestion-item">
-                            <i class="fas fa-lightbulb"></i>
-                            <span>El usuario debe estar registrado en Zenvio</span>
-                        </div>
-                        <div class="suggestion-item">
-                            <i class="fas fa-globe"></i>
-                            <span>Incluye el código de país completo</span>
-                        </div>
+                    <div class="manual-search-actions">
+                        <button class="primary-btn" onclick="addContact()" id="manual-search-btn">
+                            <i class="fas fa-search"></i>
+                            Buscar Usuario
+                        </button>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button class="secondary-btn" onclick="hideAddContact()">
-                    <i class="fas fa-times"></i>
-                    Cancelar
-                </button>
-                <button class="primary-btn" onclick="addContact()" id="manual-search-btn">
-                    <i class="fas fa-search"></i>
-                    Buscar Usuario
-                </button>
             </div>
         </div>
     </div>
@@ -511,10 +488,14 @@
     <div id="contact-country-modal" class="country-modal" onclick="closeContactCountryModal()">
         <div class="country-modal-content" onclick="event.stopPropagation()">
             <div class="country-modal-header">
-                <button class="modal-close-btn" onclick="closeContactCountryModal()">
+                <div class="modal-grabber" aria-hidden="true"></div>
+                <div class="country-modal-title-group">
+                    <h3>Selecciona el país</h3>
+                    <p>Busca por nombre o prefijo</p>
+                </div>
+                <button class="modal-close-btn" onclick="closeContactCountryModal()" aria-label="Cerrar selector de país">
                     <i class="fas fa-times"></i>
                 </button>
-                <h3>Selecciona el país</h3>
             </div>
 
             <div class="country-search-container">
@@ -579,9 +560,6 @@
                 </button>
                 <button class="control-btn speaker-btn" onclick="toggleSpeaker()" id="speaker-btn">
                     <i class="fas fa-volume-up"></i>
-                </button>
-                <button class="control-btn video-btn" onclick="switchToVideo()">
-                    <i class="fas fa-video"></i>
                 </button>
                 <button class="control-btn end-call-btn" onclick="endCall()">
                     <i class="fas fa-phone-slash"></i>
@@ -707,14 +685,6 @@
                 <i class="fas fa-comments"></i>
                 <span>Chats</span>
             </div>
-            <div class="nav-item" onclick="showSection('translate')">
-                <i class="fas fa-language"></i>
-                <span>Traducir</span>
-            </div>
-            <div class="nav-item active" onclick="showSection('moments')">
-                <i class="fas fa-camera"></i>
-                <span>Momentos</span>
-            </div>
             <div class="nav-item" onclick="showSection('calls')">
                 <i class="fas fa-phone"></i>
                 <span>Llamadas</span>
@@ -722,194 +692,6 @@
             <div class="nav-item" onclick="showSection('settings')">
                 <i class="fas fa-cog"></i>
                 <span>Ajustes</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para crear momento -->
-    <div id="create-moment-modal" class="modal">
-        <div class="modal-content create-moment-content">
-            <div class="modal-header">
-                <button class="close-btn" onclick="hideCreateMoment()">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <h3>Crear Momento</h3>
-                <button class="publish-moment-btn" onclick="publishMoment()" disabled>
-                    <i class="fas fa-send"></i>
-                    Publicar
-                </button>
-            </div>
-
-            <div class="modal-body">
-                <div class="moment-image-upload">
-                    <div class="image-upload-area" onclick="selectMomentImage()">
-                        <div class="upload-placeholder" id="upload-placeholder">
-                            <i class="fas fa-camera"></i>
-                            <p>Toca para agregar una foto</p>
-                        </div>
-                        <img id="moment-preview" class="moment-preview" style="display: none;">
-                    </div>
-                    <input type="file" id="moment-image-input" accept="image/*" style="display: none;" onchange="handleMomentImageSelect(event)">
-                </div>
-
-                <div class="moment-text-input">
-                    <textarea id="moment-text" placeholder="¿Qué está pasando?" maxlength="280" oninput="updateMomentText()"></textarea>
-                    <div class="character-count">
-                        <span id="moment-char-count">0</span>/280
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para ver momento completo -->
-    <div id="view-moment-modal" class="modal view-moment-modal">
-        <div class="modal-content view-moment-content">
-            <div class="moment-view-header">
-                <button class="close-btn" onclick="hideViewMoment()">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <div class="moment-author-info">
-                    <img class="moment-author-avatar" id="view-moment-avatar" src="">
-                    <div class="moment-author-details">
-                        <div class="moment-author-name" id="view-moment-author"></div>
-                        <div class="moment-time" id="view-moment-time"></div>
-                    </div>
-                </div>
-                <button class="moment-options-btn">
-                    <i class="fas fa-ellipsis-v"></i>
-                </button>
-            </div>
-
-            <div class="moment-view-body">
-                <div class="moment-image-container">
-                    <img id="view-moment-image" class="moment-full-image">
-                </div>
-                <div class="moment-text-content">
-                    <p id="view-moment-text"></p>
-                </div>
-
-                <div class="moment-reactions">
-                    <div class="reaction-buttons">
-                        <button class="reaction-btn" onclick="reactToMoment('like')">
-                            <i class="fas fa-heart"></i>
-                            <span id="like-count">0</span>
-                        </button>
-                        <button class="reaction-btn" onclick="reactToMoment('laugh')">
-                            <i class="fas fa-laugh"></i>
-                            <span id="laugh-count">0</span>
-                        </button>
-                        <button class="reaction-btn" onclick="reactToMoment('wow')">
-                            <i class="fas fa-surprise"></i>
-                            <span id="wow-count">0</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="moment-comments">
-                    <div class="comments-header">
-                        <h4>Comentarios</h4>
-                        <span class="comments-count" id="comments-count">0</span>
-                    </div>
-                    <div class="comments-list"id="comments-list">
-                        <!-- Los comentarios se cargarán dinámicamente -->
-                    </div>
-                    <div class="comment-input-container">
-                        <img class="comment-avatar" src="">
-                        <input type="text" class="comment-input" placeholder="Escribe un comentario..." id="comment-input" onkeypress="handleCommentEnter(event)">
-                        <button class="send-comment-btn" onclick="sendComment()">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Pantalla de Historial de Llamadas -->
-    <div id="calls-history-screen" class="screen">
-        <div class="calls-header">
-            <h2>Llamadas</h2>
-            <button class="clear-history-btn" onclick="clearCallHistory()">
-                <i class="fas fa-trash-alt"></i>
-            </button>
-        </div>
-
-        <div class="calls-list" id="calls-list">
-            <div class="empty-state">
-                <i class="fas fa-phone-slash"></i>
-                <h3>Sin historial de llamadas</h3>
-                <p>Tus llamadas aparecerán aquí</p>
-            </div>
-        </div>
-
-        <!-- Barra de navegación inferior -->
-        <div class="bottom-nav">
-            <div class="nav-item" onclick="showSection('chats')">
-                <i class="fas fa-comments"></i>
-                <span>Chats</span>
-            </div>
-            <div class="nav-item" onclick="showSection('translate')">
-                <i class="fas fa-language"></i>
-                <span>Traducir</span>
-            </div>
-            <div class="nav-item" onclick="showSection('moments')">
-                <i class="fas fa-camera"></i>
-                <span>Momentos</span>
-            </div>
-            <div class="nav-item" onclick="showSection('calls')">
-                <i class="fas fa-phone"></i>
-                <span>Llamadas</span>
-            </div>
-            <div class="nav-item" onclick="showSection('settings')">
-                <i class="fas fa-cog"></i>
-                <span>Ajustes</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Pantalla de Videollamada -->
-    <div id="video-call-screen" class="screen">
-        <div class="video-call-container">
-            <div class="video-header">
-                <button class="back-btn-call" onclick="endCall()">
-                    <i class="fas fa-times"></i>
-                </button>
-                <div class="call-status" id="video-call-status">Videollamada</div>
-            </div>
-
-            <div class="video-content">
-                <video id="remote-video" class="remote-video" autoplay muted>
-                    <!-- Simulación de video remoto -->
-                </video>
-                <div class="video-placeholder">
-                    <img id="video-avatar" src="" alt="">
-                    <div class="video-name" id="video-contact-name"></div>
-                </div>
-
-                <video id="local-video" class="local-video" autoplay muted></video>
-
-                <div class="video-translation-info">
-                    <i class="fas fa-language"></i>
-                    <span>Traducción en tiempo real</span>
-                </div>
-
-                <div class="video-speech-text" id="video-speech-text"></div>
-            </div>
-
-            <div class="video-controls">
-                <button class="control-btn video-mute-btn" onclick="toggleVideoMute()" id="video-mute-btn">
-                    <i class="fas fa-microphone"></i>
-                </button>
-                <button class="control-btn camera-btn" onclick="toggleCamera()" id="camera-btn">
-                    <i class="fas fa-video"></i>
-                </button>
-                <button class="control-btn switch-audio-btn" onclick="switchToAudio()">
-                    <i class="fas fa-phone"></i>
-                </button>
-                <button class="control-btn end-video-call-btn" onclick="endCall()">
-                    <i class="fas fa-phone-slash"></i>
-                </button>
             </div>
         </div>
     </div>
@@ -932,7 +714,7 @@
                     <div class="profile-info">
                         <h3 id="profile-username">Usuario</h3>
                         <div class="profile-phone" id="profile-phone-display">+34 123 456 789</div>
-                        <div class="profile-status">🟢 En línea</div>
+                        <div class="profile-status"> En línea</div>
                         <button class="edit-profile-btn" onclick="showEditProfile()">
                             <i class="fas fa-edit"></i>
                             Editar Perfil
@@ -1089,14 +871,6 @@
             <div class="nav-item" onclick="showSection('chats')">
                 <i class="fas fa-comments"></i>
                 <span>Chats</span>
-            </div>
-            <div class="nav-item" onclick="showSection('translate')">
-                <i class="fas fa-language"></i>
-                <span>Traducir</span>
-            </div>
-            <div class="nav-item" onclick="showSection('moments')">
-                <i class="fas fa-camera"></i>
-                <span>Momentos</span>
             </div>
             <div class="nav-item" onclick="showSection('calls')">
                 <i class="fas fa-phone"></i>
