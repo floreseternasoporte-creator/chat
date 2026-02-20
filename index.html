@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zenvio - Mensajería Global</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+</head>
+<body>
+    <!-- Pantalla de Splash Simple -->
+    <div id="splash-screen" class="screen active">
+        <div class="splash-container">
+            <div class="splash-content">
+                <div class="logo-simple">
+                    <h1>Zenvio</h1>
+                </div>
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                </div>
+                <p>Cargando...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla de Introducción -->
+    <div id="intro-screen" class="screen">
+        <div class="intro-container">
+            <div class="logo">
+                <i class="fas fa-paper-plane"></i>
+                <h1>Zenvio</h1>
+            </div>
+            <p class="intro-text">Conecta con el mundo sin barreras de idioma</p>
+            <div class="language-selector">
+                <label>Selecciona tu idioma:</label>
+                <select id="language-select">
+                    <option value="es">Español</option>
+                    <option value="en">English</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="pt">Português</option>
+                    <option value="it">Italiano</option>
+                </select>
+            </div>
+            <button class="primary-btn" onclick="goToRegister()">
+                <span>Comenzar</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Pantalla de Registro -->
+    <div id="register-screen" class="screen">
+        <div class="register-container">
+            <button class="back-btn" onclick="goToIntro()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="register-header">
+                <h2>Tu número de teléfono</h2>
+                <p>Te enviaremos un código de verificación</p>
+            </div>
+            <div class="phone-input-container">
+                <div class="country-phone-wrapper">
+                    <button class="country-selector-btn" id="country-selector-btn" onclick="openCountryModal()">
+                        <div class="selected-country">
+                            <span class="country-flag">🇪🇸</span>
+                            <span class="country-code">+34</span>
+                        </div>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="phone-input-wrapper">
+                        <input type="tel" id="phone-input" placeholder="Comienza con tu número de teléfono" maxlength="15">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal de selección de países -->
+            <div id="country-modal" class="country-modal" onclick="closeCountryModal()">
+                <div class="country-modal-content" onclick="event.stopPropagation()">
+                    <div class="country-modal-header">
+                        <button class="modal-close-btn" onclick="closeCountryModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <h3>Selecciona tu país</h3>
+                    </div>
+
+                    <div class="country-search-container">
+                        <div class="search-input-wrapper">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="country-search" placeholder="Buscar país..." oninput="filterCountries()">
+                        </div>
+                    </div>
+
+                    <div class="countries-list" id="countries-list">
+                        <!-- Los países se cargarán dinámicamente -->
+                    </div>
+                </div>
+            </div>
+            <div id="recaptcha-container"></div>
+            <button class="primary-btn" onclick="sendVerificationCode()" id="send-code-btn" disabled>
+                <span>Enviar código</span>
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Pantalla de Verificación -->
+    <div id="verification-screen" class="screen">
+        <div class="verification-container">
+            <button class="back-btn" onclick="goToRegister()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="verification-header">
+                <h2>Verificación</h2>
+                <p>Ingresa el código de 6 dígitos que enviamos a <span id="phone-display"></span></p>
+            </div>
+            <div class="code-input-container">
+                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 0)">
+                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 1)">
+                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 2)">
+                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 3)">
+                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 4)">
+                <input type="text" maxlength="1" class="code-digit" oninput="handleCodeInput(this, 5)">
+            </div>
+            <div id="verification-status" class="verification-status"></div>
+            <button class="text-btn" onclick="resendCode()">Reenviar código</button>
+        </div>
+    </div>
+
+    <!-- Tutorial Screens -->
+    <div id="tutorial-notifications-screen" class="screen">
+        <div class="tutorial-container">
+            <div class="tutorial-icon-container">
+                <div class="tutorial-main-icon">
+                    <img src="https://i.ibb.co/8ndDkgfc/IMG-4769.png" alt="Zenvio Icon" style="width: 80px; height: 80px; object-fit: contain;">
+                </div>
+            </div>
+
+            <div class="tutorial-content">
+                <h1>Activar Notificaciones</h1>
+                <h2>Recibe alertas en tiempo real</h2>
+                <p>Mantente conectado con notificaciones instantáneas para:</p>
+
+                <div class="tutorial-features">
+                    <div class="tutorial-feature">
+                        <i class="fas fa-phone"></i>
+                        <span>Llamadas entrantes</span>
+                    </div>
+                    <div class="tutorial-feature">
+                        <i class="fas fa-comment"></i>
+                        <span>Mensajes nuevos</span>
+                    </div>
+                    <div class="tutorial-feature">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Solicitudes de contacto</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tutorial-actions">
+                <button class="tutorial-skip-btn" onclick="skipTutorial()">
+                    Omitir tutorial
+                </button>
+                <button class="tutorial-primary-btn" onclick="requestNotificationPermission()" id="notifications-btn">
+                    <i class="fas fa-bell"></i>
+                    Activar Notificaciones
+                </button>
+            </div>
+
+            <div class="tutorial-progress">
+                <div class="progress-dots">
+                    <div class="progress-dot active"></div>
+                    <div class="progress-dot"></div>
+                    <div class="progress-dot"></div>
+                </div>
+                <span>1 de 3</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="tutorial-contacts-screen" class="screen">
+        <div class="tutorial-container">
+            <div class="tutorial-icon-container">
+                <div class="tutorial-main-icon">
+                    <img src="https://i.ibb.co/8ndDkgfc/IMG-4769.png" alt="Zenvio Icon" style="width: 80px; height: 80px; object-fit: contain;">
+                </div>
+            </div>
+
+            <div class="tutorial-content">
+                <h1>Sincronizar Contactos</h1>
+                <h2>Conecta con tus amigos automáticamente</h2>
+                <p>Permite el acceso a contactos para encontrar amigos que ya usan Zenvio:</p>
+
+                <div class="tutorial-features">
+                    <div class="tutorial-feature">
+                        <i class="fas fa-sync"></i>
+                        <span>Sincronización automática</span>
+                    </div>
+                    <div class="tutorial-feature">
+                        <i class="fas fa-search"></i>
+                        <span>Búsqueda inteligente</span>
+                    </div>
+                    <div class="tutorial-feature">
+                        <i class="fas fa-users"></i>
+                        <span>Conexión instantánea</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tutorial-actions">
+                <button class="tutorial-skip-btn" onclick="skipTutorial()">
+                    Omitir tutorial
+                </button>
+                <button class="tutorial-primary-btn" onclick="requestContactsPermission()" id="contacts-btn">
+                    <i class="fas fa-address-book"></i>
+                    Permitir Contactos
+                </button>
+            </div>
+
+            <div class="tutorial-progress">
+                <div class="progress-dots">
+                    <div class="progress-dot active"></div>
+                    <div class="progress-dot active"></div>
+                    <div class="progress-dot"></div>
+                </div>
+                <span>2 de 3</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="tutorial-features-screen" class="screen">
+        <div class="tutorial-container">
+            <div class="tutorial-icon-container">
+                <div class="tutorial-main-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+            </div>
+
+            <div class="tutorial-content">
+                <h1>¡Todo Listo!</h1>
+                <h2>Comienza a chatear ahora</h2>
+                <p>Zenvio está configurado y listo para usar. Disfruta de:</p>
+
+                <div class="tutorial-features-grid">
+                    <div class="tutorial-feature-card">
+                        <i class="fas fa-language"></i>
+                        <h3>Traducción Instantánea</h3>
+                        <p>Habla en cualquier idioma</p>
+                    </div>
+                    <div class="tutorial-feature-card">
+                        <i class="fas fa-video"></i>
+                        <h3>Videollamadas HD</h3>
+                        <p>Conexión de alta calidad</p>
+                    </div>
+                    <div class="tutorial-feature-card">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>Seguridad Total</h3>
+                        <p>Mensajes encriptados</p>
+                    </div>
+                    <div class="tutorial-feature-card">
+                        <i class="fas fa-globe"></i>
+                        <h3>Alcance Global</h3>
+                        <p>Conecta mundialmente</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tutorial-actions">
+                <button class="tutorial-primary-btn large" onclick="completeTutorial()">
+                    <i class="fas fa-arrow-right"></i>
+                    Comenzar a Chatear
+                </button>
+            </div>
+
+            <div class="tutorial-progress">
+                <div class="progress-dots">
+                    <div class="progress-dot active"></div>
+                    <div class="progress-dot active"></div>
+                    <div class="progress-dot active"></div>
+                </div>
+                <span>3 de 3</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla Principal de Chat -->
+    <div id="chat-list-screen" class="screen">
+        <div class="chat-header">
+            <h2>Chats</h2>
+            <button class="add-contact-btn" onclick="showAddContact()">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Buscar conversaciones..." id="search-input">
+        </div>
+
+        <div class="chat-list">
+            <div class="loading-contacts">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Cargando contactos...</p>
+            </div>
+        </div>
+
+        <!-- Barra de navegación inferior -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="showSection('chats')">
+                <i class="fas fa-comments"></i>
+                <span>Chats</span>
+            </div>
+            <div class="nav-item" onclick="showSection('translate')">
+                <i class="fas fa-language"></i>
+                <span>Traducir</span>
+            </div>
+            <div class="nav-item" onclick="showSection('moments')">
+                <i class="fas fa-camera"></i>
+                <span>Momentos</span>
+            </div>
+            <div class="nav-item" onclick="showSection('calls')">
+                <i class="fas fa-phone"></i>
+                <span>Llamadas</span>
+            </div>
+            <div class="nav-item" onclick="showSection('settings')">
+                <i class="fas fa-cog"></i>
+                <span>Ajustes</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla de Chat Individual -->
+    <div id="chat-screen" class="screen">
+        <div class="chat-container">
+            <div class="chat-header-individual">
+                <button class="back-btn" onclick="goToChatList()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="contact-info">
+                    <div class="avatar-small">
+                        <img id="chat-avatar" src="" alt="">
+                        <div class="status-indicator online"></div>
+                    </div>
+                    <div class="contact-details">
+                        <div class="contact-name" id="chat-contact-name"></div>
+                        <div class="contact-status">En línea</div>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button class="action-btn" onclick="startVideoCall()">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <button class="action-btn" onclick="startVoiceCall()">
+                        <i class="fas fa-phone"></i>
+                    </button>
+                    <button class="action-btn" onclick="showReportModal()">
+                        <i class="fas fa-flag"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="messages-container" id="messages-container">
+                <div class="message received">
+                    <div class="message-content">
+                        <div class="original-text">Hello! How are you doing today?</div>
+                        <div class="translated-text">¡Hola! ¿Cómo estás hoy?</div>
+                    </div>
+                    <div class="message-time">10:30</div>
+                </div>
+
+                <div class="message sent">
+                    <div class="message-content">
+                        <div class="original-text">¡Muy bien, gracias! ¿Y tú?</div>
+                    </div>
+                    <div class="message-time">10:32</div>
+                </div>
+
+                <div class="typing-indicator" id="typing-indicator" style="display: none;">
+                    <div class="typing-avatar">
+                        <img id="typing-avatar-img" src="" alt="">
+                    </div>
+                    <div class="typing-bubble">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="message-input-container">
+                <button class="attach-btn" onclick="selectImage()">
+                    <i class="fas fa-image"></i>
+                </button>
+                <div class="input-wrapper">
+                    <input type="text" id="message-input" placeholder="Escribe un mensaje..." onkeypress="handleEnterKey(event)" oninput="handleTyping()">
+                    <button class="emoji-btn">
+                        <i class="fas fa-smile"></i>
+                    </button>
+                </div>
+                <button class="send-btn" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+                <input type="file" id="image-input" accept="image/*" style="display: none;" onchange="handleImageSelect(event)">
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla para agregar contacto -->
+    <div id="add-contact-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close-btn" onclick="hideAddContact()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h3>Agregar Contactos</h3>
+            </div>
+            <div class="modal-body">
+                <!-- Sección de integración con redes sociales -->
+                <div class="social-integration-section">
+                    <h4>🌐 Conectar Redes Sociales</h4>
+                    <p class="section-description">Vincula tus cuentas para encontrar automáticamente a tus amigos</p>
+
+                    <div class="social-platforms">
+                        <div class="social-platform facebook" onclick="connectFacebook()">
+                            <div class="platform-icon">
+                                <i class="fab fa-facebook"></i>
+                            </div>
+                            <div class="platform-info">
+                                <h5>Facebook</h5>
+                                <p id="facebook-status">No conectado</p>
+                            </div>
+                            <div class="platform-action">
+                                <button class="connect-btn" id="facebook-btn">
+                                    <i class="fas fa-link"></i>
+                                    Conectar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sync-results" id="sync-results" style="display: none;">
+                        <div class="results-header">
+                            <i class="fas fa-users"></i>
+                            <h5>Contactos Encontrados</h5>
+                        </div>
+                        <div class="found-contacts" id="found-contacts"></div>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="section-divider">
+                    <hr>
+                    <span>O</span>
+                    <hr>
+                </div>
+
+                <!-- Sección de búsqueda manual -->
+                <div class="manual-search-section">
+                    <h4>🔍 Búsqueda Manual</h4>
+                    <p class="section-description">Busca usuarios por su número de teléfono registrado</p>
+
+                    <div class="search-input-container">
+                        <div class="country-phone-wrapper">
+                            <button class="country-selector-btn" id="contact-country-selector" onclick="openContactCountryModal()">
+                                <div class="selected-country">
+                                    <span class="country-flag">🇪🇸</span>
+                                    <span class="country-code">+34</span>
+                                </div>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="phone-input-wrapper">
+                                <input type="tel" id="contact-phone" placeholder="Número de teléfono" maxlength="15">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="search-suggestions" id="search-suggestions">
+                        <div class="suggestion-item">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>El usuario debe estar registrado en Zenvio</span>
+                        </div>
+                        <div class="suggestion-item">
+                            <i class="fas fa-globe"></i>
+                            <span>Incluye el código de país completo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="secondary-btn" onclick="hideAddContact()">
+                    <i class="fas fa-times"></i>
+                    Cancelar
+                </button>
+                <button class="primary-btn" onclick="addContact()" id="manual-search-btn">
+                    <i class="fas fa-search"></i>
+                    Buscar Usuario
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de selección de país para contactos -->
+    <div id="contact-country-modal" class="country-modal" onclick="closeContactCountryModal()">
+        <div class="country-modal-content" onclick="event.stopPropagation()">
+            <div class="country-modal-header">
+                <button class="modal-close-btn" onclick="closeContactCountryModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h3>Selecciona el país</h3>
+            </div>
+
+            <div class="country-search-container">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="contact-country-search" placeholder="Buscar país..." oninput="filterContactCountries()">
+                </div>
+            </div>
+
+            <div class="countries-list" id="contact-countries-list">
+                <!-- Los países se cargarán dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla de Llamada de Voz -->
+    <div id="voice-call-screen" class="screen">
+        <div class="call-container">
+            <div class="call-header">
+                <button class="back-btn-call" onclick="endCall()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="call-status" id="call-status">Llamando...</div>
+            </div>
+
+            <div class="call-content">
+                <div class="call-avatar">
+                    <img id="call-avatar-img" src="" alt="">
+                    <div class="call-animation">
+                        <div class="pulse-ring"></div>
+                        <div class="pulse-ring delay-1"></div>
+                        <div class="pulse-ring delay-2"></div>
+                    </div>
+                </div>
+
+                <div class="call-info">
+                    <h2 id="call-contact-name"></h2>
+                    <div class="call-duration" id="call-duration">00:00</div>
+                </div>
+
+                <div class="translation-info" id="translation-info">
+                    <i class="fas fa-language"></i>
+                    <span>Traducción automática activada</span>
+                    <p>Habla en <strong id="user-lang">español</strong> y tu contacto escuchará en <strong id="contact-lang">inglés</strong></p>
+                </div>
+
+                <div class="speech-visualization">
+                    <div class="speech-indicator" id="speech-indicator">
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                    </div>
+                    <div class="speech-text" id="speech-text">Toca para hablar</div>
+                </div>
+            </div>
+
+            <div class="call-controls">
+                <button class="control-btn mute-btn" onclick="toggleMute()" id="mute-btn">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="control-btn speaker-btn" onclick="toggleSpeaker()" id="speaker-btn">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <button class="control-btn video-btn" onclick="switchToVideo()">
+                    <i class="fas fa-video"></i>
+                </button>
+                <button class="control-btn end-call-btn" onclick="endCall()">
+                    <i class="fas fa-phone-slash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Reporte -->
+    <div id="report-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close-btn" onclick="hideReportModal()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h3>Reportar usuario</h3>
+            </div>
+            <div class="modal-body">
+                <div class="report-options">
+                    <div class="report-option" onclick="selectReportOption(this, 'spam')">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h4>Spam</h4>
+                            <p>Mensajes no deseados o repetitivos</p>
+                        </div>
+                    </div>
+                    <div class="report-option" onclick="selectReportOption(this, 'harassment')">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <h4>Acoso</h4>
+                            <p>Comportamiento abusivo o amenazante</p>
+                        </div>
+                    </div>
+                    <div class="report-option" onclick="selectReportOption(this, 'inappropriate')">
+                        <i class="fas fa-ban"></i>
+                        <div>
+                            <h4>Contenido inapropiado</h4>
+                            <p>Contenido ofensivo o inadecuado</p>
+                        </div>
+                    </div>
+                    <div class="report-option" onclick="selectReportOption(this, 'fake')">
+                        <i class="fas fa-user-slash"></i>
+                        <div>
+                            <h4>Perfil falso</h4>
+                            <p>Usuario que se hace pasar por otra persona</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="evidence-section">
+                    <h4>Evidencia (opcional)</h4>
+                    <p>Puedes adjuntar hasta 3 fotos como evidencia</p>
+                    <div class="evidence-upload">
+                        <button class="upload-btn" onclick="selectEvidenceImages()">
+                            <i class="fas fa-camera"></i>
+                            <span>Adjuntar fotos</span>
+                        </button>
+                        <input type="file" id="evidence-input" accept="image/*" multiple style="display: none;" onchange="handleEvidenceSelect(event)">
+                        <div id="evidence-preview" class="evidence-preview"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="secondary-btn" onclick="hideReportModal()">Cancelar</button>
+                <button class="primary-btn" id="submit-report-btn" onclick="submitReport()" disabled>Enviar reporte</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla de Procesando Reporte -->
+    <div id="report-processing-screen" class="screen">
+        <div class="processing-container">
+            <div class="processing-animation">
+                <div class="spinner"></div>
+            </div>
+            <h2>Enviando tu reporte</h2>
+            <p>Estamos procesando tu reporte...</p>
+        </div>
+    </div>
+
+    <!-- Pantalla de Reporte Enviado -->
+    <div id="report-success-screen" class="screen">
+        <div class="success-container">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>Reporte enviado</h2>
+            <p>Tu reporte se verificará en aproximadamente 24 horas y será analizado por nuestro equipo.</p>
+            <p>Gracias por tus comentarios.</p>
+            <button class="primary-btn" onclick="goToChatFromReport()">
+                <i class="fas fa-arrow-left"></i>
+                <span>Volver al chat</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Pantalla de Momentos -->
+    <div id="moments-screen" class="screen">
+        <div class="moments-header">
+            <h2>Momentos</h2>
+            <button class="create-moment-btn" onclick="showCreateMoment()">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+
+        <div class="moments-container" id="moments-container">
+            <div class="empty-moments">
+                <div class="empty-moments-icon">
+                    <i class="fas fa-camera-retro"></i>
+                </div>
+                <h3>¡Comparte tu primer momento!</h3>
+                <p>Los momentos te permiten compartir fotos e historias con tus contactos</p>
+                <button class="primary-btn" onclick="showCreateMoment()">
+                    <i class="fas fa-plus"></i>
+                    Crear Momento
+                </button>
+            </div>
+        </div>
+
+        <!-- Barra de navegación inferior -->
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="showSection('chats')">
+                <i class="fas fa-comments"></i>
+                <span>Chats</span>
+            </div>
+            <div class="nav-item" onclick="showSection('translate')">
+                <i class="fas fa-language"></i>
+                <span>Traducir</span>
+            </div>
+            <div class="nav-item active" onclick="showSection('moments')">
+                <i class="fas fa-camera"></i>
+                <span>Momentos</span>
+            </div>
+            <div class="nav-item" onclick="showSection('calls')">
+                <i class="fas fa-phone"></i>
+                <span>Llamadas</span>
+            </div>
+            <div class="nav-item" onclick="showSection('settings')">
+                <i class="fas fa-cog"></i>
+                <span>Ajustes</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para crear momento -->
+    <div id="create-moment-modal" class="modal">
+        <div class="modal-content create-moment-content">
+            <div class="modal-header">
+                <button class="close-btn" onclick="hideCreateMoment()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h3>Crear Momento</h3>
+                <button class="publish-moment-btn" onclick="publishMoment()" disabled>
+                    <i class="fas fa-send"></i>
+                    Publicar
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="moment-image-upload">
+                    <div class="image-upload-area" onclick="selectMomentImage()">
+                        <div class="upload-placeholder" id="upload-placeholder">
+                            <i class="fas fa-camera"></i>
+                            <p>Toca para agregar una foto</p>
+                        </div>
+                        <img id="moment-preview" class="moment-preview" style="display: none;">
+                    </div>
+                    <input type="file" id="moment-image-input" accept="image/*" style="display: none;" onchange="handleMomentImageSelect(event)">
+                </div>
+
+                <div class="moment-text-input">
+                    <textarea id="moment-text" placeholder="¿Qué está pasando?" maxlength="280" oninput="updateMomentText()"></textarea>
+                    <div class="character-count">
+                        <span id="moment-char-count">0</span>/280
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver momento completo -->
+    <div id="view-moment-modal" class="modal view-moment-modal">
+        <div class="modal-content view-moment-content">
+            <div class="moment-view-header">
+                <button class="close-btn" onclick="hideViewMoment()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="moment-author-info">
+                    <img class="moment-author-avatar" id="view-moment-avatar" src="">
+                    <div class="moment-author-details">
+                        <div class="moment-author-name" id="view-moment-author"></div>
+                        <div class="moment-time" id="view-moment-time"></div>
+                    </div>
+                </div>
+                <button class="moment-options-btn">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            </div>
+
+            <div class="moment-view-body">
+                <div class="moment-image-container">
+                    <img id="view-moment-image" class="moment-full-image">
+                </div>
+                <div class="moment-text-content">
+                    <p id="view-moment-text"></p>
+                </div>
+
+                <div class="moment-reactions">
+                    <div class="reaction-buttons">
+                        <button class="reaction-btn" onclick="reactToMoment('like')">
+                            <i class="fas fa-heart"></i>
+                            <span id="like-count">0</span>
+                        </button>
+                        <button class="reaction-btn" onclick="reactToMoment('laugh')">
+                            <i class="fas fa-laugh"></i>
+                            <span id="laugh-count">0</span>
+                        </button>
+                        <button class="reaction-btn" onclick="reactToMoment('wow')">
+                            <i class="fas fa-surprise"></i>
+                            <span id="wow-count">0</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="moment-comments">
+                    <div class="comments-header">
+                        <h4>Comentarios</h4>
+                        <span class="comments-count" id="comments-count">0</span>
+                    </div>
+                    <div class="comments-list"id="comments-list">
+                        <!-- Los comentarios se cargarán dinámicamente -->
+                    </div>
+                    <div class="comment-input-container">
+                        <img class="comment-avatar" src="">
+                        <input type="text" class="comment-input" placeholder="Escribe un comentario..." id="comment-input" onkeypress="handleCommentEnter(event)">
+                        <button class="send-comment-btn" onclick="sendComment()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla de Historial de Llamadas -->
+    <div id="calls-history-screen" class="screen">
+        <div class="calls-header">
+            <h2>Llamadas</h2>
+            <button class="clear-history-btn" onclick="clearCallHistory()">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+
+        <div class="calls-list" id="calls-list">
+            <div class="empty-state">
+                <i class="fas fa-phone-slash"></i>
+                <h3>Sin historial de llamadas</h3>
+                <p>Tus llamadas aparecerán aquí</p>
+            </div>
+        </div>
+
+        <!-- Barra de navegación inferior -->
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="showSection('chats')">
+                <i class="fas fa-comments"></i>
+                <span>Chats</span>
+            </div>
+            <div class="nav-item" onclick="showSection('translate')">
+                <i class="fas fa-language"></i>
+                <span>Traducir</span>
+            </div>
+            <div class="nav-item" onclick="showSection('moments')">
+                <i class="fas fa-camera"></i>
+                <span>Momentos</span>
+            </div>
+            <div class="nav-item" onclick="showSection('calls')">
+                <i class="fas fa-phone"></i>
+                <span>Llamadas</span>
+            </div>
+            <div class="nav-item" onclick="showSection('settings')">
+                <i class="fas fa-cog"></i>
+                <span>Ajustes</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla de Videollamada -->
+    <div id="video-call-screen" class="screen">
+        <div class="video-call-container">
+            <div class="video-header">
+                <button class="back-btn-call" onclick="endCall()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="call-status" id="video-call-status">Videollamada</div>
+            </div>
+
+            <div class="video-content">
+                <video id="remote-video" class="remote-video" autoplay muted>
+                    <!-- Simulación de video remoto -->
+                </video>
+                <div class="video-placeholder">
+                    <img id="video-avatar" src="" alt="">
+                    <div class="video-name" id="video-contact-name"></div>
+                </div>
+
+                <video id="local-video" class="local-video" autoplay muted></video>
+
+                <div class="video-translation-info">
+                    <i class="fas fa-language"></i>
+                    <span>Traducción en tiempo real</span>
+                </div>
+
+                <div class="video-speech-text" id="video-speech-text"></div>
+            </div>
+
+            <div class="video-controls">
+                <button class="control-btn video-mute-btn" onclick="toggleVideoMute()" id="video-mute-btn">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="control-btn camera-btn" onclick="toggleCamera()" id="camera-btn">
+                    <i class="fas fa-video"></i>
+                </button>
+                <button class="control-btn switch-audio-btn" onclick="switchToAudio()">
+                    <i class="fas fa-phone"></i>
+                </button>
+                <button class="control-btn end-video-call-btn" onclick="endCall()">
+                    <i class="fas fa-phone-slash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+     <!-- Settings Screen -->
+     <div id="settings-screen" class="screen">
+        <div class="settings-container">
+            <div class="settings-header">
+                <h2>Ajustes</h2>
+            </div>
+            <div class="settings-content">
+                <!-- Sección de perfil -->
+                <div class="profile-section">
+                    <div class="profile-avatar-container">
+                        <img class="profile-avatar" id="profile-avatar" src="" alt="Avatar">
+                        <button class="change-avatar-btn" onclick="changeProfileAvatar()">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                    <div class="profile-info">
+                        <h3 id="profile-username">Usuario</h3>
+                        <div class="profile-phone" id="profile-phone-display">+34 123 456 789</div>
+                        <div class="profile-status">🟢 En línea</div>
+                        <button class="edit-profile-btn" onclick="showEditProfile()">
+                            <i class="fas fa-edit"></i>
+                            Editar Perfil
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de configuraciones -->
+                <div class="settings-list">
+                    <div class="settings-group">
+                        <div class="settings-group-title">Cuenta</div>
+
+                        <div class="setting-item" onclick="showEditProfile()">
+                            <div class="setting-icon">
+                                <i class="fas fa-user-edit"></i>
+                            </div>
+                            <div class="setting-info">
+                                <div class="setting-title">Editar Perfil</div>
+                                <div class="setting-description">Cambiar nombre, avatar y información personal</div>
+                            </div>
+                            <div class="setting-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
+
+                        <div class="setting-item" onclick="showPrivacySettings()">
+                            <div class="setting-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="setting-info">
+                                <div class="setting-title">Privacidad y Seguridad</div>
+                                <div class="setting-description">Control de quién puede contactarte y ver tu información</div>
+                            </div>
+                            <div class="setting-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="settings-group-title">Notificaciones</div>
+
+                        <div class="setting-item">
+                            <div class="setting-icon">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div class="setting-info">
+                                <div class="setting-title">Notificaciones de Mensajes</div>
+                                <div class="setting-description">Recibir alertas de mensajes nuevos</div>
+                            </div>
+                            <div class="setting-toggle">
+                                <div class="toggle-switch active" onclick="toggleNotifications(this)">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="setting-info">
+                                <div class="setting-title">Notificaciones de Llamadas</div>
+                                <div class="setting-description">Recibir alertas de llamadas entrantes</div>
+                            </div>
+                            <div class="setting-toggle">
+                                <div class="toggle-switch active" onclick="toggleCallNotifications(this)">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="settings-group-title">Chat</div>
+
+                        <div class="setting-item">
+                            <div class="setting-icon">
+                                <i class="fas fa-language"></i>
+                            </div>
+                            <div class="setting-info">
+                                <div class="setting-title">Traducción Automática</div>
+                                <div class="setting-description">Traducir mensajes automáticamente</div>
+                            </div>
+                            <div class="setting-toggle">
+                                <div class="toggle-switch active" onclick="toggleAutoTranslate(this)">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item" onclick="showStorageSettings()">
+                            <div class="setting-icon">
+                                <i class="fas fa-hdd"></i>
+                            </div>
+                            <div class="setting-info">
+                                <div class="setting-title">Almacenamiento</div>
+                                <div class="setting-description">Gestionar espacio y archivos</div>
+                            </div>
+                            <div class="setting-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="settings-group-title">Información</div>
+
+                        <div class="setting-item" onclick="showAbout()">
+                            <div class="setting-icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="setting-info">
+                                <div class="setting-title">Acerca de Zenvio</div>
+                                <div class="setting-description">Versión 1.0.0</div>
+                            </div>
+                            <div class="setting-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
+
+                        <div class="setting-item" onclick="showHelp()">
+                            <div class="setting-icon">
+                                <i class="fas fa-question-circle"></i>
+                            </div>
+                            <div class="setting-info">
+                                <div class="setting-title">Ayuda y Soporte</div>
+                                <div class="setting-description">FAQ y contacto</div>
+                            </div>
+                            <div class="setting-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
+
+                        <div class="setting-item" onclick="logout()">
+                            <div class="setting-icon" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </div>
+                            <div class="setting-info">
+                                <div class="setting-title">Cerrar Sesión</div>
+                                <div class="setting-description">Salir de tu cuenta</div>
+                            </div>
+                            <div class="setting-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom navigation bar -->
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="showSection('chats')">
+                <i class="fas fa-comments"></i>
+                <span>Chats</span>
+            </div>
+            <div class="nav-item" onclick="showSection('translate')">
+                <i class="fas fa-language"></i>
+                <span>Traducir</span>
+            </div>
+            <div class="nav-item" onclick="showSection('moments')">
+                <i class="fas fa-camera"></i>
+                <span>Momentos</span>
+            </div>
+            <div class="nav-item" onclick="showSection('calls')">
+                <i class="fas fa-phone"></i>
+                <span>Llamadas</span>
+            </div>
+            <div class="nav-item active" onclick="showSection('settings')">
+                <i class="fas fa-cog"></i>
+                <span>Ajustes</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de edición de perfil -->
+    <div id="edit-profile-modal" class="edit-profile-modal">
+        <div class="edit-profile-container">
+            <div class="edit-profile-header">
+                <button class="close-btn" onclick="hideEditProfile()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h3>Editar Perfil</h3>
+                <button class="save-profile-btn" onclick="saveProfile()">
+                    <i class="fas fa-save"></i>
+                    Guardar
+                </button>
+            </div>
+            <div class="edit-profile-content">
+                <div class="avatar-upload">
+                    <img class="avatar-preview" id="avatar-preview" src="" alt="Preview">
+                    <button class="upload-avatar-btn" onclick="selectNewAvatar()">
+                        <i class="fas fa-camera"></i>
+                        Cambiar Foto
+                    </button>
+                    <input type="file" id="avatar-input" accept="image/*" style="display: none;" onchange="handleAvatarChange(event)">
+                </div>
+
+                <div class="edit-field">
+                    <label for="username-input">Nombre de Usuario</label>
+                    <input type="text" id="username-input" placeholder="Ingresa tu nombre de usuario">
+                </div>
+
+                <div class="edit-field">
+                    <label for="status-input">Estado Personal</label>
+                    <input type="text" id="status-input" placeholder="¿Cómo te sientes hoy?">
+                </div>
+
+                <div class="edit-field">
+                    <label>Número de Teléfono</label>
+                    <input type="text" id="phone-readonly" readonly style="background: var(--surface); color: var(--text-secondary);">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
