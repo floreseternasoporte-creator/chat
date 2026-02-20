@@ -686,6 +686,18 @@ function handleCountryModalEscape(event) {
     if (mainModal && mainModal.classList.contains('show')) {
         closeCountryModal();
     }
+
+    if (mainModal && mainModal.classList.contains('show')) {
+        closeCountryModal();
+    }
+}
+
+document.addEventListener('keydown', handleCountryModalEscape);
+
+function filterCountries() {
+    const searchInput = document.getElementById('country-search');
+    const searchTerm = searchInput ? searchInput.value : '';
+    loadCountriesList(searchTerm);
 }
 
 document.addEventListener('keydown', handleCountryModalEscape);
