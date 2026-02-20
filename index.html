@@ -413,7 +413,6 @@
             </div>
         </div>
     </div>
-
     <!-- Pantalla para agregar contacto -->
     <div id="add-contact-modal" class="modal">
         <div class="modal-content">
@@ -424,7 +423,6 @@
                 <h3>Agregar Contactos</h3>
             </div>
             <div class="modal-body">
-                <!-- Sección de búsqueda manual -->
                 <div class="manual-search-section">
                     <h4>Busqueda Manual</h4>
                     <p class="section-description">Busca usuarios por su número de teléfono registrado</p>
@@ -444,23 +442,13 @@
                         </div>
                     </div>
 
-                    <div class="search-suggestions" id="search-suggestions">
-                        <div class="suggestion-item">
-                            <i class="fas fa-lightbulb"></i>
-                            <span>El usuario debe estar registrado en Zenvio</span>
-                        </div>
+                    <div class="manual-search-actions">
+                        <button class="primary-btn" onclick="addContact()" id="manual-search-btn">
+                            <i class="fas fa-search"></i>
+                            Buscar Usuario
+                        </button>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button class="secondary-btn" onclick="hideAddContact()">
-                    <i class="fas fa-times"></i>
-                    Cancelar
-                </button>
-                <button class="primary-btn" onclick="addContact()" id="manual-search-btn">
-                    <i class="fas fa-search"></i>
-                    Buscar Usuario
-                </button>
             </div>
         </div>
     </div>

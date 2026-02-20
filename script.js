@@ -686,18 +686,6 @@ function handleCountryModalEscape(event) {
     if (mainModal && mainModal.classList.contains('show')) {
         closeCountryModal();
     }
-
-    if (mainModal && mainModal.classList.contains('show')) {
-        closeCountryModal();
-    }
-}
-
-document.addEventListener('keydown', handleCountryModalEscape);
-
-function filterCountries() {
-    const searchInput = document.getElementById('country-search');
-    const searchTerm = searchInput ? searchInput.value : '';
-    loadCountriesList(searchTerm);
 }
 
 document.addEventListener('keydown', handleCountryModalEscape);
@@ -3791,4 +3779,252 @@ function proceedToVerification() {
     }
     switchScreen('verification');
     document.querySelector('.code-digit').focus();
+}
+
+
+// ===== Settings and storage realtime module =====
+const storageManager = {
+    totalBytes: 100 * 1024 * 1024,
+    usedBytes: 0,
+    imageCacheBytes: 0,
+    oldFilesBytes: 0,
+    listeners: [],
+
+    initialize() {
+        if (!currentUser || !currentUser.uid) return;
+        this.startRealtimeTracking();
+    },
+
+    startRealtimeTracking() {
+        this.stopRealtimeTracking();
+        if (!currentUser || !currentUser.uid) return;
+
+        const refs = [
+            database.ref(`storageMetrics/${currentUser.uid}`),
+            database.ref(`users/${currentUser.uid}/storage`)
+        ];
+
+        refs.forEach((ref) => {
+            const cb = (snapshot) => {
+                const data = snapshot.val() || {};
+                const local = this.computeLocalStorageUsage();
+                this.usedBytes = (data.usedBytes || 0) + local.total;
+                this.imageCacheBytes = local.imageCache;
+                this.oldFilesBytes = local.oldFiles;
+                this.updateStorageUI();
+            };
+            ref.on('value', cb);
+            this.listeners.push({ ref, cb });
+        });
+
+        const local = this.computeLocalStorageUsage();
+        this.usedBytes = local.total;
+        this.imageCacheBytes = local.imageCache;
+        this.oldFilesBytes = local.oldFiles;
+        this.updateStorageUI();
+    },
+
+    stopRealtimeTracking() {
+        this.listeners.forEach(({ ref, cb }) => ref.off('value', cb));
+        this.listeners = [];
+    },
+
+    computeLocalStorageUsage() {
+        let total = 0;
+        let imageCache = 0;
+        let oldFiles = 0;
+        const monthAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            const value = localStorage.getItem(key) || '';
+            const bytes = (key.length + value.length) * 2;
+            total += bytes;
+
+            const lowerKey = key.toLowerCase();
+            if (lowerKey.includes('image') || lowerKey.includes('cache')) {
+                imageCache += bytes;
+            }
+
+            try {
+                const parsed = JSON.parse(value);
+                if (parsed && parsed.timestamp && parsed.timestamp < monthAgo) {
+                    oldFiles += bytes;
+                }
+            } catch (_) {}
+        }
+
+        return { total, imageCache, oldFiles };
+    },
+
+    formatFileSize(bytes) {
+        if (!bytes || bytes <= 0) return '0 B';
+        const units = ['B', 'KB', 'MB', 'GB'];
+        let size = bytes;
+        let unit = 0;
+        while (size >= 1024 && unit < units.length - 1) {
+            size /= 1024;
+            unit += 1;
+        }
+        return `${size.toFixed(unit === 0 ? 0 : 2)} ${units[unit]}`;
+    },
+
+    updateStorageUI() {
+        const used = this.usedBytes;
+        const free = Math.max(this.totalBytes - used, 0);
+        const percent = Math.min((used / this.totalBytes) * 100, 100);
+
+        const mappings = {
+            'storage-used': this.formatFileSize(used),
+            'storage-free': this.formatFileSize(free),
+            'storage-total': this.formatFileSize(this.totalBytes),
+            'storage-cache-size': this.formatFileSize(this.imageCacheBytes),
+            'storage-old-files-size': this.formatFileSize(this.oldFilesBytes),
+            'storage-usage-percent': `${percent.toFixed(1)}%`
+        };
+
+        Object.entries(mappings).forEach(([id, value]) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+        });
+
+        const circle = document.getElementById('storage-circle-progress');
+        if (circle) {
+            circle.style.setProperty('--progress', percent.toFixed(1));
+            circle.style.setProperty('--color', percent > 85 ? '#ef4444' : '#00a854');
+        }
+    }
+};
+
+function initializeSettings() {
+    if (!currentUser) return;
+    const username = currentUser.username || currentUser.phoneNumber || 'Usuario';
+    const avatar = currentUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${(currentUser.phoneNumber || 'user').replace(/\D/g, '')}`;
+
+    const usernameEl = document.getElementById('profile-username');
+    const phoneEl = document.getElementById('profile-phone-display');
+    const avatarEl = document.getElementById('profile-avatar');
+    const phoneReadonly = document.getElementById('phone-readonly');
+
+    if (usernameEl) usernameEl.textContent = username;
+    if (phoneEl) phoneEl.textContent = currentUser.phoneNumber || '';
+    if (avatarEl) avatarEl.src = avatar;
+    if (phoneReadonly) phoneReadonly.value = currentUser.phoneNumber || '';
+
+    storageManager.initialize();
+}
+
+function showStorageSettings() {
+    let screen = document.getElementById('storage-settings-screen');
+    if (!screen) {
+        screen = document.createElement('div');
+        screen.id = 'storage-settings-screen';
+        screen.className = 'screen';
+        screen.innerHTML = `
+            <div class="storage-settings-container">
+                <div class="storage-header">
+                    <button class="back-btn" onclick="hideStorageSettings()"><i class="fas fa-arrow-left"></i></button>
+                    <div>
+                        <h2>Gestión de almacenamiento</h2>
+                        <div class="storage-subtitle">Actualización en tiempo real</div>
+                    </div>
+                </div>
+                <div class="storage-content">
+                    <div class="storage-overview">
+                        <div class="storage-circle">
+                            <div class="circle-progress" id="storage-circle-progress" style="--progress:0;--color:#00a854;">
+                                <div class="circle-inner">
+                                    <div class="usage-percentage" id="storage-usage-percent">0%</div>
+                                    <div class="usage-text">utilizado</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="storage-details">
+                            <div class="storage-status"><i class="fas fa-database"></i> Estado de almacenamiento</div>
+                            <div class="storage-numbers">
+                                <div class="storage-item"><span class="label">Usado</span><span class="value" id="storage-used">0 B</span></div>
+                                <div class="storage-item"><span class="label">Libre</span><span class="value" id="storage-free">0 B</span></div>
+                                <div class="storage-item"><span class="label">Total</span><span class="value" id="storage-total">0 B</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="storage-actions">
+                        <button class="storage-action-btn" onclick="clearImageCacheRealtime()">
+                            <i class="fas fa-image"></i>
+                            <div><strong>Limpiar caché de imágenes</strong><div>Tamaño: <span id="storage-cache-size">0 B</span></div></div>
+                        </button>
+                        <button class="storage-action-btn" onclick="cleanupOldFilesRealtime()">
+                            <i class="fas fa-broom"></i>
+                            <div><strong>Limpiar archivos antiguos</strong><div>Tamaño: <span id="storage-old-files-size">0 B</span></div></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(screen);
+    }
+
+    switchScreen('storage-settings');
+    storageManager.startRealtimeTracking();
+}
+
+function hideStorageSettings() {
+    switchScreen('settings');
+}
+
+function clearImageCacheRealtime() {
+    const toRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.toLowerCase().includes('image') || key.toLowerCase().includes('cache'))) {
+            toRemove.push(key);
+        }
+    }
+    toRemove.forEach((key) => localStorage.removeItem(key));
+
+    if (currentUser && currentUser.uid) {
+        database.ref(`storageMetrics/${currentUser.uid}/lastImageCacheCleanup`).set(firebase.database.ServerValue.TIMESTAMP);
+    }
+
+    storageManager.startRealtimeTracking();
+}
+
+function cleanupOldFilesRealtime() {
+    const monthAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+    const toRemove = [];
+
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        const value = localStorage.getItem(key);
+        if (!key || !value) continue;
+        try {
+            const parsed = JSON.parse(value);
+            if (parsed && parsed.timestamp && parsed.timestamp < monthAgo) {
+                toRemove.push(key);
+            }
+        } catch (_) {}
+    }
+
+    toRemove.forEach((key) => localStorage.removeItem(key));
+
+    if (currentUser && currentUser.uid) {
+        database.ref(`storageMetrics/${currentUser.uid}/lastOldFilesCleanup`).set(firebase.database.ServerValue.TIMESTAMP);
+    }
+
+    storageManager.startRealtimeTracking();
+}
+
+function showAbout() {
+    console.log('Acerca de Zenvio');
+}
+
+function showHelp() {
+    console.log('Ayuda y soporte');
+}
+
+function logout() {
+    localStorage.removeItem('zenvio_user');
+    localStorage.removeItem('uberchat_user');
+    currentUser = null;
+    switchScreen('intro');
 }

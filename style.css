@@ -8056,3 +8056,31 @@ body.modal-open {
     background: #ef4444;
     border-color: #ef4444;
 }
+
+
+/* Add-contact layout cleanup */
+.manual-search-section {
+    padding-bottom: 1.25rem;
+}
+.manual-search-actions {
+    margin-top: 1rem;
+}
+.manual-search-actions .primary-btn {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+}
+
+/* Storage header overlap fix */
+.storage-header {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    padding-left: 4rem;
+}
+.storage-header .back-btn {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
